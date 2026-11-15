@@ -6,7 +6,7 @@
 4. **Progressive loading.** The planner opens as soon as climate series are available; vegetation records fill in per location afterward because a full live retrieval takes many minutes. The bundle version is recomputed when each vegetation record arrives.
 5. **Frozen snapshot.** `public/data/snapshot.json` was produced with `bun run snapshot` from the same retrieval code so the demonstration does not depend on NASA service speed. Deleting the file returns the app to live retrieval.
 6. **Contract additions.** `Manifest` gained optional fields only (per-location request records, NDVI metadata source and status, solar cell groups). No existing key was renamed or retyped. `runPlanner` now passes the assembled bundle to the worker, because live data have no static per-location files.
-7. **Validation.** Fetched JSON is validated with zod at the boundary. On success the original object is kept unchanged, so exported snapshots match what was loaded.
+7. **Validation.** Fetched JSON is checked with zod at the boundary. On success the original object is kept unchanged, so exported snapshots match what was loaded.
 8. **Removed unused interface components and packages** that no code imported.
 9. **Visual direction from the badge.** Every page opens on a night-side banner taken from the Nile Orbit Lab badge (navy sky, gold orbit, satellite), ending on a curved horizon; content below is light. Michroma (display) echoes the badge lettering; Public Sans is used for text.
 10. **Badge sizes.** The original badge (1.79 MB, 1254 px) is kept unchanged. The interface loads resized copies in `public/brand/`: 128 px (5 KB), 256 px (14 KB), 640 px (54 KB) and 1200 px (91 KB), each with width and height set.

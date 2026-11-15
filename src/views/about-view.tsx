@@ -80,7 +80,7 @@ export default function AboutView({
         <h2>What it does not do</h2>
         <ul className="tick-list">
           <li>Forecast yields, weather, income or costs.</li>
-          <li>Use real-time data. Data are the latest available at retrieval.</li>
+          <li>Use live feeds. Data are the latest available at retrieval.</li>
           <li>
             Claim validation. Real-world validation was not performed and no outside review took
             place.
