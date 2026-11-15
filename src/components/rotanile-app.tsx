@@ -64,9 +64,7 @@ function PlannerView({
   const [salinity, setSalinity] = useState(parsed.salinity === null ? "" : String(parsed.salinity));
   const [cap, setCap] = useState(parsed.waterCap === null ? "" : String(parsed.waterCap));
   const [enabledCrops, setEnabledCrops] = useState<string[] | null>(parsed.allowedCrops);
-  const [dirty, setDirty] = useState(false);
   const [chartMode, setChartMode] = useState<"chart" | "table">("table");
-  const [smallScreenChart, setSmallScreenChart] = useState(false);
   const [filter, setFilter] = useState("");
   const [sortBy, setSortBy] = useState("rank");
   const [page, setPage] = useState(0);
@@ -79,7 +77,6 @@ function PlannerView({
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(parsed.planId);
   const [resultsState, setResultsState] = useState<"idle" | "loading" | "ready" | "empty">("idle");
   const runCount = useRef(0);
-  const [notice, setNotice] = useState("");
   const priorityTotal = weights.water + weights.soil_health + weights.climate_risk;
   const normalizedWeights = priorityTotal > 0
     ? { water: weights.water / priorityTotal, soil_health: weights.soil_health / priorityTotal, climate_risk: weights.climate_risk / priorityTotal }
@@ -90,8 +87,6 @@ function PlannerView({
     const available = new Set(bundle.points.points.map((point) => point.id));
     if (!selectedPoint || !available.has(selectedPoint)) setSelectedPoint(bundle.points.points[0]?.id ?? "");
     if (!enabledCrops) setEnabledCrops([...CROP_LIST.map((crop) => crop.id)]);
-    const files = [...CROP_LIST.map((crop) => `ndvi/${crop.id}.json`)].filter((path) => !path);
-    setDataFilesMissing(files);
   }, [bundle, enabledCrops, selectedPoint]);
 
   useEffect(() => {
@@ -102,7 +97,6 @@ function PlannerView({
 
   useEffect(() => {
     if (priorityTotal <= 0) {
-      setNotice("Set at least one priority above zero.");
       return;
     }
     if (!bundle || !selectedPoint) return;
