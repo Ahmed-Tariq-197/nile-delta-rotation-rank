@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 
-import { usePageMotion } from "@/components/motion";
+import { usePageMotion } from "@/lib/use-page-motion";
 import { NAVIGATION_ITEMS } from "@/lib/app-content";
 
 /** The official Nile Orbit Lab badge, served from size-matched copies of the original file. */
