@@ -6,4 +6,8 @@
 - [x] Repository hygiene: tool-neutral text, typecheck with tsc, lint and format clean, tests.
 - [x] Suggest a next step after the remix.
 - [x] Colorful space design built around the badge; shorter interface text.
-- [ ] Calculation engine (next stage; specification not yet supplied).
+- [x] Calculation engine (R3, version 1.1.0) wired in, with worker and main-thread fallback.
+- [x] Smoother, more dynamic pages: transitions, animated plan cards, loading shimmer.
+- [x] Suggest a next step after the latest remix.
+- [ ] CSV/JSON export of ranked plans.
+- [ ] Firefox and Safari checks (not available in this workspace).
