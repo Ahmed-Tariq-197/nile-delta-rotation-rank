@@ -27,6 +27,7 @@ export function formatNullable(value: number | null | undefined, decimals = 0) {
 
 export function formatOrdinal(value: number) {
   const lastTwo = value % 100;
-  const suffix = lastTwo >= 11 && lastTwo <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[value % 10] ?? "th");
+  const suffix =
+    lastTwo >= 11 && lastTwo <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[value % 10] ?? "th");
   return `${value}${suffix}`;
 }

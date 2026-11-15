@@ -66,8 +66,13 @@ export function CropCell({ cropId, label }: { cropId: CropId; label: string }) {
 export function LabelChip({ label }: { label: Label }) {
   return (
     <span className="label-chip" title={LABEL_COPY[label]}>
-      <span className="label-dot" style={{ backgroundColor: LABEL_COLORS[label] }} aria-hidden="true" />
-      {label[0]?.toUpperCase()}{label.slice(1)}
+      <span
+        className="label-dot"
+        style={{ backgroundColor: LABEL_COLORS[label] }}
+        aria-hidden="true"
+      />
+      {label[0]?.toUpperCase()}
+      {label.slice(1)}
     </span>
   );
 }
@@ -76,7 +81,9 @@ export function GradeChip({ grade }: { grade: EvidenceGrade }) {
   const symbol = grade === "verified" ? "✓ " : grade === "unresolved" ? "– " : "";
   return (
     <span className={`grade-chip ${grade}`} title={GRADE_COPY[grade]}>
-      {symbol}{grade[0]?.toUpperCase()}{grade.slice(1)}
+      {symbol}
+      {grade[0]?.toUpperCase()}
+      {grade.slice(1)}
     </span>
   );
 }
@@ -101,7 +108,8 @@ export function Field({
   return (
     <div className="field-block">
       <label className="field-label" htmlFor={inputId}>
-        {label}{optional ? " (optional)" : ""}
+        {label}
+        {optional ? " (optional)" : ""}
       </label>
       <div className="number-row">
         {children}
@@ -149,12 +157,20 @@ export function DataTable({
       <table className="data-table">
         {caption ? <caption>{caption}</caption> : null}
         <thead>
-          <tr>{headers.map((header) => <th key={header} scope="col">{header}</th>)}</tr>
+          <tr>
+            {headers.map((header) => (
+              <th key={header} scope="col">
+                {header}
+              </th>
+            ))}
+          </tr>
         </thead>
         <tbody>
           {rows.map((row, index) => (
             <tr key={`${String(row[0] ?? "row")}-${index}`}>
-              {row.map((cell, cellIndex) => <td key={`${index}-${cellIndex}`}>{cell}</td>)}
+              {row.map((cell, cellIndex) => (
+                <td key={`${index}-${cellIndex}`}>{cell}</td>
+              ))}
             </tr>
           ))}
         </tbody>
@@ -164,5 +180,9 @@ export function DataTable({
 }
 
 export function StatusLine({ children }: { children: ReactNode }) {
-  return <p className="notice-text" role="status">{children}</p>;
+  return (
+    <p className="notice-text" role="status">
+      {children}
+    </p>
+  );
 }
