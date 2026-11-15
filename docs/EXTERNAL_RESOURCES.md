@@ -4,10 +4,10 @@ Every external resource the repository uses. Nothing is listed that cannot be fo
 
 ## Data services
 
-| Resource | Address in the code | Used for |
-| --- | --- | --- |
-| NASA POWER daily point API, community AG | `https://power.larc.nasa.gov/api/temporal/daily/point` (`src/lib/data/power.ts`) | Daily meteorology (modeled) and solar radiation (satellite-derived) for the five proposed locations. |
-| ORNL DAAC MODIS web service, product MOD13Q1 version 061 | `https://modis.ornl.gov/rst/api/v1` (`src/lib/data/modis.ts`) | 16-day NDVI composites and pixel reliability at 250 m (observed). Context only, not scored. |
+| Resource                                                 | Address in the code                                                              | Used for                                                                                             |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| NASA POWER daily point API, community AG                 | `https://power.larc.nasa.gov/api/temporal/daily/point` (`src/lib/data/power.ts`) | Daily meteorology (modeled) and solar radiation (satellite-derived) for the five proposed locations. |
+| ORNL DAAC MODIS web service, product MOD13Q1 version 061 | `https://modis.ornl.gov/rst/api/v1` (`src/lib/data/modis.ts`)                    | 16-day NDVI composites and pixel reliability at 250 m (observed). Context only, not scored.          |
 
 The frozen copy of both is `public/data/snapshot.json`.
 
@@ -15,15 +15,15 @@ The frozen copy of both is `public/data/snapshot.json`.
 
 The seven sources recorded in `public/data/config.json`, with the address copied from that file.
 
-| Id | Address | Access status recorded |
-| --- | --- | --- |
-| fao56 | https://www.fao.org/4/x0490E/x0490e00.htm (chapters: x0490e0b.htm, x0490e0e.htm) | opened |
-| fao66_ch2 | https://fao.org/4/i2800e/i2800e02.pdf | opened |
-| fao_egypt_fert | https://www.fao.org/4/y5863e/y5863e00.htm (chapters y5863e07.htm to y5863e0b.htm) | opened |
-| fao_iwm_paddy_sched | https://www.fao.org/4/t7202e/t7202e07.htm | opened |
-| fao_iwm_water_needs | https://www.fao.org/3/S2022E/s2022e08.htm | opened |
-| zjar_2023_berseem | https://zjar.journals.ekb.eg/article_297652_75ab256d516da61ad01cec7147f73c95.pdf | opened |
-| gyga_egypt | https://yieldgap.containers.wur.nl/egypt | not accessible |
+| Id                  | Address                                                                           | Access status recorded |
+| ------------------- | --------------------------------------------------------------------------------- | ---------------------- |
+| fao56               | https://www.fao.org/4/x0490E/x0490e00.htm (chapters: x0490e0b.htm, x0490e0e.htm)  | opened                 |
+| fao66_ch2           | https://fao.org/4/i2800e/i2800e02.pdf                                             | opened                 |
+| fao_egypt_fert      | https://www.fao.org/4/y5863e/y5863e00.htm (chapters y5863e07.htm to y5863e0b.htm) | opened                 |
+| fao_iwm_paddy_sched | https://www.fao.org/4/t7202e/t7202e07.htm                                         | opened                 |
+| fao_iwm_water_needs | https://www.fao.org/3/S2022E/s2022e08.htm                                         | opened                 |
+| zjar_2023_berseem   | https://zjar.journals.ekb.eg/article_297652_75ab256d516da61ad01cec7147f73c95.pdf  | opened                 |
+| gyga_egypt          | https://yieldgap.containers.wur.nl/egypt                                          | not accessible         |
 
 ## Fonts
 
