@@ -9,7 +9,7 @@ import {
   InlineMessage,
   LabelChip,
 } from "@/components/ui/pieces";
-import { Shell } from "@/components/layout";
+import { PageHero, Shell } from "@/components/layout";
 import { DataLoading, DataProblem, DataSourceLine, LocationIssues } from "@/components/data-status";
 import { CROP_LIST, NAVIGATION_ITEMS } from "@/lib/app-content";
 import { directServices } from "@/lib/data/services";
@@ -61,11 +61,13 @@ function cropName(id: CropId) {
 }
 
 function describeNdvi(file: NdviFile | undefined) {
-  if (!file) return "Vegetation record not available yet.";
+  if (!file) return "NDVI loading";
   const note = ndviNote(file);
-  return note
-    ? `Latest valid composite on ${formatDate(note.date)}: NDVI ${formatNullable(note.value, 2)}, at or above ${formatNullable(note.percentileInRecord * 100)} percent of valid composites in this record.`
-    : "No valid composites for this point.";
+  return note ? `NDVI ${formatNullable(note.value, 2)} on ${formatDate(note.date)}` : "No valid NDVI";
+}
+
+function areaName(bundle: ActualBundle, id: string) {
+  return bundle.points.points.find((point) => point.id === id)?.area ?? id;
 }
 
 function PlannerView({
@@ -263,18 +265,24 @@ function PlannerView({
 
   return (
     <div className="page-shell">
-      <div className="page-heading">
-        <h1 id="view-heading">Top plans for {selectedArea}</h1>
+      <PageHero
+        title={
+          <>
+            <span className="hero-kicker">Rotation plans for</span> {selectedArea}
+          </>
+        }
+      >
         {bundle ? (
           <DataSourceLine bundle={bundle} mode={dataMode} retrievedAt={retrievedAt} />
-        ) : null}
-        <p className="notice-text">Planning support, not a forecast.</p>
+        ) : (
+          <p className="hero-lede">Five proposed points in the Nile Delta, seen from orbit.</p>
+        )}
         {resultsState === "loading" ? (
-          <p className="notice-text" role="status">
+          <p className="sr-only" role="status">
             Loading plans.
           </p>
         ) : null}
-      </div>
+      </PageHero>
 
       {parsed.invalid ? (
         <InlineMessage
@@ -315,9 +323,7 @@ function PlannerView({
                 <h2 className="section-heading" id="point-choice-title">
                   Choose a point
                 </h2>
-                <p className="field-hint">
-                  All locations are proposed coordinates. None was checked on imagery or a map.
-                </p>
+                <p className="field-hint">Proposed coordinates, not checked on imagery.</p>
                 <div className="point-list" role="radiogroup" aria-label="Nile Delta points">
                   {usablePoints.map((point) => (
                     <button
@@ -348,15 +354,19 @@ function PlannerView({
                         }
                       }}
                     >
-                      <strong>{point.area}</strong>
-                      <span>{point.location_note}</span>
-                      <span>
-                        Climate cell {point.cell_id}
-                        {cellPeers(bundle, point.id).length
-                          ? `, shared with ${cellPeers(bundle, point.id).join(", ")}: climate series are not independent.`
-                          : "."}
+                      <span className="point-orb" aria-hidden="true" />
+                      <span className="point-text">
+                        <strong>{point.area}</strong>
+                        <span className="point-meta">{describeNdvi(bundle.ndvi[point.id])}</span>
+                        {cellPeers(bundle, point.id).length ? (
+                          <span className="point-meta">
+                            Same climate cell as{" "}
+                            {cellPeers(bundle, point.id)
+                              .map((id) => areaName(bundle, id))
+                              .join(", ")}
+                          </span>
+                        ) : null}
                       </span>
-                      <span>{describeNdvi(bundle.ndvi[point.id])}</span>
                     </button>
                   ))}
                 </div>
@@ -368,17 +378,9 @@ function PlannerView({
                 </h2>
                 {(
                   [
-                    ["water", "Water", "Favors plans that need less irrigation water."],
-                    [
-                      "soil_health",
-                      "Soil health",
-                      "Favors plans with a better nitrogen and rotation record.",
-                    ],
-                    [
-                      "climate_risk",
-                      "Climate risk",
-                      "Favors plans less exposed to heat and water stress.",
-                    ],
+                    ["water", "Water", "Less irrigation"],
+                    ["soil_health", "Soil health", "Better nitrogen and rotation record"],
+                    ["climate_risk", "Climate risk", "Less heat and water stress"],
                   ] as const
                 ).map(([key, label, hint]) => (
                   <div className="field-block" key={key}>
@@ -406,13 +408,7 @@ function PlannerView({
                     <span className="field-hint">{hint}</span>
                   </div>
                 ))}
-                {normalizedWeights ? (
-                  <p className="field-hint" aria-live="polite">
-                    Weights used: water {formatNullable(normalizedWeights.water * 100)} percent,
-                    soil health {formatNullable(normalizedWeights.soil_health * 100)} percent,
-                    climate risk {formatNullable(normalizedWeights.climate_risk * 100)} percent.
-                  </p>
-                ) : (
+                {normalizedWeights ? null : (
                   <InlineMessage title="Set at least one priority above zero." variant="error" />
                 )}
               </section>
@@ -426,7 +422,7 @@ function PlannerView({
                   label="Soil salinity"
                   optional
                   unit="dS/m"
-                  hint="Electrical conductivity of the soil. Leave empty if unknown; plans then ignore salinity yield loss."
+                  hint="Leave empty if unknown."
                   error={salinityError}
                 >
                   <input
@@ -452,9 +448,6 @@ function PlannerView({
                 <h2 className="section-heading" id="constraints-title">
                   Constraints
                 </h2>
-                <p className="field-hint">
-                  Turn off crops you cannot grow. Plans use only the crops left on.
-                </p>
                 <div className="crop-toggles" role="group" aria-label="Allowed crops">
                   {CROP_LIST.map((crop) => {
                     const active = (enabledCrops ?? CROP_LIST.map((item) => item.id)).includes(
@@ -488,7 +481,7 @@ function PlannerView({
                   label="Seasonal water cap"
                   optional
                   unit="mm per season"
-                  hint="Plans that need more water in any one season are removed."
+                  hint="Drops plans above this in any season."
                   error={capError}
                 >
                   <input
@@ -515,12 +508,8 @@ function PlannerView({
           </aside>
 
           <div className="planner-results" aria-busy={resultsState === "loading"}>
-            {engineMessage ? (
-              <InlineMessage
-                title="Engine results are unavailable"
-                detail={engineMessage}
-                variant="warning"
-              />
+            {engineMessage && response ? (
+              <InlineMessage title="Engine results are unavailable" detail={engineMessage} variant="warning" />
             ) : null}
             <section aria-labelledby="plans-title">
               <h2 className="sr-only" id="plans-title">
@@ -567,21 +556,23 @@ function PlannerView({
                   </div>
                 </>
               ) : null}
-              {!response ? (
-                <InlineMessage
-                  title="No ranked plans to show"
-                  detail="Add the supplied calculation engine and data bundle. Then change a priority or constraint to see the engine results."
-                  variant="warning"
-                />
+              {!response && resultsState !== "loading" ? (
+                <div className="empty-orbit">
+                  <span className="empty-orbit-ring" aria-hidden="true" />
+                  <div>
+                    <h3>Rankings are waiting for the engine</h3>
+                    <p className="muted">
+                      Climate and vegetation data are loaded. Ranked plans appear here once the
+                      calculation engine is added.
+                    </p>
+                  </div>
+                </div>
               ) : null}
             </section>
 
+            {response ? (
             <section aria-labelledby="pareto-heading">
               <h2 id="pareto-heading">How the plans trade off</h2>
-              <p className="section-description">
-                Each dot is a plan that meets your constraints. Plans toward the upper left use less
-                water and keep more soil health.
-              </p>
               {response ? (
                 <>
                   <div className="control-row view-tabs">
@@ -626,16 +617,11 @@ function PlannerView({
                     />
                   ) : null}
                 </>
-              ) : (
-                <div className="chart-wrap">
-                  <p>
-                    No plans to plot. Add the supplied data bundle and calculation engine before
-                    using planner scores.
-                  </p>
-                </div>
-              )}
+              ) : null}
             </section>
+            ) : null}
 
+            {response ? (
             <section aria-labelledby="selected-plan-heading">
               <h2 id="selected-plan-heading">Selected plan, season by season</h2>
               {currentPlan ? (
@@ -654,19 +640,15 @@ function PlannerView({
                   salinity={salinity}
                 />
               ) : (
-                <div className="table-wrap">
-                  <p className="page-count">
-                    The season table will appear when the calculation results are supplied.
-                  </p>
-                </div>
+                <p className="muted">Select a plan to see its seasons.</p>
               )}
             </section>
+            ) : null}
 
             <section aria-labelledby="ndvi-heading">
-              <h2 id="ndvi-heading">Observed vegetation index at this point</h2>
+              <h2 id="ndvi-heading">Vegetation at {selectedArea}</h2>
               <p className="section-description">
-                NDVI is shown as context. It is not an input to the plan scores.{" "}
-                <LabelChip label="observed" />
+                <LabelChip label="observed" /> MODIS NDVI, context only. Not used in scores.
               </p>
               {activeNdvi ? (
                 <NdviView
@@ -681,40 +663,27 @@ function PlannerView({
                 />
               ) : (
                 <div className="chart-wrap">
-                  <p>
-                    No MODIS vegetation record is available for {selectedArea} yet. The planner
-                    works without it; NDVI is context only.
-                  </p>
+                  <p className="muted">Vegetation record is still loading for {selectedArea}.</p>
                 </div>
               )}
             </section>
 
-            <section aria-labelledby="limits-heading">
-              <h2 id="limits-heading">Limits of this tool</h2>
-              <p className="section-description">Planning support, not a forecast.</p>
-              {response?.limits.length ? (
+            <section aria-labelledby="limits-heading" className="limits-strip">
+              <h2 id="limits-heading" className="sr-only">
+                Limits
+              </h2>
+              <p>
+                Planning support, not a forecast. Nile Delta only; real-world validation was not
+                performed.{" "}
+                <a href="#/method">Read the limits</a>
+              </p>
+              {response?.warnings.length ? (
                 <ul>
-                  {response.limits.map((item, index) => (
+                  {response.warnings.map((item, index) => (
                     <li key={`${index}-${item}`}>{item}</li>
                   ))}
                 </ul>
-              ) : (
-                <p>The engine and its limits statement have not been supplied.</p>
-              )}
-              {response?.warnings.length ? (
-                <>
-                  <h3>Warnings from the engine</h3>
-                  <ul>
-                    {response.warnings.map((item, index) => (
-                      <li key={`${index}-${item}`}>{item}</li>
-                    ))}
-                  </ul>
-                </>
               ) : null}
-              <p className="section-description">
-                The tool is demonstrated for the Nile Delta only and has not been validated
-                elsewhere.
-              </p>
             </section>
           </div>
         </div>
@@ -1132,36 +1101,129 @@ function SelectedPlanTable({
   );
 }
 
+function ndviColor(value: number) {
+  if (value < 0.2) return "var(--ndvi-1)";
+  if (value < 0.35) return "var(--ndvi-2)";
+  if (value < 0.5) return "var(--ndvi-3)";
+  if (value < 0.65) return "var(--ndvi-4)";
+  return "var(--ndvi-5)";
+}
+
 function NdviView({ file, onEvidence }: { file: NdviFile; onEvidence: () => void }) {
+  const [showTable, setShowTable] = useState(false);
   const accepted = file.composite_dates
     .map((date, index) => ({ date, value: file.ndvi[index], quality: file.quality_ok[index] }))
-    .filter((entry) => entry.quality && entry.value !== null && entry.value !== undefined);
-  const qualityCounts = file.composite_dates.reduce(
-    (counts, _date, index) => ({
-      total: counts.total + 1,
-      passed: counts.passed + (file.quality_ok[index] ? 1 : 0),
-    }),
-    { total: 0, passed: 0 },
-  );
+    .filter(
+      (entry): entry is { date: string; value: number; quality: boolean } =>
+        entry.quality && typeof entry.value === "number" && Number.isFinite(entry.value),
+    );
+  const passed = file.quality_ok.filter(Boolean).length;
+  if (!accepted.length)
+    return (
+      <div className="chart-wrap">
+        <p className="muted">No composites passed the quality check.</p>
+      </div>
+    );
+  const width = 760;
+  const height = 220;
+  const pad = { left: 40, right: 12, top: 12, bottom: 26 };
+  const times = accepted.map((entry) => Date.parse(entry.date));
+  const t0 = Math.min(...times);
+  const t1 = Math.max(...times);
+  const x = (t: number) => pad.left + ((t - t0) / (t1 - t0 || 1)) * (width - pad.left - pad.right);
+  const y = (v: number) => pad.top + (1 - Math.max(0, Math.min(1, v))) * (height - pad.top - pad.bottom);
+  const line = accepted
+    .map((entry, index) => `${index ? "L" : "M"} ${x(Date.parse(entry.date)).toFixed(1)} ${y(entry.value).toFixed(1)}`)
+    .join(" ");
+  const area = `${line} L ${x(t1).toFixed(1)} ${y(0)} L ${x(t0).toFixed(1)} ${y(0)} Z`;
+  const years = [...new Set(accepted.map((entry) => entry.date.slice(0, 4)))];
+  const values = accepted.map((entry) => entry.value);
+  const latest = accepted[accepted.length - 1];
   return (
-    <div className="chart-wrap">
-      <p className="chart-summary">
-        {file.product} version {file.version}.
-      </p>
-      {accepted.length > 0 ? (
-        <p className="chart-summary">
-          {accepted.length} valid composites shown. The scale factor is {file.scale_applied}.
-        </p>
-      ) : (
-        <p>No valid composites for this point.</p>
-      )}
-      <Button variant="quiet" onClick={onEvidence}>
-        Evidence details
-      </Button>
-      <p className="page-count">
-        Quality checks passed: {qualityCounts.passed} of {qualityCounts.total} composites. NDVI is
-        not used in plan scores.
-      </p>
+    <div className="chart-wrap ndvi-panel">
+      <div className="ndvi-stats">
+        <div>
+          <span className="stat-label">Latest</span>
+          <strong>{formatNullable(latest?.value ?? null, 2)}</strong>
+          <span className="stat-label">{latest ? formatDate(latest.date) : ""}</span>
+        </div>
+        <div>
+          <span className="stat-label">Range</span>
+          <strong>
+            {formatNullable(Math.min(...values), 2)} to {formatNullable(Math.max(...values), 2)}
+          </strong>
+        </div>
+        <div>
+          <span className="stat-label">Passed quality check</span>
+          <strong>
+            {passed} of {file.composite_dates.length}
+          </strong>
+        </div>
+      </div>
+      <svg
+        className="ndvi-chart"
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={`NDVI from ${formatDate(accepted[0]?.date ?? "")} to ${formatDate(latest?.date ?? "")}, between ${formatNullable(Math.min(...values), 2)} and ${formatNullable(Math.max(...values), 2)}.`}
+      >
+        <defs>
+          <linearGradient id="ndvi-fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="var(--ndvi-4)" stopOpacity="0.45" />
+            <stop offset="1" stopColor="var(--ndvi-1)" stopOpacity="0.05" />
+          </linearGradient>
+        </defs>
+        {[0, 0.25, 0.5, 0.75, 1].map((tick) => (
+          <g key={tick}>
+            <line className="chart-grid-line" x1={pad.left} x2={width - pad.right} y1={y(tick)} y2={y(tick)} />
+            <text className="chart-label" x={pad.left - 8} y={y(tick) + 4} textAnchor="end">
+              {tick.toFixed(2)}
+            </text>
+          </g>
+        ))}
+        {years.map((year) => (
+          <text
+            key={year}
+            className="chart-label"
+            x={x(Math.max(t0, Date.parse(`${year}-01-01`)))}
+            y={height - 6}
+          >
+            {year}
+          </text>
+        ))}
+        <path d={area} fill="url(#ndvi-fill)" />
+        <path className="ndvi-line" d={line} />
+        {accepted.map((entry) => (
+          <circle
+            key={entry.date}
+            cx={x(Date.parse(entry.date))}
+            cy={y(entry.value)}
+            r="3"
+            fill={ndviColor(entry.value)}
+          />
+        ))}
+      </svg>
+      <div className="ndvi-legend" aria-hidden="true">
+        <span>Bare</span>
+        <span className="ndvi-ramp" />
+        <span>Dense green</span>
+      </div>
+      <div className="control-row">
+        <Button variant="quiet" aria-expanded={showTable} onClick={() => setShowTable((open) => !open)}>
+          {showTable ? "Hide table" : "Show as table"}
+        </Button>
+        <Button variant="quiet" onClick={onEvidence}>
+          Evidence details
+        </Button>
+      </div>
+      {showTable ? (
+        <div className="table-scroll">
+          <DataTable
+            headers={["Composite start", "NDVI"]}
+            rows={accepted.map((entry) => [formatDate(entry.date), formatNullable(entry.value, 3)])}
+            caption={`${file.product} version ${file.version}. Dates are 16-day window starts.`}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
