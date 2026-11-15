@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { Button, DataTable, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { DataSourceLine } from "@/components/data-status";
+import { PageHero } from "@/components/layout";
 import { DATA_LIMITS, POWER_VARIABLE_LABELS } from "@/lib/app-content";
 import { exportSnapshot } from "@/lib/data/snapshot-export";
 import type { ActualBundle, ViewProps } from "@/lib/app-types";
@@ -68,13 +69,9 @@ export default function MethodView({
 
   return (
     <div className="data-layout">
-      <header className="page-heading">
-        <h1 id="view-heading">Method and data</h1>
-        <p>
-          Each rotation that meets the constraints is evaluated against water demand, soil health
-          and climate risk. With the same inputs and data, the engine returns the same ranking.
-        </p>
-      </header>
+      <PageHero title="Method and data">
+        <p className="hero-lede">What goes into a plan, where each number comes from, and its limits.</p>
+      </PageHero>
       {!bundle ? (
         <InlineMessage
           title="Data and configuration are not available"
@@ -90,21 +87,7 @@ export default function MethodView({
 
       <section className="content-section">
         <h2>How a plan is produced</h2>
-        <p className="section-description">
-          Inputs are kept with their origin and evidence before the calculation returns ranked
-          rotations.
-        </p>
         <PipelineDiagram />
-        <ol>
-          <li>
-            Daily NASA POWER climate series
-            {bundle ? ` (${bundle.manifest.data.power.community} community)` : ""} are paired with
-            MODIS vegetation composites.
-          </li>
-          <li>Crop configuration carries evidence grades and recorded assumptions.</li>
-          <li>The calculation engine evaluates eligible rotations in the browser.</li>
-          <li>Ranked plans retain their indicators and provenance.</li>
-        </ol>
       </section>
 
       <section className="content-section">
@@ -127,7 +110,7 @@ export default function MethodView({
                 "Missing",
               ]}
               rows={variableRows(bundle)}
-              caption="Built from the units NASA POWER stated in its responses. Missing counts fill values and values outside the accepted range, across all locations."
+              caption="Units as stated by NASA POWER. Missing = fill values or out-of-range values, all locations."
             />
             <h3 className="section-block">Vegetation index</h3>
             <p>
