@@ -24,3 +24,11 @@
 
 - Sections fade up as they scroll into view, cards follow the pointer with a soft glow, and a gold bar under the header shows scroll progress. All of it is off when the system asks for reduced motion, and content stays visible if scripts do not run.
 - Ranked plans download as CSV (one row per plan, engine values as returned) or as the full engine response in JSON.
+
+## 15. Static start page
+
+- The build also writes `dist/client/index.html`, a prerendered copy of the root route, so `dist/client` can be served as plain files. Pages use hash routes, so this one file serves every view. Script and icon paths in it start with `/`, so the folder must be served at the site root.
+
+## 16. Run-time data checks
+
+- The Method and Data view counts missing solar days and the run of identical root-zone soil wetness values at the end of each series from the loaded data. No counts are written into the code.
