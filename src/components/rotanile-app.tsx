@@ -280,7 +280,7 @@ function PlannerView({
               {resultsState === "loading" ? <p className="chart-wrap">Loading plans. Calculation results are not available.</p> : null}
               {rankedPlans.length > 0 ? (
                 <>
-                  {rankedPlans[0] ? <PlanCard plan={rankedPlans[0]} lead onSelect={choosePlan} selected={selectedPlanId === rankedPlans[0].id} onEvidence={() => openEvidence({ title: `Rank ${rankedPlans[0]?.rank} evidence`, detail: "Plan evidence and source records.", plan: rankedPlans[0] })} /> : null}
+                  {rankedPlans[0] ? <PlanCard plan={rankedPlans[0]} lead onSelect={choosePlan} selected={selectedPlanId === rankedPlans[0].id} onEvidence={() => { const plan = rankedPlans[0]; if (plan) openEvidence({ title: `Rank ${plan.rank} evidence`, detail: "Plan evidence and source records.", plan }); }} /> : null}
                   <div className="plan-pair">{rankedPlans.slice(1).map((plan) => <PlanCard key={plan.id} plan={plan} onSelect={choosePlan} selected={selectedPlanId === plan.id} onEvidence={() => openEvidence({ title: `Rank ${plan.rank} evidence`, detail: "Plan evidence and source records.", plan })} />)}</div>
                 </>
               ) : null}
