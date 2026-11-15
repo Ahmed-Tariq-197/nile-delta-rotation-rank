@@ -1,14 +1,5 @@
 import type { EngineRequest, NdviFile, Plan, Priorities, UiBundle } from "@/lib/contract";
 
-export function validateBundlePayload(payload: unknown, file: string): boolean {
-  if (payload === null || typeof payload !== "object") return false;
-  const record = payload as Record<string, unknown>;
-  if (file === "points.json") return typeof record.bundle_version === "string" && Array.isArray(record.points);
-  if (file === "config.json") return typeof record.schema_version === "string" && record.crops !== null && typeof record.crops === "object";
-  if (file === "manifest.json") return typeof record.bundle_version === "string" && record.data !== null && typeof record.data === "object";
-  return false;
-}
-
 export function ndviNote(file: NdviFile) {
   const valid = file.composite_dates
     .map((date, index) => ({ date, value: file.ndvi[index], quality: file.quality_ok[index] }))
@@ -55,7 +46,8 @@ export function paretoGeometry(plans: Plan[], frontIds: string[]) {
   const points = front.map((plan) => ({ x: plan.indicators.water_demand_mm_total.value, y: plan.indicators.soil_health_index.value }));
   const path = points.map((point, index) => `${index === 0 ? `M ${point.x} ${point.y}` : `H ${point.x} V ${point.y}`}`).join(" ");
   const center = points.length ? points.reduce((total, point) => ({ x: total.x + point.x / points.length, y: total.y + point.y / points.length }), { x: 0, y: 0 }) : null;
-  const rotation = points.length > 1 && center ? Math.atan2(points.at(-1)?.y ?? 0 - center.y, (points.at(-1)?.x ?? 0) - center.x) : 0;
+  const lastPoint = points.at(-1);
+  const rotation = points.length > 1 && center && lastPoint ? Math.atan2(lastPoint.y - center.y, lastPoint.x - center.x) : 0;
   const xs = points.map((point) => point.x);
   const ys = points.map((point) => point.y);
   const ellipse = center && points.length >= 3 ? {
@@ -66,26 +58,6 @@ export function paretoGeometry(plans: Plan[], frontIds: string[]) {
     rotation: rotation * 180 / Math.PI,
   } : null;
   return { points, path, ellipse };
-}
-
-export function medianCadence(dates: string[]): number | null {
-  if (dates.length < 2) return null;
-  const gaps: number[] = [];
-  for (let index = 1; index < dates.length; index += 1) {
-    const earlier = dates[index - 1];
-    const later = dates[index];
-    if (!earlier || !later) continue;
-    const days = (Date.parse(`${later}T00:00:00Z`) - Date.parse(`${earlier}T00:00:00Z`)) / 86_400_000;
-    if (Number.isFinite(days) && days > 0) gaps.push(days);
-  }
-  if (gaps.length === 0) return null;
-  gaps.sort((a, b) => a - b);
-  const middle = Math.floor(gaps.length / 2);
-  const before = gaps[middle - 1];
-  const after = gaps[middle];
-  if (gaps.length % 2 === 1) return after ?? null;
-  if (before === undefined || after === undefined) return null;
-  return (before + after) / 2;
 }
 
 export function normalizeWeights(priorities: Priorities): Priorities | null {
