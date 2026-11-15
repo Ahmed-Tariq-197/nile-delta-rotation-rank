@@ -1,4 +1,4 @@
-import { useId, type ButtonHTMLAttributes, type ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import type { CropId, EvidenceGrade, Label } from "@/lib/contract";
 import { CROP_LIST } from "@/lib/app-content";
