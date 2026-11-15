@@ -31,3 +31,14 @@ export function formatOrdinal(value: number) {
     lastTwo >= 11 && lastTwo <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[value % 10] ?? "th");
   return `${value}${suffix}`;
 }
+
+export const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "UTC",
+});
+
+export function formatDateTime(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : `${dateTimeFormatter.format(date)} UTC`;
+}

@@ -1,0 +1,1923 @@
+{
+ "schema_version": "1",
+ "crops": {
+  "wheat": {
+   "display_name": "Wheat",
+   "legume": false,
+   "season": {
+    "value": "winter",
+    "min": null,
+    "max": null,
+    "unit": "category",
+    "source": "fao_egypt_fert",
+    "locator": "Ch. 3 (y5863e07.htm), 'Crop production systems': wheat is listed with the winter rotation",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Egypt-specific statement in an FAO country document. Month boundaries of the season are in seasons.yaml."
+   },
+   "sowing_window": {
+    "start_md": {
+     "value": "11-10",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "gyga_egypt",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Nile Delta wheat sowing window 10 Nov to 30 Nov as seen in a search-result snippet of the Global Yield Gap Atlas Egypt page; the page itself could not be opened (two attempts). Closest regional source (D2)."
+    },
+    "end_md": {
+     "value": "11-30",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "gyga_egypt",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "See start_md. The same snippet gives physiological maturity between 15 Apr and 10 May for these sowing dates."
+    }
+   },
+   "season_length_days": {
+    "value": 165,
+    "min": 136,
+    "max": 181,
+    "unit": "days",
+    "source": "fao56",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "medium",
+    "notes": "Value from FAO-56 Table 11, row 'Grains (small)', 165 days, Oct/Nov, Pakistan; arid regions (no Egypt-specific row for wheat). min 136 and max 181 are computed (D5) from the sowing window (10-30 Nov) and the maturity window (15 Apr-10 May) in the unopened GYGA snippet: 30 Nov to 15 Apr = 136 days; 10 Nov to 10 May = 181 days. Locator (informational): Ch. 6, Table 11, row 'Grains (small)'"
+   },
+   "stage_days": {
+    "ini": {
+     "value": 25,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "FAO-56 Table 11 row 'Grains (small)' (25/35/65/40 days), regional analog (D2). Other FAO wheat rows show wide variation (initial stage 15 to 40 days)."
+    },
+    "dev": {
+     "value": 35,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row as ini."
+    },
+    "mid": {
+     "value": 65,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row as ini."
+    },
+    "late": {
+     "value": 40,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row as ini. Stage days sum to 165 = season_length_days."
+    }
+   },
+   "kc": {
+    "ini": {
+     "value": 0.3,
+     "min": 0.3,
+     "max": 0.7,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, group 'i. Cereals' (0.3); row 'Winter Wheat - with non-frozen soils' (0.7)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Default 0.30 (cereal group value). The 0.7 value for winter wheat on non-frozen soils is stored as max (D1: same source, conditions differ). Kc ini depends on wetting interval and ETo (FAO-56 Fig. 29/30, Annex 7); the planner should refine it from the irrigation interval. No climatic or local adjustment was applied (standard-condition default)."
+    },
+    "mid": {
+     "value": 1.15,
+     "min": 1.02,
+     "max": 1.25,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Spring Wheat' (1.15); Box 14 (climate range 1.02 to 1.25)",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Table default 1.15. Box 14 shows 1.02 (humid, calm) to 1.25 (arid, strong wind); for arid or semi-arid with moderate wind it gives 1.20. That climatic adjustment was not applied because local wind and humidity were not obtained."
+    },
+    "end": {
+     "value": 0.33,
+     "min": 0.25,
+     "max": 0.4,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Spring Wheat' (Kc end 0.25-0.4) and footnote 10",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Lower value for machine harvest after full drying, higher value for hand harvest (footnote 10). Value is the rounded midpoint of the published range (a convenience; use min and max for sensitivity)."
+    }
+   },
+   "root_depth_m": {
+    "value": 1.0,
+    "min": 1.0,
+    "max": 1.5,
+    "unit": "m",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Spring Wheat' (1.0-1.5 m) and footnote 1",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Value is the lower bound, which footnote 1 recommends for irrigation scheduling; the upper bound is for stress modeling or rainfed use. Winter wheat row is 1.5-1.8 m. Spring-habit wheat is assumed for Egypt (analyst judgment)."
+   },
+   "depletion_fraction_p": {
+    "value": 0.55,
+    "min": null,
+    "max": null,
+    "unit": "dimensionless",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Spring Wheat' (p = 0.55) and footnote 2",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Valid for ETc about 5 mm per day; FAO-56 gives p = p(Table 22) + 0.04 (5 - ETc) and suggests lowering p by 5-10 percent on fine-textured soils. Neither adjustment was applied."
+   },
+   "ky_total": {
+    "value": 1.15,
+    "min": 0.87,
+    "max": 1.32,
+    "unit": "dimensionless",
+    "source": "fao66_ch2",
+    "locator": "Table 1 (spring wheat 1.15; winter wheat 1.05) and Table 2, FAO column, total season (winter wheat 1.00; IAEA studies 0.87 and 1.32)",
+    "evidence_grade": "verified",
+    "confidence": "medium",
+    "notes": "min and max span winter wheat in the IAEA comparison (0.87) to spring wheat in the IAEA comparison (1.32); FAO point values are 1.00-1.05 (winter) and 1.15 (spring). FAO-56 Table 24 gives 1.15 and 1.05 as well. Spring wheat row used as the central value (analyst judgment)."
+   },
+   "heat_stress": {
+    "threshold_c": {
+     "value": 31,
+     "min": 30,
+     "max": 35,
+     "unit": "degrees C",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled from the wheat heat-stress literature: daily maximum air temperature near 30-32 degrees C around anthesis begins to reduce grain set; values up to about 35 degrees C are used for grain filling. Not read in an opened source."
+    },
+    "sensitive_stage": {
+     "value": "anthesis and early grain filling",
+     "min": null,
+     "max": null,
+     "unit": "category",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled; consistent with the general statement in an opened FAO text that flowering and yield formation are the most water-sensitive periods, which is not a heat statement."
+    }
+   },
+   "n_removal_kg_ha": {
+    "value": 120,
+    "min": 90,
+    "max": 160,
+    "unit": "kg N per ha",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Order-of-magnitude removal in harvested grain for irrigated yields of roughly 6-7 t per ha at about 2 percent grain N; straw excluded. Recalled, not read in an opened source."
+   },
+   "extra_water_mm": {
+    "value": null,
+    "min": null,
+    "max": null,
+    "unit": "mm",
+    "source": "none",
+    "locator": "",
+    "evidence_grade": "unresolved",
+    "confidence": "low",
+    "notes": "Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0 mm."
+   },
+   "salinity": {
+    "threshold_ds_m": {
+     "value": 6.0,
+     "min": 6.0,
+     "max": 8.6,
+     "unit": "dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, rows 'Wheat (Triticum aestivum)' 6.0, 'Wheat, semidwarf' 8.6, 'Wheat, durum' 5.7-5.9",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "ECe threshold in dS per m at 25 degrees C (saturation extract). Bread wheat 6.0; semidwarf bread wheat 8.6 (stored as max). Rating MT (moderately tolerant) to T."
+    },
+    "slope_pct_per_ds_m": {
+     "value": 7.1,
+     "min": 3.0,
+     "max": 7.1,
+     "unit": "percent per dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, rows 'Wheat (Triticum aestivum)' 7.1 and 'Wheat, semidwarf' 3.0",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Percent yield reduction per dS per m above the threshold. min 3.0 belongs to the semidwarf row (paired with threshold 8.6). Guideline values only (Table 23 footnote 1)."
+    }
+   }
+  },
+  "berseem": {
+   "display_name": "Berseem clover",
+   "legume": true,
+   "season": {
+    "value": "winter",
+    "min": null,
+    "max": null,
+    "unit": "category",
+    "source": "fao_egypt_fert",
+    "locator": "Ch. 3 (y5863e07.htm), 'Crop production systems': berseem clover is listed with the winter rotation",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Egypt-specific statement in an FAO country document. The same chapter distinguishes long-season and short-season (catch) berseem; this entry parameterizes the long-season multi-cut crop."
+   },
+   "sowing_window": {
+    "start_md": {
+     "value": "10-01",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "gyga_egypt",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Analyst bracket of two observations: the unopened GYGA snippet lists berseem sowing 01 Sep to 31 Oct; the opened Egyptian trial (Zagazig J. Agric. Res. 2023, p. 151) sowed on 4 and 7 November. Start set to 1 October (D2, D4)."
+    },
+    "end_md": {
+     "value": "11-15",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "zjar_2023_berseem",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "See start_md; the opened trial sowed on 4 and 7 November, so the end is set to 15 November."
+    }
+   },
+   "season_length_days": {
+    "value": 185,
+    "min": 150,
+    "max": 240,
+    "unit": "days",
+    "source": "zjar_2023_berseem",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Arithmetic from the opened trial (p. 151): cuts at 65 days, then 50, 40 and 30 days after the previous cut = 185 days after sowing (sown 4 and 7 November, four cuts, sandy loam, Sharkia). Single-site observation; range 150 to 240 days is an analyst bracket (the unopened GYGA snippet reports 5-7 cuts until April-June). Locator (informational): Materials and Methods, p. 151"
+   },
+   "stage_days": {
+    "ini": {
+     "value": 25,
+     "min": 15,
+     "max": 30,
+     "unit": "days",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Analyst allocation of the 185-day season to the four FAO stages; FAO-56 Table 11 has no berseem row. Range reflects that uncertainty."
+    },
+    "dev": {
+     "value": 35,
+     "min": 25,
+     "max": 45,
+     "unit": "days",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Analyst allocation, see ini."
+    },
+    "mid": {
+     "value": 95,
+     "min": 75,
+     "max": 120,
+     "unit": "days",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Analyst allocation, see ini. FAO-56 uses one averaged mid-season period for hay crops (Table 12 footnote 13)."
+    },
+    "late": {
+     "value": 30,
+     "min": 20,
+     "max": 40,
+     "unit": "days",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Analyst allocation, see ini. Stage days sum to 185 = season_length_days."
+    }
+   },
+   "kc": {
+    "ini": {
+     "value": 0.4,
+     "min": null,
+     "max": null,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Clover hay, Berseem' (averaged cutting effects 0.40; individual cutting periods 0.40)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Same value for both approaches. No climatic or local adjustment was applied (standard-condition default)."
+    },
+    "mid": {
+     "value": 0.9,
+     "min": 0.9,
+     "max": 1.15,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Clover hay, Berseem' (averaged 0.90; individual cutting periods 1.15) and footnotes 13, 14",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Default 0.90 is the average over cuttings (use with one season-long mid period); 1.15 is the full-cover value of a single cutting cycle (stored as max). No climatic or local adjustment was applied (standard-condition default)."
+    },
+    "end": {
+     "value": 0.85,
+     "min": 0.85,
+     "max": 1.1,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Clover hay, Berseem' (averaged 0.85; individual cutting periods 1.10)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Same logic as mid. No climatic or local adjustment was applied (standard-condition default)."
+    }
+   },
+   "root_depth_m": {
+    "value": 0.6,
+    "min": 0.6,
+    "max": 0.9,
+    "unit": "m",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Clover hay, Berseem' (0.6-0.9 m) and footnote 1",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Lower bound used for irrigation scheduling (footnote 1)."
+   },
+   "depletion_fraction_p": {
+    "value": 0.5,
+    "min": null,
+    "max": null,
+    "unit": "dimensionless",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Clover hay, Berseem' (p = 0.50)",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Valid for ETc about 5 mm per day; no adjustment applied."
+   },
+   "ky_total": {
+    "value": 1.1,
+    "min": 1.0,
+    "max": 1.1,
+    "unit": "dimensionless",
+    "source": "fao56",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "No berseem value exists in FAO Paper 33 as reproduced in the opened sources. FAO-56 (Ch. 8, 'Limitations') allows Ky = 1 or the value of a similar crop; alfalfa is 1.1 (Table 24). Alfalfa value used as an analog; min 1.0 is the FAO-56 default for unknown crops. Locator (informational): Ch. 8, Table 24 (Alfalfa 1.1) and 'Limitations' paragraph"
+   },
+   "heat_stress": {
+    "threshold_c": {
+     "value": null,
+     "min": null,
+     "max": null,
+     "unit": "degrees C",
+     "source": "none",
+     "locator": "",
+     "evidence_grade": "unresolved",
+     "confidence": "low",
+     "notes": "No defensible value found. Fallback: the planner applies no heat-stress penalty to berseem."
+    },
+    "sensitive_stage": {
+     "value": null,
+     "min": null,
+     "max": null,
+     "unit": "category",
+     "source": "none",
+     "locator": "",
+     "evidence_grade": "unresolved",
+     "confidence": "low",
+     "notes": "No defensible value found. Fallback: no sensitive stage is assigned."
+    }
+   },
+   "n_removal_kg_ha": {
+    "value": 250,
+    "min": 150,
+    "max": 400,
+    "unit": "kg N per ha",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Gross N removed in cut forage if all cuts are removed from the field, from recalled forage dry-matter yields (about 8-12 t per ha) and N contents (about 2.5-3.5 percent). This is not a net balance: fixation is handled in rotation_rules.yaml."
+   },
+   "extra_water_mm": {
+    "value": null,
+    "min": null,
+    "max": null,
+    "unit": "mm",
+    "source": "none",
+    "locator": "",
+    "evidence_grade": "unresolved",
+    "confidence": "low",
+    "notes": "Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0 mm."
+   },
+   "salinity": {
+    "threshold_ds_m": {
+     "value": 1.5,
+     "min": null,
+     "max": null,
+     "unit": "dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Clover, Berseem' (1.5; slope 5.7; rating MS)",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "ECe threshold in dS per m at 25 degrees C. Rating MS (moderately sensitive)."
+    },
+    "slope_pct_per_ds_m": {
+     "value": 5.7,
+     "min": null,
+     "max": null,
+     "unit": "percent per dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Clover, Berseem'",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Percent yield reduction per dS per m above the threshold. Guideline value only."
+    }
+   }
+  },
+  "cotton": {
+   "display_name": "Cotton",
+   "legume": false,
+   "season": {
+    "value": "summer",
+    "min": null,
+    "max": null,
+    "unit": "category",
+    "source": "fao_egypt_fert",
+    "locator": "Ch. 3 (y5863e07.htm), 'Crop production systems': cotton is listed with the summer rotation",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Egypt-specific statement in an FAO country document."
+   },
+   "sowing_window": {
+    "start_md": {
+     "value": "03-01",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "FAO-56 Table 11 gives planting 'Mar-May' for a row whose region field reads 'Egypt; Pakistan; Calif.', so the dates cannot be attributed to Egypt alone (D2). Months converted to the first and last day of the month (D5). The unopened GYGA snippet suggests a narrower 15 Apr to 15 May window. Locator (informational): Ch. 6, Table 11, row 'Cotton' (Mar-May)"
+    },
+    "end_md": {
+     "value": "05-31",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "See start_md (last day of May, D5). Locator (informational): Ch. 6, Table 11, row 'Cotton' (Mar-May)"
+    }
+   },
+   "season_length_days": {
+    "value": 195,
+    "min": null,
+    "max": null,
+    "unit": "days",
+    "source": "fao56",
+    "locator": "Ch. 6, Table 11, row 'Cotton' (30/50/60/55 = 195 days; Mar-May; Egypt; Pakistan; Calif.)",
+    "evidence_grade": "verified",
+    "confidence": "medium",
+    "notes": "Egypt is named in the region field of the row. The unopened GYGA snippet reports 160 to 170 days after sowing for Delta cotton; that shorter figure is not stored because it was not read in an opened source."
+   },
+   "stage_days": {
+    "ini": {
+     "value": 30,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 11, row 'Cotton' (Egypt; Pakistan; Calif.)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Same row as season_length_days."
+    },
+    "dev": {
+     "value": 50,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 11, row 'Cotton' (Egypt; Pakistan; Calif.)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Same row."
+    },
+    "mid": {
+     "value": 60,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 11, row 'Cotton' (Egypt; Pakistan; Calif.)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Same row."
+    },
+    "late": {
+     "value": 55,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 11, row 'Cotton' (Egypt; Pakistan; Calif.)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Same row. Stage days sum to 195 = season_length_days."
+    }
+   },
+   "kc": {
+    "ini": {
+     "value": 0.35,
+     "min": null,
+     "max": null,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, group 'g. Fibre Crops' (0.35)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Group value; Kc ini depends on wetting interval. No climatic or local adjustment was applied (standard-condition default)."
+    },
+    "mid": {
+     "value": 1.18,
+     "min": 1.15,
+     "max": 1.2,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Cotton' (Kc mid 1.15-1.20)",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Published range 1.15-1.20. Value is the rounded midpoint of the published range (a convenience; use min and max for sensitivity). No climatic or local adjustment was applied (standard-condition default)."
+    },
+    "end": {
+     "value": 0.6,
+     "min": 0.5,
+     "max": 0.7,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Cotton' (Kc end 0.70-0.50)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Published range 0.70-0.50; depends on late-season irrigation and defoliation. Value is the rounded midpoint of the published range (a convenience; use min and max for sensitivity). No climatic or local adjustment was applied (standard-condition default)."
+    }
+   },
+   "root_depth_m": {
+    "value": 1.0,
+    "min": 1.0,
+    "max": 1.7,
+    "unit": "m",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Cotton' (1.0-1.7 m) and footnote 1",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Lower bound for irrigation scheduling (footnote 1)."
+   },
+   "depletion_fraction_p": {
+    "value": 0.65,
+    "min": null,
+    "max": null,
+    "unit": "dimensionless",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Cotton' (p = 0.65)",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Valid for ETc about 5 mm per day; no adjustment applied."
+   },
+   "ky_total": {
+    "value": 0.85,
+    "min": 0.71,
+    "max": 1.02,
+    "unit": "dimensionless",
+    "source": "fao66_ch2",
+    "locator": "Table 1 (Cotton 0.85) and Table 2, rows 'Cotton' (FAO 0.85; IAEA 0.71 to 1.02)",
+    "evidence_grade": "verified",
+    "confidence": "medium",
+    "notes": "Central value is the FAO value; min and max are the range of IAEA values listed in Table 2 for total-season deficit."
+   },
+   "heat_stress": {
+    "threshold_c": {
+     "value": 35,
+     "min": 32,
+     "max": 38,
+     "unit": "degrees C",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled: daily maximum air temperature above roughly 32-35 degrees C during flowering and boll set reduces boll retention and pollen viability. Not read in an opened source."
+    },
+    "sensitive_stage": {
+     "value": "flowering and boll set",
+     "min": null,
+     "max": null,
+     "unit": "category",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled; see threshold_c."
+    }
+   },
+   "n_removal_kg_ha": {
+    "value": 80,
+    "min": 50,
+    "max": 110,
+    "unit": "kg N per ha",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Removal in harvested seed cotton (lint plus seed) for yields of roughly 2.5-3.5 t per ha; stalks left in the field. Recalled, not read in an opened source."
+   },
+   "extra_water_mm": {
+    "value": null,
+    "min": null,
+    "max": null,
+    "unit": "mm",
+    "source": "none",
+    "locator": "",
+    "evidence_grade": "unresolved",
+    "confidence": "low",
+    "notes": "Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0 mm."
+   },
+   "salinity": {
+    "threshold_ds_m": {
+     "value": 7.7,
+     "min": null,
+     "max": null,
+     "unit": "dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Cotton' (7.7; slope 5.2; rating T)",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "ECe threshold in dS per m at 25 degrees C. Rating T (tolerant)."
+    },
+    "slope_pct_per_ds_m": {
+     "value": 5.2,
+     "min": null,
+     "max": null,
+     "unit": "percent per dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Cotton'",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Percent yield reduction per dS per m above the threshold. Guideline value only."
+    }
+   }
+  },
+  "maize": {
+   "display_name": "Maize (grain)",
+   "legume": false,
+   "season": {
+    "value": "summer",
+    "min": null,
+    "max": null,
+    "unit": "category",
+    "source": "fao_egypt_fert",
+    "locator": "Ch. 3 (y5863e07.htm), 'Crop production systems': maize is listed with the summer rotation",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Egypt-specific statement in an FAO country document. A second, late-summer sowing exists in Egypt and is not modeled."
+   },
+   "sowing_window": {
+    "start_md": {
+     "value": "04-15",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "gyga_egypt",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Nile Delta maize sowing window 15 Apr to 15 May as seen in a search-result snippet of the unopened GYGA Egypt page (D2)."
+    },
+    "end_md": {
+     "value": "05-15",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "gyga_egypt",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "See start_md."
+    }
+   },
+   "season_length_days": {
+    "value": 125,
+    "min": 100,
+    "max": 140,
+    "unit": "days",
+    "source": "fao56",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "medium",
+    "notes": "FAO-56 Table 11 row 'Maize (grain)' 20/35/40/30 = 125 days (June, Nigeria, humid) chosen because its length lies inside the 100-135 days reported by the unopened GYGA snippet for Delta hybrids; the arid-climate row is 140 days (Dec/Jan). Range 100 to 140 combines both (D1, D2). Locator (informational): Ch. 6, Table 11, rows 'Maize (grain)'"
+   },
+   "stage_days": {
+    "ini": {
+     "value": 20,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "FAO-56 Table 11 row 'Maize (grain)' 20/35/40/30 (June, Nigeria); regional analog (D2)."
+    },
+    "dev": {
+     "value": 35,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row."
+    },
+    "mid": {
+     "value": 40,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row."
+    },
+    "late": {
+     "value": 30,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row. Stage days sum to 125 = season_length_days."
+    }
+   },
+   "kc": {
+    "ini": {
+     "value": 0.3,
+     "min": null,
+     "max": null,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, group 'i. Cereals' (0.3)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Cereal group value; the Maize row itself has no separate Kc ini. No climatic or local adjustment was applied (standard-condition default)."
+    },
+    "mid": {
+     "value": 1.2,
+     "min": null,
+     "max": null,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Maize, Field (grain)' (Kc mid 1.20; h = 2 m)",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Taller crop, so climate adjustment matters more (Example 27 gives 1.30 for an arid, windy site). Adjustment not applied because local wind and humidity were not obtained."
+    },
+    "end": {
+     "value": 0.48,
+     "min": 0.35,
+     "max": 0.6,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Maize, Field (grain)' (Kc end 0.60-0.35) and footnote 11",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "0.60 is for harvest at high grain moisture, 0.35 for harvest after field drying (footnote 11). Value is the rounded midpoint of the published range (a convenience; use min and max for sensitivity)."
+    }
+   },
+   "root_depth_m": {
+    "value": 1.0,
+    "min": 1.0,
+    "max": 1.7,
+    "unit": "m",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Maize, Field (grain)' (1.0-1.7 m) and footnote 1",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Lower bound for irrigation scheduling (footnote 1)."
+   },
+   "depletion_fraction_p": {
+    "value": 0.55,
+    "min": null,
+    "max": null,
+    "unit": "dimensionless",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Maize, Field (grain)' (p = 0.55)",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Valid for ETc about 5 mm per day; no adjustment applied."
+   },
+   "ky_total": {
+    "value": 1.25,
+    "min": 1.25,
+    "max": 1.33,
+    "unit": "dimensionless",
+    "source": "fao66_ch2",
+    "locator": "Table 1 (Maize 1.25) and Table 2, row 'Maize' (FAO 1.25; IAEA 1.33)",
+    "evidence_grade": "verified",
+    "confidence": "medium",
+    "notes": "FAO value is central; max is the IAEA value in Table 2."
+   },
+   "heat_stress": {
+    "threshold_c": {
+     "value": 35,
+     "min": 32,
+     "max": 36,
+     "unit": "degrees C",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled: daily maximum air temperature above roughly 33-36 degrees C around silking and pollination reduces kernel set. Not read in an opened source."
+    },
+    "sensitive_stage": {
+     "value": "silking and pollination",
+     "min": null,
+     "max": null,
+     "unit": "category",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled. An opened FAO text (Ky chapter) also shows flowering as the most water-sensitive period for maize, which is a water statement, not a heat statement."
+    }
+   },
+   "n_removal_kg_ha": {
+    "value": 120,
+    "min": 80,
+    "max": 170,
+    "unit": "kg N per ha",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Removal in harvested grain for irrigated yields of roughly 7-9 t per ha at about 1.4 percent grain N; stover excluded. Recalled, not read in an opened source."
+   },
+   "extra_water_mm": {
+    "value": null,
+    "min": null,
+    "max": null,
+    "unit": "mm",
+    "source": "none",
+    "locator": "",
+    "evidence_grade": "unresolved",
+    "confidence": "low",
+    "notes": "Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0 mm."
+   },
+   "salinity": {
+    "threshold_ds_m": {
+     "value": 1.7,
+     "min": null,
+     "max": null,
+     "unit": "dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Maize' (1.7; slope 12.0; rating MS)",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "ECe threshold in dS per m at 25 degrees C. Rating MS."
+    },
+    "slope_pct_per_ds_m": {
+     "value": 12.0,
+     "min": null,
+     "max": null,
+     "unit": "percent per dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Maize'",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Percent yield reduction per dS per m above the threshold. Guideline value only."
+    }
+   }
+  },
+  "rice": {
+   "display_name": "Rice (paddy)",
+   "legume": false,
+   "season": {
+    "value": "summer",
+    "min": null,
+    "max": null,
+    "unit": "category",
+    "source": "fao_egypt_fert",
+    "locator": "Ch. 3 (y5863e07.htm), 'Crop production systems': rice is listed with the summer rotation",
+    "evidence_grade": "verified",
+    "confidence": "high",
+    "notes": "Egypt-specific statement in an FAO country document."
+   },
+   "sowing_window": {
+    "start_md": {
+     "value": "05-01",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "gyga_egypt",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Nile Delta rice sowing window 1 May to 15 Jun as seen in a search-result snippet of the unopened GYGA Egypt page; whether this is nursery sowing or direct seeding is not stated (D2)."
+    },
+    "end_md": {
+     "value": "06-15",
+     "min": null,
+     "max": null,
+     "unit": "MM-DD",
+     "source": "gyga_egypt",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "See start_md."
+    }
+   },
+   "season_length_days": {
+    "value": 150,
+    "min": 120,
+    "max": 150,
+    "unit": "days",
+    "source": "fao56",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "medium",
+    "notes": "FAO-56 Table 11 row 'Rice' 30/30/60/30 = 150 days (Dec; May; Tropics; Mediterranean). Short-duration Egyptian varieties need about 120 days from planting to harvest according to an opened FAO country document (Ch. 3, 'Cropping patterns'), and the unopened GYGA snippet gives 110-140 days after sowing. Range 120 to 150 (D1, D2). Locator (informational): Ch. 6, Table 11, row 'Rice'"
+   },
+   "stage_days": {
+    "ini": {
+     "value": 30,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "FAO-56 Table 11 row 'Rice' 30/30/60/30; regional analog (D2). Scale proportionally if a 120-day variety is modeled."
+    },
+    "dev": {
+     "value": 30,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row."
+    },
+    "mid": {
+     "value": 60,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row."
+    },
+    "late": {
+     "value": 30,
+     "min": null,
+     "max": null,
+     "unit": "days",
+     "source": "fao56",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "medium",
+     "notes": "Same row. Stage days sum to 150 = season_length_days."
+    }
+   },
+   "kc": {
+    "ini": {
+     "value": 1.05,
+     "min": 1.05,
+     "max": 1.15,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Rice' (Kc ini 1.05) and Table 14 (arid to semi-arid: 1.10 light wind, 1.15 moderate wind)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Table 12 default for sub-humid climate. Table 14 gives 1.10-1.15 for arid to semi-arid climates; the Table 14 adjustment was not applied because local wind class was not obtained. Range 1.05 to 1.15 recorded."
+    },
+    "mid": {
+     "value": 1.2,
+     "min": null,
+     "max": null,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Rice' (Kc mid 1.20)",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Standard-condition default. No climatic or local adjustment was applied (standard-condition default)."
+    },
+    "end": {
+     "value": 0.75,
+     "min": 0.6,
+     "max": 0.9,
+     "unit": "dimensionless",
+     "source": "fao56",
+     "locator": "Ch. 6, Table 12, row 'Rice' (Kc end 0.90-0.60)",
+     "evidence_grade": "verified",
+     "confidence": "medium",
+     "notes": "Published range; depends on drainage before harvest. Value is the rounded midpoint of the published range (a convenience; use min and max for sensitivity). No climatic or local adjustment was applied (standard-condition default)."
+    }
+   },
+   "root_depth_m": {
+    "value": 0.5,
+    "min": 0.5,
+    "max": 1.0,
+    "unit": "m",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Rice' (0.5-1.0 m) and footnote 1",
+    "evidence_grade": "verified",
+    "confidence": "medium",
+    "notes": "Lower bound for irrigation scheduling (footnote 1)."
+   },
+   "depletion_fraction_p": {
+    "value": 0.2,
+    "min": null,
+    "max": null,
+    "unit": "dimensionless",
+    "source": "fao56",
+    "locator": "Ch. 8, Table 22, row 'Rice' (p = 0.20) and footnote 4",
+    "evidence_grade": "verified",
+    "confidence": "medium",
+    "notes": "Footnote 4 defines this p as a fraction of saturation, so it is not directly comparable with p of upland crops. Flooded paddy is normally kept saturated."
+   },
+   "ky_total": {
+    "value": 1.1,
+    "min": 0.9,
+    "max": 1.3,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Recalled: FAO Paper 33 total-season Ky for rice is close to 1.1. Rice is absent from Table 1 of the opened FAO-66 chapter and from FAO-56 Table 24, so the value could not be checked in an opened source. Range widened to what is known (D4)."
+   },
+   "heat_stress": {
+    "threshold_c": {
+     "value": 35,
+     "min": 33,
+     "max": 36,
+     "unit": "degrees C",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled: daily maximum air temperature of about 33-36 degrees C at anthesis causes spikelet sterility. Not read in an opened source."
+    },
+    "sensitive_stage": {
+     "value": "flowering (anthesis)",
+     "min": null,
+     "max": null,
+     "unit": "category",
+     "source": "memory",
+     "locator": "",
+     "evidence_grade": "provisional",
+     "confidence": "low",
+     "notes": "Recalled; see threshold_c."
+    }
+   },
+   "n_removal_kg_ha": {
+    "value": 100,
+    "min": 70,
+    "max": 140,
+    "unit": "kg N per ha",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Removal in harvested grain for irrigated paddy yields of roughly 8-10 t per ha at about 1.1 percent grain N; straw excluded. Recalled, not read in an opened source."
+   },
+   "extra_water_mm": {
+    "value": null,
+    "min": 450,
+    "max": 930,
+    "unit": "mm",
+    "source": "fao_iwm_water_needs",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Water needed beyond crop evapotranspiration = soil saturation for puddling + water layer + percolation and seepage x flooded days. Inputs from two opened FAO manuals: SAT = 200 mm; WL = 100 mm; PERC = 2 mm per day (heavy clay) to 8 mm per day (sand), average 5-6 mm per day (the two manuals differ: heavy clay 2 vs 4 mm per day; D1). Computed (D5): min = 200 + 100 + 2 x 75 = 450 mm (heavy clay, short-duration crop, 75 flooded days); max = 200 + 100 + 6 x 105 = 930 mm (FAO average percolation, 150-day crop, 105 flooded days). Flooded days are an analyst assumption (season length minus 30-day nursery minus about 15 days of drainage before harvest). A single value would be false precision; if one is required, the arithmetic midpoint is 690 mm. Plausibility cross-check only: an opened FAO country document reports about 14,000 cubic meters per ha (1,400 mm) for short-duration varieties and 21,000-24,000 cubic meters per ha for older varieties as 'water consumption/evapotranspiration'; its basis is not stated. Locator (informational): fao_iwm_water_needs Ch. 4 Steps 4-6; fao_iwm_paddy_sched Ch. 4.4"
+   },
+   "salinity": {
+    "threshold_ds_m": {
+     "value": 3.0,
+     "min": null,
+     "max": null,
+     "unit": "dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Rice' (3.0; slope 12.0; rating S) and footnote 6",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "ECe threshold in dS per m at 25 degrees C. Footnote 6: for paddy rice the values refer to the EC of the soil water while plants are submerged. Rating S (sensitive)."
+    },
+    "slope_pct_per_ds_m": {
+     "value": 12.0,
+     "min": null,
+     "max": null,
+     "unit": "percent per dS per m",
+     "source": "fao56",
+     "locator": "Ch. 8, Table 23, row 'Rice'",
+     "evidence_grade": "verified",
+     "confidence": "high",
+     "notes": "Percent yield reduction per dS per m above the threshold. Guideline value only."
+    }
+   }
+  }
+ },
+ "seasons": [
+  {
+   "id": "winter",
+   "months": [
+    11,
+    12,
+    1,
+    2,
+    3,
+    4
+   ],
+   "description": "Winter field-crop season (wheat, berseem). Month boundaries are an analyst convention built from the agricultural year (1 Nov to 31 Oct) and the winter/summer rotation described in an opened FAO country document; the exact month limits are not stated there (D2). The historical third 'nili' season is not modeled.",
+   "source": "fao_egypt_fert",
+   "locator": "Ch. 3, 'Crop production systems' and 'Cropping patterns' (agricultural year 1 November to 31 October)",
+   "evidence_grade": "provisional",
+   "confidence": "medium"
+  },
+  {
+   "id": "summer",
+   "months": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "description": "Summer field-crop season (cotton, maize, rice). Cotton and maize may be sown in March or April, before the nominal start of this season; the sowing windows in crops.yaml govern. Month boundaries are an analyst convention (D2).",
+   "source": "fao_egypt_fert",
+   "locator": "Ch. 3, 'Crop production systems' and 'Cropping patterns' (agricultural year 1 November to 31 October)",
+   "evidence_grade": "provisional",
+   "confidence": "medium"
+  }
+ ],
+ "rotation_rules": [
+  {
+   "id": "nc_berseem_any",
+   "type": "n_credit",
+   "from": "berseem",
+   "to": "any",
+   "effect": {
+    "value": null,
+    "min": 33,
+    "max": 66,
+    "unit": "kg N per ha",
+    "source": "zjar_2023_berseem",
+    "locator": "Introduction, p. 149 (berseem fixes up to 33-66 kg N per ha for the following crops)",
+    "evidence_grade": "verified",
+    "confidence": "medium",
+    "notes": "Range as stated in the opened article, which cites Williams et al. (1990) and Govindasamy et al. (2021) as the underlying sources; those were not opened. Wording is 'as much as', so 66 is an upper figure and 33 the lower figure of the quoted range. Not stated whether the credit applies to one following crop or is shared by several. Do not add a separate yield bonus on top of this credit for the same crop (double counting)."
+   },
+   "direction": "positive",
+   "notes": "Legume nitrogen credit for berseem as a range. Mineral N recommendations for the following crop can be reduced by up to this amount."
+  },
+  {
+   "id": "pce_berseem_maize",
+   "type": "previous_crop_effect",
+   "from": "berseem",
+   "to": "maize",
+   "effect": {
+    "value": null,
+    "min": 0.0,
+    "max": 0.15,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Direction recalled from Egyptian crop-sequence trials seen only as search snippets; magnitude is an analyst bracket."
+   },
+   "direction": "positive",
+   "notes": "Maize after berseem. Overlaps with the N credit; apply at most one of the two for nitrogen-related benefit."
+  },
+  {
+   "id": "pce_berseem_rice",
+   "type": "previous_crop_effect",
+   "from": "berseem",
+   "to": "rice",
+   "effect": {
+    "value": null,
+    "min": 0.0,
+    "max": 0.15,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Direction recalled from an Egyptian rice-after-clover comparison seen only as a search snippet."
+   },
+   "direction": "positive",
+   "notes": "Rice after berseem. Overlaps with the N credit."
+  },
+  {
+   "id": "pce_berseem_cotton",
+   "type": "previous_crop_effect",
+   "from": "berseem",
+   "to": "cotton",
+   "effect": {
+    "value": null,
+    "min": 0.0,
+    "max": 0.1,
+    "unit": "dimensionless",
+    "source": "fao_egypt_fert",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Direction supported by an opened FAO country document, which lists berseem before cotton, ploughed in as green manure after one or two cuts, as a traditional fertility practice (Ch. 4); no magnitude is given there."
+   },
+   "direction": "positive",
+   "notes": "Cotton after berseem (short-season or ploughed-in berseem). Overlaps with the N credit."
+  },
+  {
+   "id": "rp_wheat_wheat",
+   "type": "repetition_penalty",
+   "from": "wheat",
+   "to": "wheat",
+   "effect": {
+    "value": null,
+    "min": 0.03,
+    "max": 0.2,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: continuous cereal sequences accumulate soil-borne disease and weed pressure."
+   },
+   "direction": "negative",
+   "notes": "Wheat in consecutive winter seasons."
+  },
+  {
+   "id": "rp_maize_maize",
+   "type": "repetition_penalty",
+   "from": "maize",
+   "to": "maize",
+   "effect": {
+    "value": null,
+    "min": 0.03,
+    "max": 0.15,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: continuous maize accumulates residue-borne disease and pest pressure."
+   },
+   "direction": "negative",
+   "notes": "Maize in consecutive summer seasons."
+  },
+  {
+   "id": "rp_cotton_cotton",
+   "type": "repetition_penalty",
+   "from": "cotton",
+   "to": "cotton",
+   "effect": {
+    "value": null,
+    "min": 0.05,
+    "max": 0.25,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: continuous cotton builds up wilt pathogens, nematodes and insect pests."
+   },
+   "direction": "negative",
+   "notes": "Cotton in consecutive summer seasons."
+  },
+  {
+   "id": "rp_rice_rice",
+   "type": "repetition_penalty",
+   "from": "rice",
+   "to": "rice",
+   "effect": {
+    "value": null,
+    "min": 0.0,
+    "max": 0.1,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: flooded rice tolerates repetition better than upland crops; effect may be near zero."
+   },
+   "direction": "negative",
+   "notes": "Rice in consecutive summer seasons."
+  },
+  {
+   "id": "rp_berseem_berseem",
+   "type": "repetition_penalty",
+   "from": "berseem",
+   "to": "berseem",
+   "effect": {
+    "value": null,
+    "min": 0.05,
+    "max": 0.2,
+    "unit": "dimensionless",
+    "source": "memory",
+    "locator": "",
+    "evidence_grade": "provisional",
+    "confidence": "low",
+    "notes": "Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: repeated clover raises nematode and disease pressure ('clover sickness')."
+   },
+   "direction": "negative",
+   "notes": "Berseem in consecutive winter seasons."
+  },
+  {
+   "id": "sc_cotton_wheat",
+   "type": "season_constraint",
+   "from": "cotton",
+   "to": "wheat",
+   "effect": {
+    "value": null,
+    "min": null,
+    "max": null,
+    "unit": "days",
+    "source": "none",
+    "locator": "",
+    "evidence_grade": "unresolved",
+    "confidence": "low",
+    "notes": "No opened source quantifies the sowing delay of wheat after late cotton harvest. Fallback: no extra penalty; the planner relies on the crop sowing windows in crops.yaml."
+   },
+   "direction": "negative",
+   "notes": "Late cotton picking can delay wheat sowing. Unresolved quantitatively."
+  },
+  {
+   "id": "sc_rice_wheat",
+   "type": "season_constraint",
+   "from": "rice",
+   "to": "wheat",
+   "effect": {
+    "value": null,
+    "min": null,
+    "max": null,
+    "unit": "days",
+    "source": "none",
+    "locator": "",
+    "evidence_grade": "unresolved",
+    "confidence": "low",
+    "notes": "No opened source quantifies the sowing delay of wheat after late rice harvest. Fallback: no extra penalty; the planner relies on the crop sowing windows in crops.yaml."
+   },
+   "direction": "negative",
+   "notes": "Late rice harvest can delay wheat sowing. Unresolved quantitatively."
+  }
+ ],
+ "assumptions": [
+  {
+   "path": "crops.wheat.sowing_window.start_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Nile Delta wheat sowing window 10 Nov to 30 Nov as seen in a search-result snippet of the Global Yield Gap Atlas Egypt page; the page itself could not be opened (two attempts). Closest regional source",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.sowing_window.end_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. See start_md. The same snippet gives physiological maturity between 15 Apr and 10 May for these sowing",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.season_length_days",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Value from FAO-56 Table 11, row 'Grains (small)', 165 days, Oct/Nov, Pakistan; arid regions (no Egypt-specific row for wheat). min 136 and max 181 are computed (D5) from the sowing window (10-30 Nov) and the maturity window (15 Apr-10 May) ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.stage_days.ini",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. FAO-56 Table 11 row 'Grains (small)' (25/35/65/40 days), regional analog (D2). Other FAO wheat rows show wide variation (initial stage 15 to 40",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.stage_days.dev",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same row as",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.stage_days.mid",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same row as",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.stage_days.late",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same row as ini. Stage days sum to 165 =",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.kc.ini",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. Default 0.30 (cereal group value). The 0.7 value for winter wheat on non-frozen soils is stored as max (D1: same source, conditions differ). Kc ini depends on wetting interval and ETo (FAO-56 Fig. 29/30, Annex 7); the planner should refine ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.ky_total",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. min and max span winter wheat in the IAEA comparison (0.87) to spring wheat in the IAEA comparison (1.32); FAO point values are 1.00-1.05 (winter) and 1.15 (spring). FAO-56 Table 24 gives 1.15 and 1.05 as well. Spring wheat row used as the ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.heat_stress.threshold_c",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled from the wheat heat-stress literature: daily maximum air temperature near 30-32 degrees C around anthesis begins to reduce grain set; values up to about 35 degrees C are used for grain filling. Not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.heat_stress.sensitive_stage",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled; consistent with the general statement in an opened FAO text that flowering and yield formation are the most water-sensitive periods, which is not a heat",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.n_removal_kg_ha",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Order-of-magnitude removal in harvested grain for irrigated yields of roughly 6-7 t per ha at about 2 percent grain N; straw excluded. Recalled, not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.extra_water_mm",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0",
+   "planner_fallback": "Use 0 mm; no extra water for this crop."
+  },
+  {
+   "path": "crops.wheat.salinity.threshold_ds_m",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. ECe threshold in dS per m at 25 degrees C (saturation extract). Bread wheat 6.0; semidwarf bread wheat 8.6 (stored as max). Rating MT (moderately tolerant) to",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.wheat.salinity.slope_pct_per_ds_m",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. Percent yield reduction per dS per m above the threshold. min 3.0 belongs to the semidwarf row (paired with threshold 8.6). Guideline values only (Table 23 footnote",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.sowing_window.start_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Analyst bracket of two observations: the unopened GYGA snippet lists berseem sowing 01 Sep to 31 Oct; the opened Egyptian trial (Zagazig J. Agric. Res. 2023, p. 151) sowed on 4 and 7 November. Start set to 1 October (D2,",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.sowing_window.end_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. See start_md; the opened trial sowed on 4 and 7 November, so the end is set to 15",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.season_length_days",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Arithmetic from the opened trial (p. 151): cuts at 65 days, then 50, 40 and 30 days after the previous cut = 185 days after sowing (sown 4 and 7 November, four cuts, sandy loam, Sharkia). Single-site observation; range 150 to 240 days is ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.stage_days.ini",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Analyst allocation of the 185-day season to the four FAO stages; FAO-56 Table 11 has no berseem row. Range reflects that",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.stage_days.dev",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Analyst allocation, see",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.stage_days.mid",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Analyst allocation, see ini. FAO-56 uses one averaged mid-season period for hay crops (Table 12 footnote",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.stage_days.late",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Analyst allocation, see ini. Stage days sum to 185 =",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.kc.mid",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. Default 0.90 is the average over cuttings (use with one season-long mid period); 1.15 is the full-cover value of a single cutting cycle (stored as max). No climatic or local adjustment was applied (standard-condition",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.kc.end",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. Same logic as mid. No climatic or local adjustment was applied (standard-condition",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.ky_total",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. No berseem value exists in FAO Paper 33 as reproduced in the opened sources. FAO-56 (Ch. 8, 'Limitations') allows Ky = 1 or the value of a similar crop; alfalfa is 1.1 (Table 24). Alfalfa value used as an analog; min 1.0 is the FAO-56 ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.heat_stress.threshold_c",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. No defensible value found. Fallback: the planner applies no heat-stress penalty to",
+   "planner_fallback": "Apply no heat-stress penalty to berseem."
+  },
+  {
+   "path": "crops.berseem.heat_stress.sensitive_stage",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. No defensible value found. Fallback: no sensitive stage is",
+   "planner_fallback": "Assign no sensitive stage; skip the heat-stress module for berseem."
+  },
+  {
+   "path": "crops.berseem.n_removal_kg_ha",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Gross N removed in cut forage if all cuts are removed from the field, from recalled forage dry-matter yields (about 8-12 t per ha) and N contents (about 2.5-3.5 percent). This is not a net balance: fixation is handled in ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.berseem.extra_water_mm",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0",
+   "planner_fallback": "Use 0 mm; no extra water for this crop."
+  },
+  {
+   "path": "crops.cotton.sowing_window.start_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. FAO-56 Table 11 gives planting 'Mar-May' for a row whose region field reads 'Egypt; Pakistan; Calif.', so the dates cannot be attributed to Egypt alone (D2). Months converted to the first and last day of the month (D5). The unopened GYGA ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.cotton.sowing_window.end_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. See start_md (last day of May, D5). Locator (informational): Ch. 6, Table 11, row 'Cotton'",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.cotton.ky_total",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. Central value is the FAO value; min and max are the range of IAEA values listed in Table 2 for total-season",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.cotton.heat_stress.threshold_c",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled: daily maximum air temperature above roughly 32-35 degrees C during flowering and boll set reduces boll retention and pollen viability. Not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.cotton.heat_stress.sensitive_stage",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled; see",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.cotton.n_removal_kg_ha",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Removal in harvested seed cotton (lint plus seed) for yields of roughly 2.5-3.5 t per ha; stalks left in the field. Recalled, not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.cotton.extra_water_mm",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0",
+   "planner_fallback": "Use 0 mm; no extra water for this crop."
+  },
+  {
+   "path": "crops.maize.sowing_window.start_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Nile Delta maize sowing window 15 Apr to 15 May as seen in a search-result snippet of the unopened GYGA Egypt page",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.sowing_window.end_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. See",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.season_length_days",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. FAO-56 Table 11 row 'Maize (grain)' 20/35/40/30 = 125 days (June, Nigeria, humid) chosen because its length lies inside the 100-135 days reported by the unopened GYGA snippet for Delta hybrids; the arid-climate row is 140 days (Dec/Jan). ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.stage_days.ini",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. FAO-56 Table 11 row 'Maize (grain)' 20/35/40/30 (June, Nigeria); regional analog",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.stage_days.dev",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.stage_days.mid",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.stage_days.late",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same row. Stage days sum to 125 =",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.ky_total",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. FAO value is central; max is the IAEA value in Table",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.heat_stress.threshold_c",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled: daily maximum air temperature above roughly 33-36 degrees C around silking and pollination reduces kernel set. Not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.heat_stress.sensitive_stage",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled. An opened FAO text (Ky chapter) also shows flowering as the most water-sensitive period for maize, which is a water statement, not a heat",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.n_removal_kg_ha",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Removal in harvested grain for irrigated yields of roughly 7-9 t per ha at about 1.4 percent grain N; stover excluded. Recalled, not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.maize.extra_water_mm",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. Not applicable: only rice receives extra water beyond crop evapotranspiration. Fallback: the planner must use 0",
+   "planner_fallback": "Use 0 mm; no extra water for this crop."
+  },
+  {
+   "path": "crops.rice.sowing_window.start_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Nile Delta rice sowing window 1 May to 15 Jun as seen in a search-result snippet of the unopened GYGA Egypt page; whether this is nursery sowing or direct seeding is not stated",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.sowing_window.end_md",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. See",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.season_length_days",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. FAO-56 Table 11 row 'Rice' 30/30/60/30 = 150 days (Dec; May; Tropics; Mediterranean). Short-duration Egyptian varieties need about 120 days from planting to harvest according to an opened FAO country document (Ch. 3, 'Cropping patterns'), ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.stage_days.ini",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. FAO-56 Table 11 row 'Rice' 30/30/60/30; regional analog (D2). Scale proportionally if a 120-day variety is",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.stage_days.dev",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.stage_days.mid",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.stage_days.late",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Same row. Stage days sum to 150 =",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.kc.ini",
+   "decision_rule": "D1",
+   "reason": "Sources or table rows disagree; both values stored as min and max under the stated priority. Table 12 default for sub-humid climate. Table 14 gives 1.10-1.15 for arid to semi-arid climates; the Table 14 adjustment was not applied because local wind class was not obtained. Range 1.05 to 1.15",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.ky_total",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled: FAO Paper 33 total-season Ky for rice is close to 1.1. Rice is absent from Table 1 of the opened FAO-66 chapter and from FAO-56 Table 24, so the value could not be checked in an opened source. Range widened to what is known",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.heat_stress.threshold_c",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled: daily maximum air temperature of about 33-36 degrees C at anthesis causes spikelet sterility. Not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.heat_stress.sensitive_stage",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Recalled; see",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.n_removal_kg_ha",
+   "decision_rule": "D4",
+   "reason": "Value recalled from memory or derived by the analyst; graded provisional with a widened range. Removal in harvested grain for irrigated paddy yields of roughly 8-10 t per ha at about 1.1 percent grain N; straw excluded. Recalled, not read in an opened",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "crops.rice.extra_water_mm",
+   "decision_rule": "D5",
+   "reason": "Unit or convention conversion performed explicitly and recorded in the parameter notes. Water needed beyond crop evapotranspiration = soil saturation for puddling + water layer + percolation and seepage x flooded days. Inputs from two opened FAO manuals: SAT = 200 mm; WL = 100 mm; PERC = 2 mm per day (heavy clay) to 8 mm per ...",
+   "planner_fallback": "Use 690 mm (midpoint) and display the provisional-assumption label; run sensitivity at 450 and 930 mm."
+  },
+  {
+   "path": "rules.nc_berseem_any.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Range as stated in the opened article, which cites Williams et al. (1990) and Govindasamy et al. (2021) as the underlying sources; those were not opened. Wording is 'as much as', so 66 is an upper figure and 33 the lower figure of the ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.pce_berseem_maize.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Direction recalled from Egyptian crop-sequence trials seen only as search ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.pce_berseem_rice.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Direction recalled from an Egyptian rice-after-clover comparison seen ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.pce_berseem_cotton.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Direction supported by an opened FAO country document, which lists ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.rp_wheat_wheat.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: continuous cereal sequences accumulate soil-borne disease and ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.rp_maize_maize.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: continuous maize accumulates residue-borne disease and pest ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.rp_cotton_cotton.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: continuous cotton builds up wilt pathogens, nematodes and ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.rp_rice_rice.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: flooded rice tolerates repetition better than upland crops; ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.rp_berseem_berseem.effect",
+   "decision_rule": "D6",
+   "reason": "Weak evidence on a rotation effect; stored as a range with a direction and low confidence. Effect is the magnitude of the relative change in yield of the 'to' crop as a fraction (0.10 = 10 percent); direction gives the sign. Weak evidence, range only (D6). Recalled: repeated clover raises nematode and disease pressure ('clover ...",
+   "planner_fallback": "Use the value (or the midpoint of min and max when value is null) and show the provisional-assumption label; run sensitivity at min and max."
+  },
+  {
+   "path": "rules.sc_cotton_wheat.effect",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. No opened source quantifies the sowing delay of wheat after late cotton harvest. Fallback: no extra penalty; the planner relies on the crop sowing windows in",
+   "planner_fallback": "Apply no extra penalty; check only that the preceding crop can finish before the wheat sowing window ends."
+  },
+  {
+   "path": "rules.sc_rice_wheat.effect",
+   "decision_rule": "D3",
+   "reason": "No usable value in any source; graded unresolved with a neutral fallback. No opened source quantifies the sowing delay of wheat after late rice harvest. Fallback: no extra penalty; the planner relies on the crop sowing windows in",
+   "planner_fallback": "Apply no extra penalty; check only that the preceding crop can finish before the wheat sowing window ends."
+  },
+  {
+   "path": "seasons.winter",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Month boundaries are an analyst convention.",
+   "planner_fallback": "Use the months as listed and show the provisional-assumption label; crop sowing windows govern crop timing."
+  },
+  {
+   "path": "seasons.summer",
+   "decision_rule": "D2",
+   "reason": "No Egyptian source opened for this local item; closest FAO or regional source used and graded provisional. Month boundaries are an analyst convention.",
+   "planner_fallback": "Use the months as listed and show the provisional-assumption label; crop sowing windows govern crop timing."
+  },
+  {
+   "path": "global.review_status",
+   "decision_rule": "D7",
+   "reason": "No expert, farmer or agronomist reviewed any parameter in this package. All evidence grades were assigned by the author from the sources actually opened.",
+   "planner_fallback": "Present every value as a documented input from named sources, never as expert-reviewed or validated."
+  }
+ ],
+ "sources": [
+  {
+   "id": "fao56",
+   "citation": "Allen, R.G., Pereira, L.S., Raes, D., Smith, M. 1998. Crop evapotranspiration: guidelines for computing crop water requirements. FAO Irrigation and Drainage Paper 56. FAO, Rome. Chapters 6 and 8 read.",
+   "url_or_doi": "https://www.fao.org/4/x0490E/x0490e00.htm (chapters: x0490e0b.htm, x0490e0e.htm)",
+   "date_opened": "2026-11-14",
+   "access_status": "opened"
+  },
+  {
+   "id": "fao66_ch2",
+   "citation": "Smith, M., Steduto, P. 2012. Yield response to water: the original FAO water production function (Chapter 2). In: Steduto, P., Hsiao, T.C., Fereres, E., Raes, D. (eds), Crop yield response to water, FAO Irrigation and Drainage Paper 66. FAO, Rome. Series number and year are not printed in the extracted chapter text.",
+   "url_or_doi": "https://fao.org/4/i2800e/i2800e02.pdf",
+   "date_opened": "2026-11-14",
+   "access_status": "opened"
+  },
+  {
+   "id": "fao_egypt_fert",
+   "citation": "FAO. 2005. Fertilizer use by crop in Egypt. Land and Plant Nutrition Management Service, Land and Water Development Division, FAO, Rome. Chapters 3 to 7 read.",
+   "url_or_doi": "https://www.fao.org/4/y5863e/y5863e00.htm (chapters y5863e07.htm to y5863e0b.htm)",
+   "date_opened": "2026-11-14",
+   "access_status": "opened"
+  },
+  {
+   "id": "fao_iwm_paddy_sched",
+   "citation": "FAO. Irrigation water management training manual series, Chapter 4 \"Determination of the irrigation schedule for paddy rice\" (document code T7202E). FAO, Rome. Author, year and volume number are not shown on the page opened.",
+   "url_or_doi": "https://www.fao.org/4/t7202e/t7202e07.htm",
+   "date_opened": "2026-11-14",
+   "access_status": "opened"
+  },
+  {
+   "id": "fao_iwm_water_needs",
+   "citation": "FAO. Irrigation water management training manual series, Volume 3 (cross-referenced as such on the T7202E page), Chapter 4 \"Irrigation water needs\" (document code S2022E). FAO, Rome. Author and year are not shown on the page opened.",
+   "url_or_doi": "https://www.fao.org/3/S2022E/s2022e08.htm",
+   "date_opened": "2026-11-14",
+   "access_status": "opened"
+  },
+  {
+   "id": "zjar_2023_berseem",
+   "citation": "Ibrahim, H.H.A., Ramadan, I.E., Abdelsalam, A., Hassan, H.H.M., El-Khawaga, A.A.H. 2023. Impact of bio-chemical phosphorus fertilization and lithovit regimes on some qualitative traits of various berseem varieties. Zagazig Journal of Agricultural Research 50(2): 149-166. No DOI appears in the text read.",
+   "url_or_doi": "https://zjar.journals.ekb.eg/article_297652_75ab256d516da61ad01cec7147f73c95.pdf",
+   "date_opened": "2026-11-14",
+   "access_status": "opened"
+  },
+  {
+   "id": "gyga_egypt",
+   "citation": "Global Yield Gap Atlas, Egypt country page (irrigated wheat), Wageningen University and Research with CIMMYT. Table 1: sowing and harvest windows, Nile Delta and Upper Egypt.",
+   "url_or_doi": "https://yieldgap.containers.wur.nl/egypt",
+   "date_opened": "2026-11-14",
+   "access_status": "not accessible"
+  }
+ ]
+}

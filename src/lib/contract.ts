@@ -137,6 +137,17 @@ export interface PowerVariableInfo {
   label: Label;
   source: string;
 }
+export interface PowerRequestRecord {
+  url: string;
+  retrieved_at_utc: string;
+  fill_value: number;
+  served_units: Record<string, string>;
+  conversions: { variable: string; served_unit: string; canonical_unit: string; factor: number }[];
+}
+export interface NdviPointStatus {
+  status: "available" | "unavailable" | "pending";
+  detail: string;
+}
 export interface Manifest {
   bundle_version: string;
   built_at_utc: string;
@@ -149,6 +160,7 @@ export interface Manifest {
       row_counts: Record<string, number>;
       missing_counts: Record<string, Record<string, number>>;
       source_files: FileRecord[];
+      requests?: Record<string, PowerRequestRecord>;
     };
     ndvi: {
       product: string;
@@ -158,6 +170,8 @@ export interface Manifest {
       source_by_point: Record<string, string>;
       composite_counts: Record<string, { total: number; valid: number }>;
       source_files: FileRecord[];
+      metadata_source?: Record<string, "served" | "documented">;
+      status_by_point?: Record<string, NdviPointStatus>;
     };
     end_date: string;
     time_standard: "UTC";
@@ -165,6 +179,10 @@ export interface Manifest {
       point_to_cell: Record<string, string>;
       cells: { cell_id: string; point_ids: string[] }[];
       inference?: string;
+      solar?: {
+        point_to_cell: Record<string, string>;
+        cells: { cell_id: string; point_ids: string[] }[];
+      };
     };
   };
   config: {

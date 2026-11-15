@@ -10,8 +10,16 @@ import {
   LabelChip,
 } from "@/components/ui/pieces";
 import { Shell } from "@/components/layout";
-import { CROP_LIST, NAVIGATION_ITEMS, PROPOSED_POINTS } from "@/lib/app-content";
-import { loadBundle, runPlanner } from "@/lib/planner";
+import {
+  DataLoading,
+  DataProblem,
+  DataSourceLine,
+  LocationIssues,
+} from "@/components/data-status";
+import { CROP_LIST, NAVIGATION_ITEMS } from "@/lib/app-content";
+import { serverServices } from "@/lib/data/client-services";
+import { createBundleLoader, type BundleLoader, type LoadState } from "@/lib/data/loader";
+import { runPlanner } from "@/lib/planner";
 import { encodePlannerHash, ndviNote, normalizeWeights, parsePlannerHash } from "@/lib/derive";
 import { formatDate, formatNullable, scoreFormatter } from "@/lib/format";
 import type {
@@ -23,39 +31,13 @@ import type {
   Priorities,
   ProvenanceEntry,
 } from "@/lib/contract";
-import type { ActualBundle, BundleError, EvidenceContext } from "@/lib/app-types";
+import type { ActualBundle, BundleError, DataMode, EvidenceContext } from "@/lib/app-types";
 
 type ViewSection = "/" | "/method" | "/global" | "/about";
 
 const LazyMethodView = lazy(() => import("@/views/method-view"));
 const LazyGlobalView = lazy(() => import("@/views/global-view"));
 const LazyAboutView = lazy(() => import("@/views/about-view"));
-
-function DataUnavailable({ error, retry }: { error: BundleError | null; retry: () => void }) {
-  return (
-    <InlineMessage
-      title="The crop data are not available"
-      detail="The RotaNile browser data bundle has not been supplied. Add the approved data bundle to load Delta points, measured records and configuration; no sample values are shown."
-      variant="error"
-    >
-      <p className="provenance-ref">
-        {error ? `Bundle issue: ${error.kind}. ${error.detail}` : "Bundle issue: bundle_missing"}
-      </p>
-      <Button className="retry-button" onClick={retry}>
-        Try again
-      </Button>
-    </InlineMessage>
-  );
-}
-
-function StatusContext({ bundle }: { bundle: ActualBundle | null }) {
-  if (!bundle) return <p className="notice-text">Latest available data date is not supplied.</p>;
-  return (
-    <p className="notice-text">
-      Latest available data through {formatDate(bundle.manifest.data.end_date)}.
-    </p>
-  );
-}
 
 function showIndicatorLabel(key: string) {
   return key === "water_demand_mm_total"
@@ -87,15 +69,23 @@ function describeNdvi(file: NdviFile | undefined) {
 
 function PlannerView({
   bundle,
-  error,
+  loadState,
   retry,
+  retryPoint,
+  retryVegetation,
   openEvidence,
 }: {
   bundle: ActualBundle | null;
-  error: BundleError | null;
+  loadState: LoadState;
   retry: () => void;
+  retryPoint: (id: string) => void;
+  retryVegetation: (id: string) => void;
   openEvidence: (context: EvidenceContext) => void;
 }) {
+  const dataMode: DataMode | null = loadState.phase === "ready" ? loadState.mode : null;
+  const retrievedAt = loadState.phase === "ready" ? loadState.retrievedAt : null;
+  const locations = loadState.phase === "ready" || loadState.phase === "loading" ? loadState.locations : [];
+  const usablePoints = (bundle?.points.points ?? []).filter((point) => !!bundle?.climate[point.id]);
   const [parsed, setParsed] = useState(() => parsePlannerHash("#/"));
   const [selectedPoint, setSelectedPoint] = useState(parsed.pointId ?? "");
   const [weights, setWeights] = useState(parsed.priorities);
@@ -139,9 +129,11 @@ function PlannerView({
 
   useEffect(() => {
     if (!bundle) return;
-    const available = new Set(bundle.points.points.map((point) => point.id));
+    const available = new Set(
+      bundle.points.points.filter((point) => !!bundle.climate[point.id]).map((point) => point.id),
+    );
     if (!selectedPoint || !available.has(selectedPoint))
-      setSelectedPoint(bundle.points.points[0]?.id ?? "");
+      setSelectedPoint([...available][0] ?? "");
     if (!enabledCrops) setEnabledCrops([...CROP_LIST.map((crop) => crop.id)]);
   }, [bundle, enabledCrops, selectedPoint]);
 
@@ -169,7 +161,7 @@ function PlannerView({
     setResultsState("loading");
     setResponse(null);
     setEngineMessage(null);
-    void runPlanner(request)
+    void runPlanner(request, bundle)
       .then((result) => {
         if (runCount.current !== nextRun) return;
         setResponse(result);
@@ -272,7 +264,9 @@ function PlannerView({
     <div className="page-shell">
       <div className="page-heading">
         <h1 id="view-heading">Top plans for {selectedArea}</h1>
-        <StatusContext bundle={bundle} />
+        {bundle ? (
+          <DataSourceLine bundle={bundle} mode={dataMode} retrievedAt={retrievedAt} />
+        ) : null}
         <p className="notice-text">Planning support, not a forecast.</p>
         {resultsState === "loading" ? (
           <p className="notice-text" role="status">
@@ -288,7 +282,20 @@ function PlannerView({
           variant="warning"
         />
       ) : null}
-      {!bundle ? <DataUnavailable error={error} retry={retry} /> : null}
+      {loadState.phase === "loading" ? <DataLoading state={loadState} /> : null}
+      {loadState.phase === "config_missing" || loadState.phase === "failed" ? (
+        <DataProblem state={loadState} retry={retry} />
+      ) : null}
+      {loadState.phase === "ready" ? (
+        <LocationIssues
+          locations={locations}
+          retryPoint={retryPoint}
+          retryVegetation={retryVegetation}
+        />
+      ) : null}
+      {loadState.phase === "ready" && loadState.notices.length ? (
+        <InlineMessage title="Data notice" detail={loadState.notices.join(" ")} variant="warning" />
+      ) : null}
 
       {bundle ? (
         <div className="planner-layout">
@@ -308,10 +315,10 @@ function PlannerView({
                   Choose a point
                 </h2>
                 <p className="field-hint">
-                  The location records are proposed and have not been checked on a map.
+                  All locations are proposed coordinates. None was checked on imagery or a map.
                 </p>
                 <div className="point-list" role="radiogroup" aria-label="Nile Delta points">
-                  {bundle.points.points.map((point) => (
+                  {usablePoints.map((point) => (
                     <button
                       key={point.id}
                       className="point-choice"
@@ -321,7 +328,7 @@ function PlannerView({
                       tabIndex={selectedPoint === point.id ? 0 : -1}
                       onClick={() => setSelectedPoint(point.id)}
                       onKeyDown={(event) => {
-                        const index = bundle.points.points.findIndex(
+                        const index = usablePoints.findIndex(
                           (candidate) => candidate.id === selectedPoint,
                         );
                         const move =
@@ -333,18 +340,18 @@ function PlannerView({
                         if (move !== 0) {
                           event.preventDefault();
                           const next =
-                            bundle.points.points[
-                              (index + move + bundle.points.points.length) %
-                                bundle.points.points.length
-                            ];
+                            usablePoints[(index + move + usablePoints.length) % usablePoints.length];
                           if (next) setSelectedPoint(next.id);
                         }
                       }}
                     >
                       <strong>{point.area}</strong>
+                      <span>{point.location_note}</span>
                       <span>
-                        {PROPOSED_POINTS.find((candidate) => candidate.id === point.id)
-                          ?.locationNote ?? point.location_note}
+                        Climate cell {point.cell_id}
+                        {cellPeers(bundle, point.id).length
+                          ? `, shared with ${cellPeers(bundle, point.id).join(", ")}: climate series are not independent.`
+                          : "."}
                       </span>
                       <span>{describeNdvi(bundle.ndvi[point.id])}</span>
                     </button>

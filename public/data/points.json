@@ -1,0 +1,55 @@
+{
+  "bundle_version": "",
+  "points": [
+    {
+      "id": "p1",
+      "name": "Kafr El-Sheikh site",
+      "area": "Kafr El-Sheikh",
+      "latitude": 31.1764,
+      "longitude": 30.8692,
+      "elevation_m": null,
+      "cell_id": "",
+      "location_note": "Proposed. Anchored to a published field-experiment coordinate; confidence moderate; not checked on imagery."
+    },
+    {
+      "id": "p2",
+      "name": "Dakahlia site",
+      "area": "Dakahlia",
+      "latitude": 31.064,
+      "longitude": 31.49,
+      "elevation_m": null,
+      "cell_id": "",
+      "location_note": "Proposed. Midpoint of the rural corridor between Mansoura and Dekernes; confidence low to moderate; not checked on imagery."
+    },
+    {
+      "id": "p3",
+      "name": "Gharbia site",
+      "area": "Gharbia",
+      "latitude": 30.867,
+      "longitude": 31.028,
+      "elevation_m": null,
+      "cell_id": "",
+      "location_note": "Proposed. Governorate reference coordinate north of Tanta; confidence low to moderate; not checked on imagery."
+    },
+    {
+      "id": "p4",
+      "name": "Beheira site",
+      "area": "Beheira",
+      "latitude": 31.0,
+      "longitude": 30.55,
+      "elevation_m": null,
+      "cell_id": "",
+      "location_note": "Proposed. East-south-east of Damanhur, inland of the coast; confidence low; not checked on imagery."
+    },
+    {
+      "id": "p5",
+      "name": "Sharqia site",
+      "area": "Sharqia",
+      "latitude": 30.65,
+      "longitude": 31.58,
+      "elevation_m": null,
+      "cell_id": "",
+      "location_note": "Proposed. North-east of Zagazig on the eastern Delta plain; confidence low; not checked on imagery."
+    }
+  ]
+}
