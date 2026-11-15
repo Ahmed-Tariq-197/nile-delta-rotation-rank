@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 
+import { usePageMotion } from "@/components/motion";
 import { NAVIGATION_ITEMS } from "@/lib/app-content";
 
 /** The official Nile Orbit Lab badge, served from size-matched copies of the original file. */
@@ -103,6 +104,7 @@ export function Header({ section }: { section: string }) {
           </a>
         ))}
       </nav>
+      <span className="scroll-progress" aria-hidden="true" />
     </header>
   );
 }
@@ -117,6 +119,7 @@ export function LiveRegions() {
 }
 
 export function Shell({ section, children }: { section: string; children: ReactNode }) {
+  usePageMotion(section);
   useEffect(() => {
     const label = NAVIGATION_ITEMS.find((item) => item.path === section)?.label ?? "Planner";
     document.title = `${label} | RotaNile`;

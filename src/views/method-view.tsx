@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button, DataTable, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { DataSourceLine } from "@/components/data-status";
 import { PageHero } from "@/components/layout";
+import { HeroStats } from "@/components/motion";
 import { DATA_LIMITS, POWER_VARIABLE_LABELS } from "@/lib/app-content";
 import { exportSnapshot } from "@/lib/data/snapshot-export";
 import type { ActualBundle, ViewProps } from "@/lib/app-types";
@@ -73,6 +74,16 @@ export default function MethodView({
         <p className="hero-lede">
           What goes into a plan, where each number comes from, and its limits.
         </p>
+        {bundle ? (
+          <HeroStats
+            items={[
+              { label: "Verified", value: bundle.manifest.config.parameter_counts.verified },
+              { label: "Provisional", value: bundle.manifest.config.parameter_counts.provisional },
+              { label: "Unresolved", value: bundle.manifest.config.parameter_counts.unresolved },
+              { label: "Sources", value: bundle.manifest.config.source_count },
+            ]}
+          />
+        ) : null}
       </PageHero>
       {!bundle ? (
         <InlineMessage
