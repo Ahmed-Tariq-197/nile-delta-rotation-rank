@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Button, CropBadge, CropCell, DataTable, Field, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { Shell } from "@/components/layout";
 import { CROP_LIST, NAVIGATION_ITEMS, POWER_VARIABLE_LABELS, PROPOSED_POINTS, REGION_FILES, SCHEMA_ROWS } from "@/lib/app-content";
-import { encodePlannerHash, medianCadence, parsePlannerHash } from "@/lib/derive";
+import { encodePlannerHash, parsePlannerHash } from "@/lib/derive";
 import { formatDate, formatNullable, scoreFormatter } from "@/lib/format";
 import type { CropId, EvidenceGrade, EngineResponse, NdviFile, Plan, Priorities, ProvenanceEntry } from "@/lib/contract";
 import type { ActualBundle, BundleError, EvidenceContext } from "@/lib/app-types";
@@ -45,10 +45,6 @@ function EvidenceButton({ onOpen }: { onOpen: () => void }) {
 
 function cropName(id: CropId) {
   return CROP_LIST.find((item) => item.id === id)?.name ?? id;
-}
-
-function ToolTipProvider({ children }: { children: ReactNode }) {
-  return <>{children}</>;
 }
 
 function PlannerView({
@@ -208,7 +204,7 @@ function PlannerView({
                       }
                     }}>
                       <strong>{point.area}</strong>
-                      <span>{point.id === "p1" ? "Published field-experiment coordinate; source description is incomplete." : "Proposed location, not checked on imagery."}</span>
+                      <span>{point.locationNote}</span>
                       <span>Vegetation record not supplied.</span>
                     </button>
                   ))}
@@ -291,7 +287,7 @@ function PlannerView({
             <section aria-labelledby="ndvi-heading">
               <h2 id="ndvi-heading">Observed vegetation index at this point</h2>
               <p className="section-description">NDVI is shown as context. It is not an input to the plan scores. <LabelChip label="observed" /></p>
-              {activeNdvi ? <NdviView file={activeNdvi} onEvidence={() => openEvidence({ title: "Vegetation record", detail: "Product details and composite counts.", pointId: selectedPoint })} /> : <div className="chart-wrap"><p>No vegetation record was supplied for {selectedArea}. Data values and dates are not shown without the original bundle.</p></div>}
+      {activeNdvi ? <NdviView file={activeNdvi} onEvidence={() => openEvidence({ title: "Vegetation record", detail: "Product details and composite counts.", pointId: selectedPoint })} /> : <div className="chart-wrap"><p>No vegetation record was supplied for {selectedArea}. Data values and dates are not shown without the original bundle.</p></div>}
             </section>
 
             <section aria-labelledby="limits-heading">
@@ -498,7 +494,7 @@ export function RotaNileApp() {
         fetch(`${DATA_BASE}manifest.json`),
       ]);
       const missing = [["points.json", pointsResponse], ["config.json", configResponse], ["manifest.json", manifestResponse]].find(([, result]) => !(result as Response).ok);
-      if (missing) throw { kind: "bundle_missing", file: missing[0], detail: `Missing ${missing[0]}. Add the approved data bundle under public/data.` };
+      if (missing) throw { kind: "bundle_missing", file: String(missing[0]), detail: `Missing ${String(missing[0])}. Add the approved data bundle under public/data.` };
       const [points, config, manifest] = await Promise.all([pointsResponse.json(), configResponse.json(), manifestResponse.json()]) as [ActualBundle["points"], ActualBundle["config"], ActualBundle["manifest"]];
       if (!Array.isArray(points.points) || !config.crops || !manifest.data?.end_date) throw { kind: "bundle_invalid", file: "points.json, config.json or manifest.json", detail: "Required bundle fields are missing." };
       const ndviEntries = await Promise.all(points.points.map(async (point) => {
