@@ -1,9 +1,8 @@
-# RotaNile build roadmap
+# RotaNile roadmap
 
-- [x] Build the RotaNile foundation from R5 part 1A, adapted to the existing TanStack Start project structure.
-- [x] Implement the four R5 views and their interactions from part 1B.
-- [x] Install the supplied Nile Orbit Lab logo unchanged as the requested browser and Apple icons.
-- [ ] Remove platform names from the remaining protected project notes and metadata; the project manager prevents direct edits.
-- [x] Run focused tests, inspect build/runtime diagnostics, and verify the finished app and icon responses.
-- [x] Audit current editable files and identify historical or platform-managed references that cannot be safely removed.
-- [ ] Connect the approved data bundle and calculation engine when those source deliverables are available.
+- [x] Interface: Planner, Method and Data, Global, About views.
+- [x] Official Nile Orbit Lab badge as browser and Apple icons.
+- [ ] Live data layer: NASA POWER climate and MODIS vegetation, agronomy configuration, five proposed locations, frozen snapshot.
+- [ ] Repository hygiene: tool-neutral text, typecheck with tsc, lint and format clean, tests.
+- [ ] Suggest a next step after the remix.
+- [ ] Calculation engine (next stage; specification not yet supplied).
