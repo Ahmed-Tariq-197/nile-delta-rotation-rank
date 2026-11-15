@@ -21,5 +21,6 @@ export type ViewProps = {
   error: BundleError | null;
   dataMode: DataMode | null;
   retrievedAt: string | null;
+  vegetationPending: boolean;
   openEvidence: (context: EvidenceContext) => void;
 };

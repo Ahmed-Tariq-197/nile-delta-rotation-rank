@@ -55,6 +55,12 @@ function EvidenceButton({ onOpen }: { onOpen: () => void }) {
   );
 }
 
+function cellPeers(bundle: ActualBundle, pointId: string) {
+  const cellId = bundle.manifest.data.cell_groups.point_to_cell[pointId];
+  const cell = bundle.manifest.data.cell_groups.cells.find((item) => item.cell_id === cellId);
+  return (cell?.point_ids ?? []).filter((id) => id !== pointId);
+}
+
 function cropName(id: CropId) {
   return CROP_LIST.find((item) => item.id === id)?.name ?? id;
 }
@@ -1281,36 +1287,26 @@ function ProvenanceRow({ entry }: { entry: ProvenanceEntry }) {
 
 export function RotaNileApp() {
   const [section, setSection] = useState<ViewSection>("/");
-  const [bundle, setBundle] = useState<ActualBundle | null>(null);
-  const [bundleError, setBundleError] = useState<BundleError | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>({
+    phase: "loading",
+    message: "Preparing the data request.",
+    locations: [],
+  });
   const [drawer, setDrawer] = useState<EvidenceContext | null>(null);
-  const [loading, setLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const [response, setResponse] = useState<EngineResponse | null>(null);
+  const [response] = useState<EngineResponse | null>(null);
+  const loaderRef = useRef<BundleLoader | null>(null);
+
   useEffect(() => {
-    let active = true;
-    setLoading(true);
-    void loadBundle()
-      .then((next) => {
-        if (!active) return;
-        setBundle(next);
-        setBundleError(null);
-      })
-      .catch((reason: unknown) => {
-        if (!active) return;
-        const typed =
-          reason !== null && typeof reason === "object" ? (reason as BundleError) : null;
-        setBundleError(
-          typed?.kind ? typed : { kind: "network", detail: "The data could not be read." },
-        );
-        setBundle(null);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
+    const dataBase = new URL(`${import.meta.env.BASE_URL}data/`, window.location.href).href;
+    const loader = createBundleLoader({
+      services: serverServices,
+      dataBase,
+      onUpdate: setLoadState,
+    });
+    loaderRef.current = loader;
+    void loader.start();
+    return () => loader.stop();
   }, [retryCount]);
 
   useEffect(() => {
@@ -1326,11 +1322,36 @@ export function RotaNileApp() {
     return () => window.removeEventListener("hashchange", readHash);
   }, []);
 
+  const bundle: ActualBundle | null = loadState.phase === "ready" ? loadState.bundle : null;
+  const bundleError: BundleError | null =
+    loadState.phase === "config_missing"
+      ? { kind: "bundle_missing", file: loadState.file, detail: loadState.detail }
+      : loadState.phase === "failed"
+        ? { kind: "network", detail: `${loadState.error.service}: ${loadState.error.message}` }
+        : null;
   const retry = useCallback(() => setRetryCount((count) => count + 1), []);
+  const retryPoint = useCallback((id: string) => void loaderRef.current?.retryPoint(id), []);
+  const retryVegetation = useCallback(
+    (id: string) => void loaderRef.current?.retryVegetation(id),
+    [],
+  );
   const openEvidence = useCallback((context: EvidenceContext) => setDrawer(context), []);
+  const dataMode: DataMode | null = loadState.phase === "ready" ? loadState.mode : null;
+  const retrievedAt = loadState.phase === "ready" ? loadState.retrievedAt : null;
+  const vegetationPending = loadState.phase === "ready" && loadState.vegetationPending;
   const commonProps = useMemo(
-    () => ({ bundle, response, openEvidence, retry, loading, error: bundleError }),
-    [bundle, response, openEvidence, retry, loading, bundleError],
+    () => ({
+      bundle,
+      response,
+      openEvidence,
+      retry,
+      loading: loadState.phase === "loading",
+      error: bundleError,
+      dataMode,
+      retrievedAt,
+      vegetationPending,
+    }),
+    [bundle, response, openEvidence, retry, loadState.phase, bundleError, dataMode, retrievedAt, vegetationPending],
   );
 
   return (
@@ -1338,8 +1359,10 @@ export function RotaNileApp() {
       {section === "/" ? (
         <PlannerView
           bundle={bundle}
-          error={bundleError}
+          loadState={loadState}
           retry={retry}
+          retryPoint={retryPoint}
+          retryVegetation={retryVegetation}
           openEvidence={openEvidence}
         />
       ) : null}
@@ -1355,7 +1378,7 @@ export function RotaNileApp() {
       ) : null}
       {section === "/about" ? (
         <Suspense fallback={<p className="chart-wrap">Loading project information.</p>}>
-          <LazyAboutView bundle={bundle} response={response} />
+          <LazyAboutView bundle={bundle} response={response} retrievedAt={retrievedAt} />
         </Suspense>
       ) : null}
       <EvidenceDrawer context={drawer} bundle={bundle} onClose={() => setDrawer(null)} />
