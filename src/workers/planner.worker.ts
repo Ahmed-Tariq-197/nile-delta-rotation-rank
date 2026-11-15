@@ -1,6 +1,5 @@
 import type { AppError, BundleData, EngineRequest, EngineResponse, PointsFile } from "@/lib/contract";
 
-const base = `${import.meta.env.BASE_URL}data/`;
 let bundlePromise: Promise<BundleData> | undefined;
 
 type WorkerScope = typeof self & {
@@ -11,8 +10,8 @@ function error(kind: AppError["kind"], detail: string, file?: string): AppError 
   return { kind, detail, ...(file ? { file } : {}) };
 }
 
-async function json(path: string) {
-  const response = await fetch(`${base}${path}`);
+async function json(base: string, path: string) {
+  const response = await fetch(new URL(path, base));
   if (response.status === 404) throw error("bundle_missing", "A required bundle file is missing.", path);
   if (!response.ok) throw error("network", `The data request returned status ${response.status}.`, path);
   try {
@@ -22,16 +21,16 @@ async function json(path: string) {
   }
 }
 
-function loadFullBundle() {
+function loadFullBundle(base: string) {
   if (!bundlePromise) {
-    bundlePromise = Promise.all([json("points.json"), json("config.json"), json("manifest.json")]).then(async ([points, config, manifest]) => {
+    bundlePromise = Promise.all([json(base, "points.json"), json(base, "config.json"), json(base, "manifest.json")]).then(async ([points, config, manifest]) => {
       if (!Array.isArray(points["points"]) || !config["crops"] || !manifest["data"]) {
         throw error("bundle_invalid", "The full calculation bundle is incomplete.");
       }
       const pointList = points["points"] as PointsFile["points"];
       const [climateEntries, ndviEntries] = await Promise.all([
-        Promise.all(pointList.map(async (point) => [point.id, await json(`climate/${point.id}.json`)] as const)),
-        Promise.all(pointList.map(async (point) => [point.id, await json(`ndvi/${point.id}.json`)] as const)),
+        Promise.all(pointList.map(async (point) => [point.id, await json(base, `climate/${point.id}.json`)] as const)),
+        Promise.all(pointList.map(async (point) => [point.id, await json(base, `ndvi/${point.id}.json`)] as const)),
       ]);
       return {
         points: points as unknown as BundleData["points"],
@@ -67,9 +66,19 @@ async function calculate(request: EngineRequest) {
 
 const scope = self as WorkerScope;
 scope.onmessage = async (event: MessageEvent<{ id: number; request: EngineRequest }>) => {
-  const { id, request } = event.data;
+  const { id, request, dataBase } = event.data;
   try {
-    const response = await calculate(request);
+    const enginePath = Object.keys(engineModules)[0];
+    const loadEngine = enginePath ? engineModules[enginePath] : undefined;
+    if (!loadEngine) throw error("engine_missing", "The crop-rotation calculation engine was not supplied.", "src/engine/index.ts");
+    const engine = await loadEngine() as {
+      evaluate: (request: EngineRequest, bundle: BundleData) => EngineResponse;
+      validateResponse: (response: EngineResponse) => { ok: boolean; errors: string[] };
+    };
+    const bundle = await loadFullBundle(dataBase);
+    const response = await engine.evaluate(request, bundle);
+    const validation = engine.validateResponse(response);
+    if (!validation.ok) throw error("bundle_invalid", validation.errors.join(" "), "engine response");
     scope.postMessage({ id, ok: true, response });
   } catch (reason) {
     const detail = reason !== null && typeof reason === "object" && "detail" in reason

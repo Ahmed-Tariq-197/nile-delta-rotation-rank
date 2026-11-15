@@ -105,6 +105,7 @@ function getPlannerWorker() {
 export function runPlanner(request: EngineRequest): Promise<EngineResponse> {
   return new Promise((resolve, reject) => {
     const id = ++requestSequence;
+    const dataBase = new URL(`${import.meta.env.BASE_URL}data/`, window.location.href).href;
     const timer = window.setTimeout(() => {
       const current = pending.get(id);
       if (!current) return;
@@ -115,7 +116,7 @@ export function runPlanner(request: EngineRequest): Promise<EngineResponse> {
     }, 20_000);
     pending.set(id, { resolve, reject, timer });
     try {
-      getPlannerWorker().postMessage({ id, request });
+      getPlannerWorker().postMessage({ id, request, dataBase });
     } catch {
       window.clearTimeout(timer);
       pending.delete(id);
