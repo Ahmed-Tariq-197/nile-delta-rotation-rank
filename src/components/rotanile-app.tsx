@@ -1151,7 +1151,7 @@ function NdviView({ file, onEvidence }: { file: NdviFile; onEvidence: () => void
       {accepted.length > 0 ? (
         <p className="chart-summary">
           {accepted.length} valid composites shown. The scale factor is{" "}
-          {formatNullable(file.scale_applied, 2)}.
+          {file.scale_applied}.
         </p>
       ) : (
         <p>No valid composites for this point.</p>
