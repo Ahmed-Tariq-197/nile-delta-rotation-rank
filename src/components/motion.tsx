@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const REVEAL_SELECTOR =
-  ".content-section, .plan-card, .chart-wrap, .limits-strip, .feature-card, .stat-tile, .tree-line, .card-grid > *";
+  ".content-section, .chart-wrap, .limits-strip, .feature-card, .stat-tile, .tree-line, .card-grid > *";
 
 function prefersReducedMotion() {
   return (
