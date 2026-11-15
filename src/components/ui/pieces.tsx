@@ -78,7 +78,7 @@ export function LabelChip({ label }: { label: Label }) {
 }
 
 export function GradeChip({ grade }: { grade: EvidenceGrade }) {
-  const symbol = grade === "verified" ? "✓ " : grade === "unresolved" ? "– " : "";
+  const symbol = grade === "verified" ? "✓ " : grade === "unresolved" ? "– " : "~ ";
   return (
     <span className={`grade-chip ${grade}`} title={GRADE_COPY[grade]}>
       {symbol}

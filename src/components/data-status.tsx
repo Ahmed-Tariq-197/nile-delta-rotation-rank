@@ -138,7 +138,11 @@ export function LocationIssues({
           detail={`${item.power_error?.message ?? "The request failed."} Hidden until it loads; retrying automatically.`}
           variant="error"
         >
-          <Button className="retry-button" variant="quiet" onClick={() => retryPoint(item.point_id)}>
+          <Button
+            className="retry-button"
+            variant="quiet"
+            onClick={() => retryPoint(item.point_id)}
+          >
             Retry {item.area}
           </Button>
         </InlineMessage>

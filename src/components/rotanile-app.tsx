@@ -63,7 +63,9 @@ function cropName(id: CropId) {
 function describeNdvi(file: NdviFile | undefined) {
   if (!file) return "NDVI loading";
   const note = ndviNote(file);
-  return note ? `NDVI ${formatNullable(note.value, 2)} on ${formatDate(note.date)}` : "No valid NDVI";
+  return note
+    ? `NDVI ${formatNullable(note.value, 2)} on ${formatDate(note.date)}`
+    : "No valid NDVI";
 }
 
 function areaName(bundle: ActualBundle, id: string) {
@@ -509,7 +511,11 @@ function PlannerView({
 
           <div className="planner-results" aria-busy={resultsState === "loading"}>
             {engineMessage && response ? (
-              <InlineMessage title="Engine results are unavailable" detail={engineMessage} variant="warning" />
+              <InlineMessage
+                title="Engine results are unavailable"
+                detail={engineMessage}
+                variant="warning"
+              />
             ) : null}
             <section aria-labelledby="plans-title">
               <h2 className="sr-only" id="plans-title">
@@ -571,78 +577,78 @@ function PlannerView({
             </section>
 
             {response ? (
-            <section aria-labelledby="pareto-heading">
-              <h2 id="pareto-heading">How the plans trade off</h2>
-              {response ? (
-                <>
-                  <div className="control-row view-tabs">
-                    <Button
-                      aria-pressed={chartMode === "chart"}
-                      onClick={() => setChartMode("chart")}
-                    >
-                      Show chart
-                    </Button>
-                    <Button
-                      aria-pressed={chartMode === "table"}
-                      onClick={() => setChartMode("table")}
-                    >
-                      Show as table
-                    </Button>
-                  </div>
-                  {chartMode === "table" ? (
-                    <PlanTable
-                      plans={pageRows}
-                      total={planTableRows.length}
-                      page={page}
-                      setPage={setPage}
-                      pageCount={pageCount}
-                      filter={filter}
-                      setFilter={setFilter}
-                      sortBy={sortBy}
-                      setSortBy={setSortBy}
-                      onSelect={choosePlan}
-                    />
-                  ) : (
-                    <PlanChart
-                      plans={response.plans}
-                      frontIds={response.pareto_front_ids}
-                      selectedPlan={currentPlan}
-                      onSelect={choosePlan}
-                    />
-                  )}
-                  {response.plans.length < 3 ? (
-                    <InlineMessage
-                      title={`Only ${response.plans.length} plans meet your constraints.`}
-                      variant="warning"
-                    />
-                  ) : null}
-                </>
-              ) : null}
-            </section>
+              <section aria-labelledby="pareto-heading">
+                <h2 id="pareto-heading">How the plans trade off</h2>
+                {response ? (
+                  <>
+                    <div className="control-row view-tabs">
+                      <Button
+                        aria-pressed={chartMode === "chart"}
+                        onClick={() => setChartMode("chart")}
+                      >
+                        Show chart
+                      </Button>
+                      <Button
+                        aria-pressed={chartMode === "table"}
+                        onClick={() => setChartMode("table")}
+                      >
+                        Show as table
+                      </Button>
+                    </div>
+                    {chartMode === "table" ? (
+                      <PlanTable
+                        plans={pageRows}
+                        total={planTableRows.length}
+                        page={page}
+                        setPage={setPage}
+                        pageCount={pageCount}
+                        filter={filter}
+                        setFilter={setFilter}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        onSelect={choosePlan}
+                      />
+                    ) : (
+                      <PlanChart
+                        plans={response.plans}
+                        frontIds={response.pareto_front_ids}
+                        selectedPlan={currentPlan}
+                        onSelect={choosePlan}
+                      />
+                    )}
+                    {response.plans.length < 3 ? (
+                      <InlineMessage
+                        title={`Only ${response.plans.length} plans meet your constraints.`}
+                        variant="warning"
+                      />
+                    ) : null}
+                  </>
+                ) : null}
+              </section>
             ) : null}
 
             {response ? (
-            <section aria-labelledby="selected-plan-heading">
-              <h2 id="selected-plan-heading">Selected plan, season by season</h2>
-              {currentPlan ? (
-                <SelectedPlanTable
-                  plan={currentPlan}
-                  onEvidence={() =>
-                    openEvidence({
-                      title: `Rank ${currentPlan.rank} evidence`,
-                      detail: "Plan evidence and source records.",
-                      plan: currentPlan,
-                    })
-                  }
-                  onFigure={(detail) =>
-                    openEvidence({ title: "Season evidence", detail, plan: currentPlan })
-                  }
-                  salinity={salinity}
-                />
-              ) : (
-                <p className="muted">Select a plan to see its seasons.</p>
-              )}
-            </section>
+              <section aria-labelledby="selected-plan-heading">
+                <h2 id="selected-plan-heading">Selected plan, season by season</h2>
+                {currentPlan ? (
+                  <SelectedPlanTable
+                    plan={currentPlan}
+                    onEvidence={() =>
+                      openEvidence({
+                        title: `Rank ${currentPlan.rank} evidence`,
+                        detail: "Plan evidence and source records.",
+                        plan: currentPlan,
+                      })
+                    }
+                    onFigure={(detail) =>
+                      openEvidence({ title: "Season evidence", detail, plan: currentPlan })
+                    }
+                    salinity={salinity}
+                  />
+                ) : (
+                  <p className="muted">Select a plan to see its seasons.</p>
+                )}
+              </section>
             ) : null}
 
             <section aria-labelledby="ndvi-heading">
@@ -674,8 +680,7 @@ function PlannerView({
               </h2>
               <p>
                 Planning support, not a forecast. Nile Delta only; real-world validation was not
-                performed.{" "}
-                <a href="#/method">Read the limits</a>
+                performed. <a href="#/method">Read the limits</a>
               </p>
               {response?.warnings.length ? (
                 <ul>
@@ -1131,9 +1136,13 @@ function NdviView({ file, onEvidence }: { file: NdviFile; onEvidence: () => void
   const t0 = Math.min(...times);
   const t1 = Math.max(...times);
   const x = (t: number) => pad.left + ((t - t0) / (t1 - t0 || 1)) * (width - pad.left - pad.right);
-  const y = (v: number) => pad.top + (1 - Math.max(0, Math.min(1, v))) * (height - pad.top - pad.bottom);
+  const y = (v: number) =>
+    pad.top + (1 - Math.max(0, Math.min(1, v))) * (height - pad.top - pad.bottom);
   const line = accepted
-    .map((entry, index) => `${index ? "L" : "M"} ${x(Date.parse(entry.date)).toFixed(1)} ${y(entry.value).toFixed(1)}`)
+    .map(
+      (entry, index) =>
+        `${index ? "L" : "M"} ${x(Date.parse(entry.date)).toFixed(1)} ${y(entry.value).toFixed(1)}`,
+    )
     .join(" ");
   const area = `${line} L ${x(t1).toFixed(1)} ${y(0)} L ${x(t0).toFixed(1)} ${y(0)} Z`;
   const years = [...new Set(accepted.map((entry) => entry.date.slice(0, 4)))];
@@ -1174,7 +1183,13 @@ function NdviView({ file, onEvidence }: { file: NdviFile; onEvidence: () => void
         </defs>
         {[0, 0.25, 0.5, 0.75, 1].map((tick) => (
           <g key={tick}>
-            <line className="chart-grid-line" x1={pad.left} x2={width - pad.right} y1={y(tick)} y2={y(tick)} />
+            <line
+              className="chart-grid-line"
+              x1={pad.left}
+              x2={width - pad.right}
+              y1={y(tick)}
+              y2={y(tick)}
+            />
             <text className="chart-label" x={pad.left - 8} y={y(tick) + 4} textAnchor="end">
               {tick.toFixed(2)}
             </text>
@@ -1208,7 +1223,11 @@ function NdviView({ file, onEvidence }: { file: NdviFile; onEvidence: () => void
         <span>Dense green</span>
       </div>
       <div className="control-row">
-        <Button variant="quiet" aria-expanded={showTable} onClick={() => setShowTable((open) => !open)}>
+        <Button
+          variant="quiet"
+          aria-expanded={showTable}
+          onClick={() => setShowTable((open) => !open)}
+        >
           {showTable ? "Hide table" : "Show as table"}
         </Button>
         <Button variant="quiet" onClick={onEvidence}>

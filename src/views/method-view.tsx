@@ -70,7 +70,9 @@ export default function MethodView({
   return (
     <div className="data-layout">
       <PageHero title="Method and data">
-        <p className="hero-lede">What goes into a plan, where each number comes from, and its limits.</p>
+        <p className="hero-lede">
+          What goes into a plan, where each number comes from, and its limits.
+        </p>
       </PageHero>
       {!bundle ? (
         <InlineMessage

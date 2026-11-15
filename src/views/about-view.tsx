@@ -35,7 +35,10 @@ export default function AboutView({
         <ul className="tick-list">
           <li>Forecast yields, weather, income or costs.</li>
           <li>Use real-time data. Data are the latest available at retrieval.</li>
-          <li>Claim validation. Real-world validation was not performed and no outside review took place.</li>
+          <li>
+            Claim validation. Real-world validation was not performed and no outside review took
+            place.
+          </li>
           <li>Cover places outside the Nile Delta.</li>
         </ul>
       </section>
