@@ -32,3 +32,4 @@ use the editor.
 # Project architecture
 
 - Keep the planner views within the existing single-page route and hash-navigation structure so shareable planner state remains consistent.
+- Route all server-rendered requests through `src/server.ts` so unhandled request errors are logged and returned as a branded fallback; this preserves diagnostics when the runtime masks an exception.
