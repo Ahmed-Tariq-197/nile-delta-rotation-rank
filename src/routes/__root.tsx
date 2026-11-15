@@ -17,7 +17,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#FFFFFF" },
+      { name: "theme-color", content: "#050B1E" },
       { title: "RotaNile: crop rotation planning support for the Nile Delta" },
       {
         name: "description",
@@ -47,7 +47,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   shellComponent: RootShell,
   component: RootComponent,
   errorComponent: RootErrorComponent,
+  notFoundComponent: RootNotFound,
 });
+
+function RootNotFound() {
+  return (
+    <main className="grid min-h-screen place-content-center gap-4 bg-background px-6 py-12 text-center text-foreground">
+      <h1>This page does not exist</h1>
+      <p>The address may be mistyped or out of date.</p>
+      <div className="flex flex-wrap justify-center gap-3">
+        <a className="action-button primary" href="/#/">
+          Open the planner
+        </a>
+      </div>
+    </main>
+  );
+}
 
 function RootErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
