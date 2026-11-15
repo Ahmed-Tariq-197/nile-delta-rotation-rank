@@ -45,6 +45,14 @@ function cropName(id: CropId) {
   return CROP_LIST.find((item) => item.id === id)?.name ?? id;
 }
 
+function describeNdvi(file: NdviFile | undefined) {
+  if (!file) return "Vegetation record not supplied.";
+  const note = ndviNote(file);
+  return note
+    ? `Latest valid composite on ${formatDate(note.date)}: NDVI ${formatNullable(note.value, 2)}, at or above ${formatNullable(note.percentileInRecord * 100)} percent of valid composites in this record.`
+    : "No valid composites for this point.";
+}
+
 function PlannerView({
   bundle,
   error,
@@ -208,7 +216,7 @@ function PlannerView({
                     }}>
                       <strong>{point.area}</strong>
                       <span>{point.locationNote}</span>
-                      {bundle.ndvi[point.id] ? <span>{(() => { const note = ndviNote(bundle.ndvi[point.id]); return note ? `Latest valid composite on ${formatDate(note.date)}: NDVI ${formatNullable(note.value, 2)}, at or above ${formatNullable(note.percentileInRecord * 100)} percent of valid composites in this record.` : "No valid composites for this point."; })()}</span> : <span>Vegetation record not supplied.</span>}
+                      <span>{describeNdvi(bundle.ndvi[point.id])}</span>
                     </button>
                   ))}
                 </div>
