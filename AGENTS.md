@@ -31,6 +31,6 @@ use the editor.
 
 # Project guidance
 
-- Keep the four primary views inside the index route with shareable hash navigation because the product specification requires static-path compatibility.
+- Keep primary view URLs and planner input state shareable in the URL to preserve static-host compatibility.
 - Treat supplied data and calculation-engine outputs as authoritative; never invent agricultural figures, results, locations, validation claims or provenance.
 - Keep the application free of analytics and external telemetry.
