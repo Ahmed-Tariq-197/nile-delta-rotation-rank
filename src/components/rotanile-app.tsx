@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button, CropCell, DataTable, Field, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { Shell } from "@/components/layout";
@@ -98,7 +98,6 @@ function PlannerView({
     if (priorityTotal <= 0) {
       return;
     }
-    if (!bundle || !selectedPoint) return;
     const priorities = normalizeWeights(weights);
     if (!bundle || !selectedPoint || !priorities) return;
     const nextRun = ++runCount.current;
@@ -204,18 +203,18 @@ function PlannerView({
                 <h2 className="section-heading" id="point-choice-title">Choose a point</h2>
                 <p className="field-hint">The location records are proposed and have not been checked on a map.</p>
                 <div className="point-list" role="radiogroup" aria-label="Nile Delta points">
-                  {PROPOSED_POINTS.map((point) => (
+                  {bundle.points.points.map((point) => (
                     <button key={point.id} className="point-choice" type="button" role="radio" aria-checked={selectedPoint === point.id} tabIndex={selectedPoint === point.id ? 0 : -1} onClick={() => setSelectedPoint(point.id)} onKeyDown={(event) => {
-                      const index = PROPOSED_POINTS.findIndex((candidate) => candidate.id === selectedPoint);
+                      const index = bundle.points.points.findIndex((candidate) => candidate.id === selectedPoint);
                       const move = event.key === "ArrowDown" || event.key === "ArrowRight" ? 1 : event.key === "ArrowUp" || event.key === "ArrowLeft" ? -1 : 0;
                       if (move !== 0) {
                         event.preventDefault();
-                        const next = PROPOSED_POINTS[(index + move + PROPOSED_POINTS.length) % PROPOSED_POINTS.length];
+                        const next = bundle.points.points[(index + move + bundle.points.points.length) % bundle.points.points.length];
                         if (next) setSelectedPoint(next.id);
                       }
                     }}>
                       <strong>{point.area}</strong>
-                      <span>{point.locationNote}</span>
+                      <span>{PROPOSED_POINTS.find((candidate) => candidate.id === point.id)?.locationNote ?? point.location_note}</span>
                       <span>{describeNdvi(bundle.ndvi[point.id])}</span>
                     </button>
                   ))}
@@ -459,8 +458,6 @@ export function RotaNileApp() {
   const [loading, setLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [response, setResponse] = useState<EngineResponse | null>(null);
-  const loadedBundleRef = useRef<ActualBundle | null>(null);
-
   useEffect(() => {
     let active = true;
     setLoading(true);

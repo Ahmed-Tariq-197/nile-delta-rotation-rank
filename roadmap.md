@@ -6,3 +6,4 @@
 - [ ] Remove platform/tool-specific and AI-related references from editable project files and visible app metadata/content.
 - [ ] Run focused tests, inspect build/runtime diagnostics, and verify the finished app and icon responses.
 - [ ] Audit current editable files and report any historical or platform-managed references that cannot be safely removed.
+- [ ] Connect the approved data bundle and calculation engine when those source deliverables are available.
