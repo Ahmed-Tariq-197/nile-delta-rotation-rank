@@ -3,9 +3,10 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react
 import { Button, CropCell, DataTable, Field, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { Shell } from "@/components/layout";
 import { CROP_LIST, NAVIGATION_ITEMS, PROPOSED_POINTS } from "@/lib/app-content";
-import { encodePlannerHash, ndviNote, parsePlannerHash } from "@/lib/derive";
+import { loadBundle, runPlanner } from "@/lib/planner";
+import { encodePlannerHash, ndviNote, normalizeWeights, parsePlannerHash } from "@/lib/derive";
 import { formatDate, formatNullable, scoreFormatter } from "@/lib/format";
-import type { CropId, EvidenceGrade, EngineResponse, NdviFile, Plan, Priorities, ProvenanceEntry } from "@/lib/contract";
+import type { CropId, EngineRequest, EngineResponse, NdviFile, Plan, Priorities, ProvenanceEntry } from "@/lib/contract";
 import type { ActualBundle, BundleError, EvidenceContext } from "@/lib/app-types";
 
 type ViewSection = "/" | "/method" | "/global" | "/about";
@@ -13,8 +14,6 @@ type ViewSection = "/" | "/method" | "/global" | "/about";
 const LazyMethodView = lazy(() => import("@/views/method-view"));
 const LazyGlobalView = lazy(() => import("@/views/global-view"));
 const LazyAboutView = lazy(() => import("@/views/about-view"));
-
-const DATA_BASE = `${import.meta.env.BASE_URL}data/`;
 
 function DataUnavailable({ error, retry }: { error: BundleError | null; retry: () => void }) {
   return (
@@ -92,17 +91,35 @@ function PlannerView({
       return;
     }
     if (!bundle || !selectedPoint) return;
+    const priorities = normalizeWeights(weights);
+    if (!bundle || !selectedPoint || !priorities) return;
     const nextRun = ++runCount.current;
-    setResultsState(response ? "ready" : "loading");
-    const timer = window.setTimeout(() => {
-      setEngineMessage("The calculation engine was not included. Engine-backed rankings are unavailable.");
-      setResponse(null);
-      setResultsState("empty");
-    }, 200);
-    return () => {
-      window.clearTimeout(timer);
-      if (nextRun === runCount.current) runCount.current += 1;
+    const request: EngineRequest = {
+      point_id: selectedPoint,
+      horizon_years: 3,
+      priorities,
+      soil: { salinity_ec_dsm: salinity === "" ? null : Number(salinity) },
+      constraints: {
+        allowed_crops: enabledCrops === null || enabledCrops.length === CROP_LIST.length ? null : enabledCrops as CropId[],
+        max_share_by_crop: null,
+        seasonal_water_cap_mm: cap === "" ? null : Number(cap),
+      },
     };
+    setResultsState("loading");
+    setResponse(null);
+    setEngineMessage(null);
+    void runPlanner(request).then((result) => {
+      if (runCount.current !== nextRun) return;
+      setResponse(result);
+      setSelectedPlanId((current) => result.plans.some((plan) => plan.id === current) ? current : result.top_ids[0] ?? result.plans[0]?.id ?? null);
+      setResultsState(result.plans.length ? "ready" : "empty");
+    }).catch((reason: unknown) => {
+      if (runCount.current !== nextRun) return;
+      const detail = reason !== null && typeof reason === "object" && "detail" in reason ? String(reason.detail) : "The calculation engine could not run.";
+      setEngineMessage(detail);
+      setResultsState("empty");
+    });
+    return () => { runCount.current += 1; };
   }, [bundle, selectedPoint, weights, salinity, cap, enabledCrops, priorityTotal]);
 
   const updateHash = useCallback((planId: string | null) => {

@@ -30,6 +30,7 @@ export interface ProvenanceEntry { kind: "data" | "config"; ref: string; label: 
 export interface Plan { id: string; slots: Slot[]; slot_details: SlotDetail[]; indicators: Indicators; score: number; rank: number; pareto: boolean; evidence: { weakest_grade: EvidenceGrade; provisional_count: number; unresolved_count: number }; provenance: ProvenanceEntry[]; }
 export interface EngineResponse { engine_version: string; bundle_version: string; data_end_date: string; request: EngineRequest; plans: Plan[]; pareto_front_ids: string[]; top_ids: string[]; warnings: string[]; limits: string[]; }
 export interface UiBundle { points: PointsFile; config: ConfigFile; manifest: Manifest; ndvi: Record<string, NdviFile>; }
+export interface BundleData { points: PointsFile; climate: Record<string, ClimateFile>; ndvi: Record<string, NdviFile>; config: ConfigFile; manifest: Manifest; }
 export type AppErrorKind = "bundle_missing" | "bundle_invalid" | "network" | "engine_missing" | "calculation_timeout";
 export interface AppError { kind: AppErrorKind; file?: string; detail: string; }
 export type EngineErrorCode = "UNKNOWN_POINT" | "INVALID_REQUEST" | "NO_FEASIBLE_PLAN" | "DATA_GAP";
