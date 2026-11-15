@@ -266,18 +266,29 @@ export function createBundleLoader(options: LoaderOptions) {
           }),
         ),
       );
-      const failure = results.find((item) => !item.ok);
-      if (failure && !failure.ok) return unavailable(failure.error.message);
+      const failures = results.filter((item) => !item.ok);
+      if (failures.length === results.length) {
+        const first = failures[0];
+        return unavailable(
+          first && !first.ok ? first.error.message : "No composites could be read.",
+        );
+      }
       for (const item of results) if (item.ok) records.push(...item.value);
       const file = buildNdviFile(point.id, selected, records, meta);
       const valid = file.quality_ok.filter(Boolean).length;
+      const firstFailure = failures[0];
+      const partial =
+        firstFailure && !firstFailure.ok
+          ? ` ${failures.length} of ${chunks.length} groups could not be read (${firstFailure.error.message}); those composites are null and fail the quality check.`
+          : "";
       ndvi[point.id] = {
         file,
         status: {
           status: "available",
-          detail: `${file.composite_dates.length} composites, ${valid} pass the quality check; retrieved ${new Date().toISOString()}.`,
+          detail: `${file.composite_dates.length} composites, ${valid} pass the quality check; retrieved ${new Date().toISOString()}.${partial}`,
         },
       };
+      if (partial) notices.push(`Vegetation for ${point.id}:${partial}`);
       update(point.id, { vegetation: "ready", vegetation_detail: undefined });
       await publish();
     } catch (reason) {

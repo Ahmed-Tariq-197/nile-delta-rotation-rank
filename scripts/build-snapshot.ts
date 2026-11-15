@@ -61,6 +61,16 @@ if (failedPower.length) {
   );
   process.exit(1);
 }
+const missingVegetation = state.locations.filter((item) => item.vegetation !== "ready");
+if (missingVegetation.length) {
+  console.error(
+    "Snapshot not written: vegetation unavailable for",
+    missingVegetation
+      .map((item) => `${item.point_id} (${item.vegetation_detail ?? "no detail"})`)
+      .join(", "),
+  );
+  process.exit(1);
+}
 await writeFile(join(dataDir, "snapshot.json"), JSON.stringify(state.bundle));
 console.log("Wrote public/data/snapshot.json", state.bundle.manifest.bundle_version);
 for (const warning of state.bundle.manifest.warnings) console.log("warning:", warning);
