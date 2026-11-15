@@ -1,7 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import {
+  Outlet,
+  createRootRouteWithContext,
+  HeadContent,
+  Scripts,
+  useRouter,
+} from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/react-router";
+import { useEffect, type ReactNode } from "react";
 
+import { Button } from "@/components/ui/button";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -38,7 +46,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   }),
   shellComponent: RootShell,
   component: RootComponent,
+  errorComponent: RootErrorComponent,
 });
+
+function RootErrorComponent({ error, reset }: ErrorComponentProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
+  return (
+    <main className="grid min-h-screen place-content-center gap-4 bg-background px-6 py-12 text-center text-foreground">
+      <h1>RotaNile could not open this page</h1>
+      <p>Try again, or return to the planner.</p>
+      <div className="flex flex-wrap justify-center gap-3">
+        <Button onClick={reset}>Try again</Button>
+        <Button variant="secondary" onClick={() => void router.navigate({ to: "/" })}>
+          Open planner
+        </Button>
+      </div>
+    </main>
+  );
+}
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
