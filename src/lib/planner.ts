@@ -52,7 +52,7 @@ export function runPlanner(request: EngineRequest, bundle?: BundleData): Promise
       pending.delete(id);
       plannerWorker?.terminate();
       plannerWorker = undefined;
-      reject(makeError("calculation_timeout", "The calculation took too long. Try again."));
+      reject(makeError("calculation_timeout", "The calculation took longer than 20 seconds and was stopped."));
     }, 20_000);
     pending.set(id, { resolve, reject, timer });
     try {
