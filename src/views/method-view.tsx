@@ -68,7 +68,6 @@ export default function MethodView({
           .includes(search.toLowerCase())),
   );
   const rows = filtered.slice(page * 25, page * 25 + 25);
-  const variables = Object.entries(bundle?.manifest.data.power.variables ?? {});
 
   return (
     <div className="data-layout">
