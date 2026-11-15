@@ -66,8 +66,14 @@ export function bandsUrl() {
   return `${MODIS_BASE}/${MODIS_PRODUCT}/bands`;
 }
 
-export function subsetUrl(latitude: number, longitude: number, startDate: string, endDate: string) {
-  return `${MODIS_BASE}/${MODIS_PRODUCT}/subset?${coordinateQuery(latitude, longitude)}&startDate=${startDate}&endDate=${endDate}&kmAboveBelow=0&kmLeftRight=0`;
+export function subsetUrl(
+  latitude: number,
+  longitude: number,
+  startDate: string,
+  endDate: string,
+  band: string,
+) {
+  return `${MODIS_BASE}/${MODIS_PRODUCT}/subset?${coordinateQuery(latitude, longitude)}&band=${band}&startDate=${startDate}&endDate=${endDate}&kmAboveBelow=0&kmLeftRight=0`;
 }
 
 function modisError(

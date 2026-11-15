@@ -4,6 +4,8 @@ import {
   bandsUrl,
   datesUrl,
   MODIS_TIMEOUT_MS,
+  NDVI_BAND,
+  RELIABILITY_BAND,
   parseBands,
   parseDates,
   parseSubset,
@@ -68,18 +70,26 @@ export async function fetchModisBands(): Promise<Result<BandMeta>> {
   return ok(parseBands(response.ok ? response.value : null));
 }
 
+/** One group of up to ten composites: the NDVI band and the pixel-reliability band. */
 export async function fetchModisChunk(
   point: PointLocation,
   startDate: string,
   endDate: string,
 ): Promise<Result<SubsetRecord[]>> {
-  const url = subsetUrl(point.latitude, point.longitude, startDate, endDate);
-  const response = await fetchUpstreamJson(url, {
-    service: "MODIS (ORNL DAAC)",
-    timeoutMs: MODIS_TIMEOUT_MS,
-    pointId: point.id,
-  });
-  return response.ok ? parseSubset(response.value, point.id, url) : fail(response.error);
+  const records: SubsetRecord[] = [];
+  for (const band of [NDVI_BAND, RELIABILITY_BAND]) {
+    const url = subsetUrl(point.latitude, point.longitude, startDate, endDate, band);
+    const response = await fetchUpstreamJson(url, {
+      service: "MODIS (ORNL DAAC)",
+      timeoutMs: MODIS_TIMEOUT_MS,
+      pointId: point.id,
+    });
+    if (!response.ok) return fail(response.error);
+    const parsed = parseSubset(response.value, point.id, url);
+    if (!parsed.ok) return parsed;
+    records.push(...parsed.value);
+  }
+  return ok(records);
 }
 
 export const directServices: DataServices = {
