@@ -300,7 +300,7 @@ function PlannerView({
               decimals: 2,
             },
             {
-              label: "On the trade-off front",
+              label: "Trade-off front",
               value: response?.pareto_front_ids.length ?? 0,
             },
           ]}
