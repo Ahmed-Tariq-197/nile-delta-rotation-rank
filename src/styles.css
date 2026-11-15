@@ -74,7 +74,7 @@
   --rice: oklch(0.74 0.11 233);
   --risk-low: oklch(0.86 0.12 88);
   --risk-mid: oklch(0.74 0.15 58);
-  --risk-high: oklch(0.6 0.18 32);
+  --risk-high: oklch(0.63 0.17 34);
   --risk-max: oklch(0.42 0.14 25);
   --background: var(--page);
   --foreground: var(--text);
