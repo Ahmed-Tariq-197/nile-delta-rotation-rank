@@ -1,13 +1,60 @@
 import { useState } from "react";
 
 import { Button, DataTable, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
+import { DataSourceLine, exportSnapshot } from "@/components/data-status";
 import { POWER_VARIABLE_LABELS } from "@/lib/app-content";
-import { medianCadence } from "@/lib/derive";
-import { formatDate, formatNullable } from "@/lib/format";
-import type { ViewProps } from "@/lib/app-types";
-import { formatOrdinal } from "@/lib/format";
+import type { ActualBundle, ViewProps } from "@/lib/app-types";
+import { formatDate, formatDateTime, formatNullable } from "@/lib/format";
 
-export default function MethodView({ bundle, response, retry, error, loading }: ViewProps) {
+export const DATA_LIMITS = [
+  "Climate values are NASA POWER grid-cell model output (meteorology: MERRA-2, with GEOS FP-IT for the most recent period; solar: CERES SYN1deg, with FLASHFlux for the most recent period). They describe a cell, not a field.",
+  "The source of each POWER series changes inside the period, from the long-term product to the near-real-time product. Consistency across that change was not assessed.",
+  "The data are the latest available at retrieval, not real-time. The request ends 10 days before the run date because the solar series lags by about a week; the most recent solar days can still be missing.",
+  "Cell groups are inferred from identical returned values and assume NASA POWER does not interpolate between cells. Points in the same cell do not have independent climate series.",
+  "A 250 m MODIS NDVI pixel can mix fields, canals, roads and villages. Composite dates are the start of each 16-day window, not acquisition dates. NDVI is context only and never enters the scores.",
+  "Point coordinates are proposed. None was checked on imagery or a map.",
+  "Elevation is the value NASA POWER returns for its cell, not a surveyed value.",
+  "Real-world validation was not performed, and no outside review took place.",
+];
+
+function variableRows(bundle: ActualBundle) {
+  const requests = bundle.manifest.data.power.requests ?? {};
+  const pointIds = Object.keys(requests);
+  const totalRows = Object.values(bundle.manifest.data.power.row_counts).reduce((sum, value) => sum + value, 0);
+  return Object.entries(bundle.manifest.data.power.variables).map(([key, item]) => {
+    const served = [...new Set(pointIds.map((id) => requests[id]?.served_units[key]).filter(Boolean))];
+    const factors = [
+      ...new Set(
+        pointIds.flatMap((id) =>
+          (requests[id]?.conversions ?? []).filter((entry) => entry.variable === key).map((entry) => entry.factor),
+        ),
+      ),
+    ];
+    const missing = Object.values(bundle.manifest.data.power.missing_counts).reduce(
+      (sum, counts) => sum + (counts[key] ?? 0),
+      0,
+    );
+    return [
+      POWER_VARIABLE_LABELS[key] ? `${POWER_VARIABLE_LABELS[key]} (${key})` : key,
+      served.length ? served.join(", ") : "Not stated",
+      `${item.unit}; ${factors.length ? factors.map((factor) => (factor === 1 ? "kept as served" : `multiplied by ${factor}`)).join(", ") : "conversion not recorded"}`,
+      <LabelChip key={key} label={item.label} />,
+      item.source,
+      totalRows ? `${formatNullable((missing / totalRows) * 100, 1)}%` : "Not available",
+    ];
+  });
+}
+
+export default function MethodView({
+  bundle,
+  response,
+  retry,
+  error,
+  loading,
+  dataMode,
+  retrievedAt,
+  vegetationPending,
+}: ViewProps) {
   const [search, setSearch] = useState("");
   const [rule, setRule] = useState("");
   const [page, setPage] = useState(0);
@@ -22,7 +69,6 @@ export default function MethodView({ bundle, response, retry, error, loading }: 
   );
   const rows = filtered.slice(page * 25, page * 25 + 25);
   const variables = Object.entries(bundle?.manifest.data.power.variables ?? {});
-  const filePoint = bundle?.points.points[0];
 
   return (
     <div className="data-layout">
@@ -42,7 +88,7 @@ export default function MethodView({ bundle, response, retry, error, loading }: 
           }
           variant="error"
         >
-          <Button onClick={retry}>Try again</Button>
+          <Button onClick={retry}>Retry loading</Button>
         </InlineMessage>
       ) : null}
 
@@ -68,60 +114,100 @@ export default function MethodView({ bundle, response, retry, error, loading }: 
         <h2>Data</h2>
         {bundle ? (
           <>
+            <DataSourceLine bundle={bundle} mode={dataMode} retrievedAt={retrievedAt} />
             <p>
-              Time standard: {bundle.manifest.data.time_standard}. Latest available data through{" "}
-              {formatDate(bundle.manifest.data.end_date)}.
+              Time standard: {bundle.manifest.data.time_standard}. Daily series from{" "}
+              {formatDate(bundle.manifest.data.power.start)} to{" "}
+              {formatDate(bundle.manifest.data.end_date)} (latest available).
             </p>
             <DataTable
-              headers={["Variable", "Unit", "Label", "Source", "Resolution"]}
-              rows={[
-                ...variables.map(([key, item]) => [
-                  POWER_VARIABLE_LABELS[key] ?? key,
-                  item.unit,
-                  <LabelChip key={key} label={item.label} />,
-                  item.source,
-                  "Daily",
-                ]),
-                [
-                  "Vegetation index",
-                  "NDVI",
-                  <LabelChip key="ndvi-label" label="observed" />,
-                  bundle.manifest.data.ndvi.product,
-                  "Composite interval from record",
-                ],
-              ]}
+              headers={["Variable", "Served unit", "Canonical unit and conversion", "Label", "Source", "Missing"]}
+              rows={variableRows(bundle)}
+              caption="Built from the units NASA POWER stated in its responses. Missing counts fill values and values outside the accepted range, across all locations."
             />
-            <h3 className="section-block">Point grid cells</h3>
+            <h3 className="section-block">Vegetation index</h3>
+            <p>
+              {bundle.manifest.data.ndvi.product} version {bundle.manifest.data.ndvi.version}, 16-day
+              composites at 250 m, from the ORNL DAAC MODIS web service. <LabelChip label="observed" />{" "}
+              Scale factor {bundle.manifest.data.ndvi.scale_applied || "not set"}
+              {bundle.manifest.data.ndvi.metadata_source
+                ? ` (scale ${bundle.manifest.data.ndvi.metadata_source["scale_factor"]}, fill ${bundle.manifest.data.ndvi.metadata_source["fill_value"]}, valid range ${bundle.manifest.data.ndvi.metadata_source["valid_range"]}; accepted reliability value 0, documented)`
+                : ""}
+              . Context only; not used in scores.
+            </p>
             <DataTable
-              headers={["Point", "Area", "Cell id", "Shares cell with"]}
+              headers={["Location", "Status", "Composites", "Pass quality check"]}
               rows={bundle.points.points.map((point) => {
-                const group = bundle.manifest.data.cell_groups.cells.find(
-                  (item) => item.cell_id === point.cell_id,
-                );
+                const status = bundle.manifest.data.ndvi.status_by_point?.[point.id];
+                const counts = bundle.manifest.data.ndvi.composite_counts[point.id];
                 return [
-                  point.id,
-                  point.area,
-                  point.cell_id,
-                  (group?.point_ids ?? []).filter((id) => id !== point.id).join(", ") ||
-                    "None listed",
+                  `${point.area} (${point.id})`,
+                  status ? `${status.status}: ${status.detail}` : (bundle.manifest.data.ndvi.source_by_point[point.id] ?? "Not stated"),
+                  counts ? String(counts.total) : "–",
+                  counts ? String(counts.valid) : "–",
                 ];
               })}
             />
-            {bundle.manifest.data.cell_groups.inference ? (
-              <p>{bundle.manifest.data.cell_groups.inference}</p>
-            ) : null}
-            <p className="notice-text">
-              Daily cadence:{" "}
-              {medianCadence(
-                bundle.manifest.data.power.start === bundle.manifest.data.power.end
-                  ? [bundle.manifest.data.power.start]
-                  : [bundle.manifest.data.power.start, bundle.manifest.data.power.end],
-              ) ?? "not available"}{" "}
-              day interval from the supplied dates.
+            <h3 className="section-block">Unit conversions</h3>
+            <ul>
+              {Object.entries(bundle.manifest.data.power.requests ?? {}).flatMap(([id, request]) =>
+                request.conversions
+                  .filter((entry) => entry.factor !== 1)
+                  .map((entry) => (
+                    <li key={`${id}-${entry.variable}`}>
+                      {id}: {entry.variable} served as {entry.served_unit}, multiplied by {entry.factor} to{" "}
+                      {entry.canonical_unit}.
+                    </li>
+                  )),
+              )}
+              <li>
+                All other variables were served in their canonical unit and kept as served. Fill value
+                stated by NASA POWER:{" "}
+                {[...new Set(Object.values(bundle.manifest.data.power.requests ?? {}).map((item) => item.fill_value))].join(", ") || "not recorded"}.
+              </li>
+            </ul>
+            <h3 className="section-block">Locations and grid cells</h3>
+            <DataTable
+              headers={["Location", "Coordinates (proposed)", "Elevation (m, from POWER)", "Meteorology cell", "Solar cell", "Shares meteorology cell with"]}
+              rows={bundle.points.points.map((point) => {
+                const group = bundle.manifest.data.cell_groups.cells.find((item) => item.cell_id === point.cell_id);
+                return [
+                  `${point.area} (${point.id})`,
+                  `${point.latitude}, ${point.longitude}`,
+                  formatNullable(point.elevation_m, 1),
+                  point.cell_id,
+                  bundle.manifest.data.cell_groups.solar?.point_to_cell[point.id] ?? "–",
+                  (group?.point_ids ?? []).filter((id) => id !== point.id).join(", ") || "None",
+                ];
+              })}
+            />
+            {bundle.manifest.data.cell_groups.inference ? <p>{bundle.manifest.data.cell_groups.inference}</p> : null}
+            <h3 className="section-block">Warnings</h3>
+            {bundle.manifest.warnings.length ? (
+              <ul>
+                {bundle.manifest.warnings.map((item, index) => (
+                  <li key={`${index}-${item}`}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No warnings were recorded during retrieval.</p>
+            )}
+            <h3 className="section-block">Export</h3>
+            <p className="field-hint">
+              Downloads the current complete data bundle unchanged as snapshot.json. Placing it in the
+              data folder freezes the data so the app no longer depends on the NASA services.
             </p>
+            <Button disabled={vegetationPending} onClick={() => exportSnapshot(bundle)}>
+              Export snapshot
+            </Button>
+            {vegetationPending ? (
+              <p className="field-hint" role="status">
+                Available when the vegetation records finish loading.
+              </p>
+            ) : null}
           </>
         ) : (
-          <p>Data rows are not available without the original bundle.</p>
+          <p>Data rows are not available until the data load.</p>
         )}
       </section>
 
@@ -255,9 +341,12 @@ export default function MethodView({ bundle, response, retry, error, loading }: 
         ) : (
           <p>The engine and its limits statement have not been supplied.</p>
         )}
-        <p className="section-description">
-          Climate values are cell-scale model output, not field measurements.
-        </p>
+        <h3 className="section-block">Limits of the data</h3>
+        <ul>
+          {DATA_LIMITS.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </section>
 
       <section className="content-section">
@@ -286,16 +375,14 @@ export default function MethodView({ bundle, response, retry, error, loading }: 
         <h2>Data version</h2>
         {bundle ? (
           <p>
-            Bundle {bundle.manifest.bundle_version}, built{" "}
-            {formatDate(bundle.manifest.built_at_utc)}. Engine{" "}
-            {response?.engine_version ?? "not supplied"}. {bundle.manifest.files.length} manifest
-            files.
+            Bundle {bundle.manifest.bundle_version}, retrieved{" "}
+            {formatDateTime(bundle.manifest.built_at_utc)}. Engine{" "}
+            {response?.engine_version ?? "not supplied"}. Assembled at run time from the NASA services.
           </p>
         ) : (
           <p>Data version details are unavailable.</p>
         )}
       </section>
-      {filePoint ? <p className="sr-only">Selected point {formatOrdinal(1)}.</p> : null}
     </div>
   );
 }
