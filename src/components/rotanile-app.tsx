@@ -450,40 +450,6 @@ function ProvenanceRow({ entry }: { entry: ProvenanceEntry }) {
   return <div className="source-row"><code className="provenance-ref">{entry.ref}</code><div className="evidence-line"><LabelChip label={entry.label} />{entry.evidence_grade ? <GradeChip grade={entry.evidence_grade} /> : null}</div>{entry.source_id ? <a className="notice-text" href={`#source-${encodeURIComponent(entry.source_id)}`}>{entry.source_id}</a> : null}</div>;
 }
 
-function MethodView({ bundle, response, openEvidence, retry, loading, error }: { bundle: ActualBundle | null; response: EngineResponse | null; openEvidence: (context: EvidenceContext) => void; retry: () => void; loading: boolean; error: BundleError | null }) {
-  const [search, setSearch] = useState("");
-  const [rule, setRule] = useState("");
-  const [showReason, setShowReason] = useState<number | null>(null);
-  const assumptions = bundle?.config.assumptions ?? [];
-  const filtered = assumptions.filter((item) => (!rule || item.decision_rule === rule) && (!search || `${item.path} ${item.reason} ${item.planner_fallback}`.toLowerCase().includes(search.toLowerCase())));
-  const variables = Object.entries(bundle?.manifest.data.power.variables ?? {});
-  return (
-    <div className="data-layout">
-      <header className="page-heading"><h1 id="view-heading">Method and data</h1><p>Each rotation that meets the constraints is evaluated against water demand, soil health and climate risk. With the same inputs and data, the engine returns the same ranking.</p></header>
-      {!bundle ? <DataUnavailable error={error} retry={retry} /> : null}
-      <section className="content-section"><h2>How a plan is produced</h2><p className="section-description">Inputs are kept with their origin and evidence before the in-browser calculation returns ranked rotations.</p><PipelineDiagram /><ol><li>Daily climate snapshots and vegetation composites are loaded with the region data.</li><li>Crop settings are supplied with evidence grades and assumptions.</li><li>The browser calculation engine compares rotations and records its limits.</li><li>Ranked plans retain their indicator values and provenance.</li></ol></section>
-      <section className="content-section"><h2>Data</h2>{bundle ? <><p>Time standard: {bundle.manifest.data.time_standard}. Latest available data through {formatDate(bundle.manifest.data.end_date)}.</p><DataTable headers={["Variable", "Unit", "Label", "Source", "Resolution"]} rows={[...variables.map(([key, item]) => [POWER_VARIABLE_LABELS[key] ?? key, item.unit, <LabelChip key={key} label={item.label} />, item.source, medianCadence([]) ?? "Daily"]), ["Vegetation index", "NDVI", <LabelChip key="ndvi-label" label="observed" />, bundle.manifest.data.ndvi.product, "Composite interval not available"]]} /><h3 className="section-block">Point grid cells</h3><DataTable headers={["Point", "Area", "Cell id", "Shares cell with"]} rows={PROPOSED_POINTS.map((point) => { const real = bundle.points.points.find((item) => item.id === point.id); const group = bundle.manifest.data.cell_groups.cells.find((item) => item.cell_id === real?.cell_id); return [point.id, real?.area ?? point.area, real?.cell_id ?? "not available", (group?.point_ids ?? []).filter((id) => id !== point.id).join(", ") || "None listed"]; })} />{bundle.manifest.data.cell_groups.inference ? <p>{bundle.manifest.data.cell_groups.inference}</p> : null}</> : <p>Bundle files are not available.</p>}</section>
-      <section className="content-section"><h2>Parameter evidence</h2>{bundle ? <><div className="stats-row">{(["verified", "provisional", "unresolved"] as const).map((grade) => <dl key={grade} className="stat-item"><dt><GradeChip grade={grade} /></dt><dd>{formatNullable(bundle.manifest.config.parameter_counts[grade])}</dd></dl>)}</div><p className="section-description">Verified values were read in an opened source. Provisional values are unconfirmed and treated as assumptions. Unresolved values have no confirmed source and use a documented fallback.</p><p>{Object.values(bundle.manifest.config.parameter_counts).reduce((sum, value) => sum + value, 0)} parameters across {Object.keys(bundle.config.crops).length} crops, {bundle.manifest.config.assumption_count} assumptions recorded, {bundle.manifest.config.source_count} sources listed.</p></> : <p>Evidence totals are not shown without the original configuration and manifest.</p>}</section>
-      <section className="content-section"><h2>Assumptions</h2>{bundle ? <><div className="method-filter-row"><label className="field-block"><span className="field-label">Search assumptions</span><input className="search-input" value={search} onChange={(event) => setSearch(event.target.value)} /></label><label className="field-block"><span className="field-label">Decision rule</span><select className="select-input" value={rule} onChange={(event) => setRule(event.target.value)}><option value="">All rules</option>{[...new Set(assumptions.map((item) => item.decision_rule))].sort().map((value) => <option key={value} value={value}>{value}</option>)}</select></label></div><p className="notice-text" role="status">{filtered.length} assumptions.</p>{filtered.length ? <DataTable headers={["Path", "Rule", "Reason", "Fallback"]} rows={filtered.slice(0, 25).map((item, index) => [<code key={item.path}>{item.path}</code>, item.decision_rule, <>{item.reason}<Button variant="quiet" onClick={() => setShowReason(showReason === index ? null : index)}>{showReason === index ? "Hide reason" : "Show reason"}</Button></>, item.planner_fallback])} /> : <p>No assumptions match {search}. Clear the search.</p>}</> : <p>Assumptions are not available without the supplied crop configuration.</p>}</section>
-      <section className="content-section"><h2>Limits</h2>{loading ? <p>Loading the engine limits.</p> : response?.limits.length ? <ul>{response.limits.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul> : <p>The engine and its limits statement have not been supplied.</p>}<p className="section-description">Climate values are cell-scale model output, not field measurements.</p></section>
-      <section className="content-section"><h2>Sources</h2>{bundle?.config.sources.length ? bundle.config.sources.map((source) => <div className="source-row" key={source.id} id={`source-${source.id}`}><h3>{source.id}</h3><p>{source.citation}</p><p className="provenance-ref">{source.url_or_doi}</p><p>{source.date_opened}. {source.access_status}.</p>{source.url_or_doi.startsWith("http") ? <a href={source.url_or_doi} target="_blank" rel="noopener noreferrer">Open source {source.id}</a> : null}</div>) : <p>No source records were supplied.</p>}</section>
-      <section className="content-section"><h2>Data version</h2>{bundle ? <p>Bundle {bundle.manifest.bundle_version}, built {formatDate(bundle.manifest.built_at_utc)}. Engine {response?.engine_version ?? "not supplied"}. {bundle.manifest.files.length} manifest files.</p> : <p>Data version details are unavailable.</p>}</section>
-      {response ? <Button onClick={() => openEvidence({ title: "Indicator details", detail: "Open a plan value to inspect its evidence.", plan: response.plans[0] })}>Evidence details</Button> : null}
-    </div>
-  );
-}
-
-function PipelineDiagram() {
-  return <svg className="pipeline" viewBox="0 0 900 150" role="img" aria-label="Climate and vegetation snapshots plus crop settings flow into the calculation engine and then produce ranked plans"><title>Plan calculation sequence</title><desc>Data and configuration inputs are evaluated by the browser engine to produce ranked plans with evidence.</desc><defs><marker id="pipeline-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--rim-strong)" /></marker></defs><rect x="22" y="32" width="185" height="78" rx="8" /><text x="38" y="62">Climate snapshots</text><text x="38" y="88">Vegetation composites</text><line x1="207" x2="310" y1="72" y2="72" markerEnd="url(#pipeline-arrow)" /><rect className="engine-node" x="316" y="32" width="195" height="78" rx="8" /><text x="338" y="62">Crop configuration</text><text x="338" y="88">Calculation engine</text><line x1="511" x2="614" y1="72" y2="72" markerEnd="url(#pipeline-arrow)" /><rect x="620" y="32" width="250" height="78" rx="8" /><text x="642" y="62">Ranked plans</text><text x="642" y="88">with evidence</text></svg>;
-}
-
-function GlobalView({ bundle, error, retry }: { bundle: ActualBundle | null; error: BundleError | null; retry: () => void }) {
-  return <div className="data-layout"><header className="page-heading"><h1 id="view-heading">Other river basins</h1><p>RotaNile is demonstrated for the Nile Delta only. It has not been validated in any other basin, and no claim is made that the results would be usable there.</p></header><section className="content-section"><h2>What a region pack contains</h2><p>A region pack describes points, climate and vegetation snapshots, crop settings and their source register.</p><div className="tree-block">{REGION_FILES.map((path) => <div className="tree-line" key={path}>{path}</div>)}</div></section><section className="content-section"><h2>Schemas involved</h2><div className="table-wrap"><table className="data-table"><thead><tr><th scope="col">File</th><th scope="col">Schema</th><th scope="col">What it checks</th></tr></thead><tbody>{SCHEMA_ROWS.map(([file, schema, what]) => <tr key={file}><td>{file}</td><td>{schema}</td><td>{what}</td></tr>)}</tbody></table></div></section><section className="content-section"><h2>What can be replaced</h2><ul><li>The points, climate snapshots and vegetation snapshots.</li><li>The five crop parameters, ranges, units, sources and evidence grades.</li><li>The season month lists, rotation rules, assumptions and source register.</li></ul></section><section className="content-section"><h2>What needs an engine change</h2><ul><li>The crop set: wheat, berseem, cotton, maize and rice.</li><li>The winter and summer seasons.</li><li>The climate variable set and units.</li><li>The three-year, six-season horizon.</li></ul></section><section className="content-section"><h2>What to expect</h2><ul><li>A new region will usually have more provisional or unresolved settings than the Nile Delta pack.</li><li>Each provisional or unresolved parameter needs a recorded assumption.</li><li>Each coordinate must be checked on imagery before release.</li></ul></section>{!bundle ? <DataUnavailable error={error} retry={retry} /> : null}</div>;
-}
-
-function AboutView({ bundle, response }: { bundle: ActualBundle | null; response: EngineResponse | null }) {
-  return <div className="data-layout"><header className="page-heading"><h1 id="view-heading">About RotaNile</h1></header><section className="content-section"><p>RotaNile is built by Nile Orbit Lab.</p><p>It is an entry to a space-applications competition, using satellite-derived and model data to support crop-rotation planning in the Nile Delta.</p><p>For five proposed points in the Delta, it combines daily climate snapshots, vegetation composites and crop settings with graded evidence. A deterministic engine is intended to rank three-year rotations on water demand, soil health and climate risk, and every number carries a label and an evidence grade.</p></section><section className="content-section"><h2>What it does not do</h2><ul><li>It does not forecast yields or weather.</li><li>It does not model income or costs.</li><li>It has not been validated against field trials or reviewed by agronomists.</li><li>It is demonstrated for the Nile Delta only.</li><li>It does not use real-time data; the data are the latest available at the build date.</li></ul></section><section className="content-section"><h2>Data version</h2><p>Bundle {bundle?.manifest.bundle_version ?? "not supplied"}. Engine {response?.engine_version ?? "not supplied"}. Latest available data through {bundle?.manifest.data.end_date ? formatDate(bundle.manifest.data.end_date) : "date not supplied"}.</p></section></div>;
-}
 
 export function RotaNileApp() {
   const [section, setSection] = useState<ViewSection>("/");
@@ -495,37 +461,21 @@ export function RotaNileApp() {
   const [response, setResponse] = useState<EngineResponse | null>(null);
   const loadedBundleRef = useRef<ActualBundle | null>(null);
 
-  const loadBundle = useCallback(async () => {
+  useEffect(() => {
+    let active = true;
     setLoading(true);
-    try {
-      const [pointsResponse, configResponse, manifestResponse] = await Promise.all([
-        fetch(`${DATA_BASE}points.json`),
-        fetch(`${DATA_BASE}config.json`),
-        fetch(`${DATA_BASE}manifest.json`),
-      ]);
-      const missing = [["points.json", pointsResponse], ["config.json", configResponse], ["manifest.json", manifestResponse]].find(([, result]) => !(result as Response).ok);
-      if (missing) throw { kind: "bundle_missing", file: String(missing[0]), detail: `Missing ${String(missing[0])}. Add the approved data bundle under public/data.` };
-      const [points, config, manifest] = await Promise.all([pointsResponse.json(), configResponse.json(), manifestResponse.json()]) as [ActualBundle["points"], ActualBundle["config"], ActualBundle["manifest"]];
-      if (!Array.isArray(points.points) || !config.crops || !manifest.data?.end_date) throw { kind: "bundle_invalid", file: "points.json, config.json or manifest.json", detail: "Required bundle fields are missing." };
-      const ndviEntries = await Promise.all(points.points.map(async (point) => {
-        const result = await fetch(`${DATA_BASE}ndvi/${point.id}.json`);
-        if (!result.ok) throw { kind: "bundle_missing", file: `ndvi/${point.id}.json`, detail: `The vegetation record for ${point.area} was not supplied.` };
-        return [point.id, await result.json() as NdviFile] as const;
-      }));
-      const next: ActualBundle = { points, config, manifest, ndvi: Object.fromEntries(ndviEntries) };
+    void loadBundle().then((next) => {
+      if (!active) return;
       setBundle(next);
-      loadedBundleRef.current = next;
       setBundleError(null);
-    } catch (error) {
-      const typed = (error ?? {}) as BundleError;
-      setBundleError({ kind: typed.kind ?? "network", detail: typed.detail ?? "The data could not be read.", ...(typed.file ? { file: typed.file } : {}) });
+    }).catch((reason: unknown) => {
+      if (!active) return;
+      const typed = reason !== null && typeof reason === "object" ? reason as BundleError : null;
+      setBundleError(typed?.kind ? typed : { kind: "network", detail: "The data could not be read." });
       setBundle(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { void loadBundle(); }, [loadBundle, retryCount]);
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [retryCount]);
 
   useEffect(() => {
     const readHash = () => {
