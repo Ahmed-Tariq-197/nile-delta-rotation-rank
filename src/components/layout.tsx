@@ -3,7 +3,15 @@ import { useEffect } from "react";
 import { NAVIGATION_ITEMS } from "@/lib/app-content";
 
 export function OrbitMark() {
-  return <img className="brand-logo" src="/nile-orbit-lab-space-badge.webp" alt="Nile Orbit Lab" width="64" height="64" />;
+  return (
+    <img
+      className="brand-logo"
+      src="/nile-orbit-lab-space-badge.webp"
+      alt="Nile Orbit Lab"
+      width="64"
+      height="64"
+    />
+  );
 }
 
 export function Header({ section }: { section: string }) {
@@ -52,7 +60,9 @@ export function Shell({ section, children }: { section: string; children: React.
 
   return (
     <div className="app-frame">
-      <a className="skip-link" href="#main">Skip to main content</a>
+      <a className="skip-link" href="#main">
+        Skip to main content
+      </a>
       <Header section={section} />
       <LiveRegions />
       <main className="main-content" id="main" tabIndex={-1}>

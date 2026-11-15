@@ -1,10 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  createRootRouteWithContext,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -21,7 +16,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Crop rotation planning support for the Nile Delta with clear data sources, evidence grades and limits.",
       },
-      { property: "og:title", content: "RotaNile: crop rotation planning support for the Nile Delta" },
+      {
+        property: "og:title",
+        content: "RotaNile: crop rotation planning support for the Nile Delta",
+      },
       {
         property: "og:description",
         content:

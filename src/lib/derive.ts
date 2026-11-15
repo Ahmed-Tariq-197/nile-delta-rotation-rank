@@ -3,12 +3,17 @@ import type { EngineRequest, NdviFile, Plan, Priorities, UiBundle } from "@/lib/
 export function ndviNote(file: NdviFile) {
   const valid = file.composite_dates
     .map((date, index) => ({ date, value: file.ndvi[index], quality: file.quality_ok[index] }))
-    .filter((entry): entry is { date: string; value: number; quality: true } =>
-      entry.quality === true && entry.value !== null && entry.value !== undefined && Number.isFinite(entry.value),
+    .filter(
+      (entry): entry is { date: string; value: number; quality: true } =>
+        entry.quality === true &&
+        entry.value !== null &&
+        entry.value !== undefined &&
+        Number.isFinite(entry.value),
     );
   const latest = valid.at(-1);
   if (!latest) return null;
-  const percentileInRecord = valid.filter((entry) => entry.value <= latest.value).length / valid.length;
+  const percentileInRecord =
+    valid.filter((entry) => entry.value <= latest.value).length / valid.length;
   return { date: latest.date, value: latest.value, percentileInRecord };
 }
 
@@ -19,7 +24,12 @@ export function cellSharing(bundle: UiBundle, pointId: string): string[] {
   return group?.point_ids.filter((id) => id !== pointId) ?? [];
 }
 
-export function whyThisPlan(plan: Plan, request: EngineRequest, pointName: string, totalPlans: number): string {
+export function whyThisPlan(
+  plan: Plan,
+  request: EngineRequest,
+  pointName: string,
+  totalPlans: number,
+): string {
   const weights = normalizeWeights(request.priorities);
   const fallback = { water: 0, soil_health: 0, climate_risk: 0 };
   const used = weights ?? fallback;
@@ -29,34 +39,71 @@ export function whyThisPlan(plan: Plan, request: EngineRequest, pointName: strin
     return right - left;
   })[0];
   const driver = mainIndicator?.[1].drivers[0];
-  const name = mainIndicator?.[0] === "water_demand_mm_total" ? "water demand" : mainIndicator?.[0] === "soil_health_index" ? "soil health" : "climate risk";
+  const name =
+    mainIndicator?.[0] === "water_demand_mm_total"
+      ? "water demand"
+      : mainIndicator?.[0] === "soil_health_index"
+        ? "soil health"
+        : "climate risk";
   const sentences = [
     `This plan ranks ${plan.rank} of ${totalPlans} plans for ${pointName} that meet your constraints.`,
     `You weighted water ${Math.round(used.water * 100)} percent, soil health ${Math.round(used.soil_health * 100)} percent and climate risk ${Math.round(used.climate_risk * 100)} percent.`,
   ];
-  if (driver) sentences.push(`Its largest driver of ${name} is ${driver.label} (${Math.round(driver.share * 100)} percent).`);
-  sentences.push(`The weakest evidence grade behind it is ${plan.evidence.weakest_grade}; ${plan.evidence.provisional_count} parameters are provisional and ${plan.evidence.unresolved_count} are unresolved.`);
-  if (plan.pareto) sentences.push("It is on the trade-off front: no other plan is better on every indicator.");
+  if (driver)
+    sentences.push(
+      `Its largest driver of ${name} is ${driver.label} (${Math.round(driver.share * 100)} percent).`,
+    );
+  sentences.push(
+    `The weakest evidence grade behind it is ${plan.evidence.weakest_grade}; ${plan.evidence.provisional_count} parameters are provisional and ${plan.evidence.unresolved_count} are unresolved.`,
+  );
+  if (plan.pareto)
+    sentences.push("It is on the trade-off front: no other plan is better on every indicator.");
   return sentences.join(" ");
 }
 
 export function paretoGeometry(plans: Plan[], frontIds: string[]) {
   const byId = new Map(plans.map((plan) => [plan.id, plan]));
-  const front = frontIds.map((id) => byId.get(id)).filter((plan): plan is Plan => plan !== undefined).sort((a, b) => a.indicators.water_demand_mm_total.value - b.indicators.water_demand_mm_total.value);
-  const points = front.map((plan) => ({ x: plan.indicators.water_demand_mm_total.value, y: plan.indicators.soil_health_index.value }));
-  const path = points.map((point, index) => `${index === 0 ? `M ${point.x} ${point.y}` : `H ${point.x} V ${point.y}`}`).join(" ");
-  const center = points.length ? points.reduce((total, point) => ({ x: total.x + point.x / points.length, y: total.y + point.y / points.length }), { x: 0, y: 0 }) : null;
+  const front = frontIds
+    .map((id) => byId.get(id))
+    .filter((plan): plan is Plan => plan !== undefined)
+    .sort(
+      (a, b) => a.indicators.water_demand_mm_total.value - b.indicators.water_demand_mm_total.value,
+    );
+  const points = front.map((plan) => ({
+    x: plan.indicators.water_demand_mm_total.value,
+    y: plan.indicators.soil_health_index.value,
+  }));
+  const path = points
+    .map(
+      (point, index) => `${index === 0 ? `M ${point.x} ${point.y}` : `H ${point.x} V ${point.y}`}`,
+    )
+    .join(" ");
+  const center = points.length
+    ? points.reduce(
+        (total, point) => ({
+          x: total.x + point.x / points.length,
+          y: total.y + point.y / points.length,
+        }),
+        { x: 0, y: 0 },
+      )
+    : null;
   const lastPoint = points.at(-1);
-  const rotation = points.length > 1 && center && lastPoint ? Math.atan2(lastPoint.y - center.y, lastPoint.x - center.x) : 0;
+  const rotation =
+    points.length > 1 && center && lastPoint
+      ? Math.atan2(lastPoint.y - center.y, lastPoint.x - center.x)
+      : 0;
   const xs = points.map((point) => point.x);
   const ys = points.map((point) => point.y);
-  const ellipse = center && points.length >= 3 ? {
-    cx: center.x,
-    cy: center.y,
-    rx: Math.max(28, (Math.max(...xs) - Math.min(...xs)) / 2 + 24),
-    ry: Math.max(16, (Math.max(...ys) - Math.min(...ys)) / 2 + 24),
-    rotation: rotation * 180 / Math.PI,
-  } : null;
+  const ellipse =
+    center && points.length >= 3
+      ? {
+          cx: center.x,
+          cy: center.y,
+          rx: Math.max(28, (Math.max(...xs) - Math.min(...xs)) / 2 + 24),
+          ry: Math.max(16, (Math.max(...ys) - Math.min(...ys)) / 2 + 24),
+          rotation: (rotation * 180) / Math.PI,
+        }
+      : null;
   return { points, path, ellipse };
 }
 
@@ -77,7 +124,8 @@ export function medianCadence(dates: string[]): number | null {
     const earlier = dates[index - 1];
     const later = dates[index];
     if (!earlier || !later) continue;
-    const days = (Date.parse(`${later}T00:00:00Z`) - Date.parse(`${earlier}T00:00:00Z`)) / 86_400_000;
+    const days =
+      (Date.parse(`${later}T00:00:00Z`) - Date.parse(`${earlier}T00:00:00Z`)) / 86_400_000;
     if (Number.isFinite(days) && days > 0) gaps.push(days);
   }
   if (gaps.length === 0) return null;
@@ -105,9 +153,10 @@ export function parsePlannerHash(hash: string) {
     const number = Number(value);
     return Number.isFinite(number) && number >= 0 ? number : null;
   };
-  const cropIds = query.get("crops")?.split(",").filter((crop) =>
-    ["wheat", "berseem", "cotton", "maize", "rice"].includes(crop),
-  );
+  const cropIds = query
+    .get("crops")
+    ?.split(",")
+    .filter((crop) => ["wheat", "berseem", "cotton", "maize", "rice"].includes(crop));
   const invalid =
     (priorityText !== null && !hasValidWeights) ||
     (query.has("ec") && query.get("ec") !== "" && parseOptionalNumber("ec") === null) ||
@@ -145,7 +194,11 @@ export function encodePlannerHash(
   if (section !== "/") return `#${section}`;
   const params = new URLSearchParams();
   if (state.pointId) params.set("p", state.pointId);
-  const values = [state.priorities.water, state.priorities.soil_health, state.priorities.climate_risk];
+  const values = [
+    state.priorities.water,
+    state.priorities.soil_health,
+    state.priorities.climate_risk,
+  ];
   if (values.some((weight) => Math.abs(weight - 1 / 3) > 0.0001)) {
     params.set("w", values.map((weight) => String(Math.round(weight * 100))).join(","));
   }

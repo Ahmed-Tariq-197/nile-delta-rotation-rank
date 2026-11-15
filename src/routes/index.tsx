@@ -12,7 +12,10 @@ export const Route = createFileRoute("/")({
         content:
           "Crop rotation planning support for the Nile Delta with clear data sources, evidence grades and limits.",
       },
-      { property: "og:title", content: "RotaNile: crop rotation planning support for the Nile Delta" },
+      {
+        property: "og:title",
+        content: "RotaNile: crop rotation planning support for the Nile Delta",
+      },
       {
         property: "og:description",
         content:
