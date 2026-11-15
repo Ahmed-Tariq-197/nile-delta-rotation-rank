@@ -97,8 +97,9 @@ export default function MethodView({
         <PipelineDiagram />
         <ol>
           <li>
-            Daily {bundle?.manifest.data.power.community ?? "climate"} snapshots are paired with the
-            supplied vegetation composites.
+            Daily NASA POWER climate series
+            {bundle ? ` (${bundle.manifest.data.power.community} community)` : ""} are paired with
+            MODIS vegetation composites.
           </li>
           <li>Crop configuration carries evidence grades and recorded assumptions.</li>
           <li>The calculation engine evaluates eligible rotations in the browser.</li>
@@ -435,7 +436,7 @@ function PipelineDiagram() {
           markerHeight="6"
           orient="auto"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--rim-strong)" />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line-strong)" />
         </marker>
       </defs>
       <rect x="22" y="32" width="225" height="78" rx="8" />
