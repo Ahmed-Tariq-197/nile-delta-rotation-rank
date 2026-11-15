@@ -3,12 +3,7 @@ import { useEffect } from "react";
 import { NAVIGATION_ITEMS } from "@/lib/app-content";
 
 export function OrbitMark() {
-  return (
-    <svg className="orbit-mark" viewBox="0 0 42 42" role="img" aria-label="Nile Orbit Lab orbit mark">
-      <ellipse cx="21" cy="21" rx="15" ry="6" transform="rotate(-18 21 21)" fill="none" stroke="var(--gold)" strokeWidth="1" />
-      <circle cx="33" cy="19" r="2" fill="var(--ivory)" />
-    </svg>
-  );
+  return <img className="brand-logo" src="/nile-orbit-lab-space-badge.webp" alt="Nile Orbit Lab" width="64" height="64" />;
 }
 
 export function Header({ section }: { section: string }) {
