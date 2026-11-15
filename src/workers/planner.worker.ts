@@ -78,7 +78,12 @@ const engineModules = import.meta.glob("../engine/index.ts");
 
 const scope = self as WorkerScope;
 scope.onmessage = async (
-  event: MessageEvent<{ id: number; request: EngineRequest; dataBase: string; bundle?: BundleData }>,
+  event: MessageEvent<{
+    id: number;
+    request: EngineRequest;
+    dataBase: string;
+    bundle?: BundleData;
+  }>,
 ) => {
   const { id, request, dataBase, bundle: supplied } = event.data;
   try {

@@ -15,8 +15,12 @@ export const getModisDates = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => location.parse(data))
   .handler(async ({ data }) => fetchModisDates(data));
 
-export const getModisBands = createServerFn({ method: "POST" }).handler(async () => fetchModisBands());
+export const getModisBands = createServerFn({ method: "POST" }).handler(async () =>
+  fetchModisBands(),
+);
 
 export const getModisChunk = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => location.extend({ start: modisDate, end: modisDate }).parse(data))
+  .inputValidator((data: unknown) =>
+    location.extend({ start: modisDate, end: modisDate }).parse(data),
+  )
   .handler(async ({ data }) => fetchModisChunk(data, data.start, data.end));

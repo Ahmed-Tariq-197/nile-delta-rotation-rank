@@ -70,25 +70,42 @@ export function subsetUrl(latitude: number, longitude: number, startDate: string
   return `${MODIS_BASE}/${MODIS_PRODUCT}/subset?${coordinateQuery(latitude, longitude)}&startDate=${startDate}&endDate=${endDate}&kmAboveBelow=0&kmLeftRight=0`;
 }
 
-function modisError(code: ServiceError["code"], message: string, pointId?: string, url?: string): ServiceError {
-  return { service: "MODIS (ORNL DAAC)", code, message, ...(pointId ? { point_id: pointId } : {}), ...(url ? { url } : {}) };
+function modisError(
+  code: ServiceError["code"],
+  message: string,
+  pointId?: string,
+  url?: string,
+): ServiceError {
+  return {
+    service: "MODIS (ORNL DAAC)",
+    code,
+    message,
+    ...(pointId ? { point_id: pointId } : {}),
+    ...(url ? { url } : {}),
+  };
 }
 
 export function parseDates(json: unknown, pointId?: string): Result<ModisDate[]> {
   const list = isRecord(json) ? json["dates"] : undefined;
   if (!Array.isArray(list))
-    return fail(modisError("invalid_response", "The composite date list could not be read.", pointId));
+    return fail(
+      modisError("invalid_response", "The composite date list could not be read.", pointId),
+    );
   const dates = list.flatMap((item) =>
-    isRecord(item) && typeof item["modis_date"] === "string" && typeof item["calendar_date"] === "string"
+    isRecord(item) &&
+    typeof item["modis_date"] === "string" &&
+    typeof item["calendar_date"] === "string"
       ? [{ modis_date: item["modis_date"], calendar_date: item["calendar_date"] }]
       : [],
   );
-  if (!dates.length) return fail(modisError("invalid_response", "The service listed no composite dates.", pointId));
+  if (!dates.length)
+    return fail(modisError("invalid_response", "The service listed no composite dates.", pointId));
   return ok(dates.sort((a, b) => a.calendar_date.localeCompare(b.calendar_date)));
 }
 
 function numberFrom(value: unknown): number | null {
-  const parsed = typeof value === "number" ? value : typeof value === "string" ? Number(value.trim()) : NaN;
+  const parsed =
+    typeof value === "number" ? value : typeof value === "string" ? Number(value.trim()) : NaN;
   return Number.isFinite(parsed) ? parsed : null;
 }
 
@@ -104,10 +121,10 @@ function parseRange(value: unknown): [number, number] | null {
 /** Band metadata from the served list, falling back to documented values field by field. */
 export function parseBands(json: unknown): BandMeta {
   const list = isRecord(json) && Array.isArray(json["bands"]) ? json["bands"] : [];
-  const ndvi = list.find((item) => isRecord(item) && item["band"] === NDVI_BAND) as Record<string, unknown> | undefined;
+  const ndvi = list.find((item) => isRecord(item) && item["band"] === NDVI_BAND) as
+    Record<string, unknown> | undefined;
   const reliability = list.find((item) => isRecord(item) && item["band"] === RELIABILITY_BAND) as
-    | Record<string, unknown>
-    | undefined;
+    Record<string, unknown> | undefined;
   const scale = numberFrom(ndvi?.["scale_factor"]);
   const fillValue = numberFrom(ndvi?.["fill_value"]);
   const range = parseRange(ndvi?.["valid_range"]);
@@ -131,13 +148,25 @@ export function parseBands(json: unknown): BandMeta {
 
 /** Keep the NDVI and reliability records of one subset response. */
 export function parseSubset(json: unknown, pointId?: string, url?: string): Result<SubsetRecord[]> {
-  if (!isRecord(json)) return fail(modisError("invalid_response", "The subset response is not a JSON object.", pointId, url));
+  if (!isRecord(json))
+    return fail(
+      modisError("invalid_response", "The subset response is not a JSON object.", pointId, url),
+    );
   const header = json["header"];
   if (typeof header === "string" && !header.includes(`/${MODIS_PRODUCT}/`))
-    return fail(modisError("invalid_response", `The subset response is not for ${MODIS_PRODUCT}.`, pointId, url));
+    return fail(
+      modisError(
+        "invalid_response",
+        `The subset response is not for ${MODIS_PRODUCT}.`,
+        pointId,
+        url,
+      ),
+    );
   const subset = json["subset"];
   if (!Array.isArray(subset))
-    return fail(modisError("invalid_response", "The subset response has no subset records.", pointId, url));
+    return fail(
+      modisError("invalid_response", "The subset response has no subset records.", pointId, url),
+    );
   const records = subset.flatMap((item): SubsetRecord[] => {
     if (!isRecord(item)) return [];
     const band = item["band"];
@@ -147,20 +176,30 @@ export function parseSubset(json: unknown, pointId?: string, url?: string): Resu
     if (typeof calendar !== "string") return [];
     const data = item["data"];
     const first = Array.isArray(data) ? data[0] : data;
-    return [{ band, calendar_date: calendar, modis_date: typeof modisDate === "string" ? modisDate : "", value: numberFrom(first) }];
+    return [
+      {
+        band,
+        calendar_date: calendar,
+        modis_date: typeof modisDate === "string" ? modisDate : "",
+        value: numberFrom(first),
+      },
+    ];
   });
   return ok(records);
 }
 
 export function chunkDates<T>(dates: T[], size = MODIS_CHUNK_SIZE): T[][] {
   const chunks: T[][] = [];
-  for (let index = 0; index < dates.length; index += size) chunks.push(dates.slice(index, index + size));
+  for (let index = 0; index < dates.length; index += size)
+    chunks.push(dates.slice(index, index + size));
   return chunks;
 }
 
 /** Dates from 2020-01-01 whose composite window starts on or before the climate end date. */
 export function selectDates(dates: ModisDate[], endIso: string) {
-  return dates.filter((item) => item.calendar_date >= MODIS_FIRST_DATE && item.calendar_date <= endIso);
+  return dates.filter(
+    (item) => item.calendar_date >= MODIS_FIRST_DATE && item.calendar_date <= endIso,
+  );
 }
 
 export function cleanNdvi(raw: number | null, meta: BandMeta): number | null {
@@ -173,16 +212,25 @@ export function reliabilityAcceptable(raw: number | null, meta: BandMeta) {
   return raw !== null && raw !== meta.reliability_fill && meta.acceptable_reliability.includes(raw);
 }
 
-export function buildNdviFile(pointId: string, dates: ModisDate[], records: SubsetRecord[], meta: BandMeta): NdviFile {
+export function buildNdviFile(
+  pointId: string,
+  dates: ModisDate[],
+  records: SubsetRecord[],
+  meta: BandMeta,
+): NdviFile {
   const ndviByDate = new Map<string, number | null>();
   const reliabilityByDate = new Map<string, number | null>();
   for (const record of records) {
-    (record.band === NDVI_BAND ? ndviByDate : reliabilityByDate).set(record.calendar_date, record.value);
+    (record.band === NDVI_BAND ? ndviByDate : reliabilityByDate).set(
+      record.calendar_date,
+      record.value,
+    );
   }
   const compositeDates = dates.map((item) => item.calendar_date);
   const ndvi = compositeDates.map((date) => cleanNdvi(ndviByDate.get(date) ?? null, meta));
   const quality = compositeDates.map(
-    (date, index) => ndvi[index] !== null && reliabilityAcceptable(reliabilityByDate.get(date) ?? null, meta),
+    (date, index) =>
+      ndvi[index] !== null && reliabilityAcceptable(reliabilityByDate.get(date) ?? null, meta),
   );
   return {
     point_id: pointId,

@@ -18,8 +18,10 @@ export const POWER_VARIABLES = [
 export type PowerVariable = (typeof POWER_VARIABLES)[number];
 export const METEOROLOGY_VARIABLES = POWER_VARIABLES.filter((name) => name !== "ALLSKY_SFC_SW_DWN");
 
-export const METEOROLOGY_SOURCE = "NASA POWER (MERRA-2 assimilation model; GEOS FP-IT near real time)";
-export const SOLAR_SOURCE = "NASA POWER, satellite-derived (CERES SYN1deg; FLASHFlux near real time)";
+export const METEOROLOGY_SOURCE =
+  "NASA POWER (MERRA-2 assimilation model; GEOS FP-IT near real time)";
+export const SOLAR_SOURCE =
+  "NASA POWER, satellite-derived (CERES SYN1deg; FLASHFlux near real time)";
 
 export const CANONICAL_UNITS: Record<PowerVariable, string> = {
   T2M: "degrees C",
@@ -133,15 +135,25 @@ export function parsePowerResponse(
   retrievedAt: string,
 ): Result<PowerPointResult> {
   const error = (code: ServiceError["code"], message: string) =>
-    fail<PowerPointResult>({ service: "NASA POWER", code, message, point_id: pointId, url: requestUrl });
-  if (!isRecord(json)) return error("invalid_response", "The NASA POWER response is not a JSON object.");
+    fail<PowerPointResult>({
+      service: "NASA POWER",
+      code,
+      message,
+      point_id: pointId,
+      url: requestUrl,
+    });
+  if (!isRecord(json))
+    return error("invalid_response", "The NASA POWER response is not a JSON object.");
   const properties = json["properties"];
   const parameterBlock = isRecord(properties) ? properties["parameter"] : undefined;
   if (!isRecord(parameterBlock))
     return error("invalid_response", "The NASA POWER response has no properties.parameter block.");
   const metadata = json["parameters"];
   if (!isRecord(metadata))
-    return error("missing_metadata", "The NASA POWER response does not state units for its parameters; units are reported as unknown.");
+    return error(
+      "missing_metadata",
+      "The NASA POWER response does not state units for its parameters; units are reported as unknown.",
+    );
   const header = json["header"];
   const fillRaw = isRecord(header) ? header["fill_value"] : undefined;
   if (typeof fillRaw !== "number" || !Number.isFinite(fillRaw))
@@ -153,20 +165,38 @@ export function parsePowerResponse(
   for (const variable of POWER_VARIABLES) {
     const meta = metadata[variable];
     const unit = isRecord(meta) && typeof meta["units"] === "string" ? meta["units"] : null;
-    if (!unit) return error("missing_metadata", `The unit of ${variable} is unknown: the response does not state it.`);
+    if (!unit)
+      return error(
+        "missing_metadata",
+        `The unit of ${variable} is unknown: the response does not state it.`,
+      );
     const factor = conversionFactor(variable, unit);
-    if (factor === null) return error("unknown_unit", `${variable} was served in an unrecognized unit "${unit}".`);
-    served[variable] = { unit, longname: isRecord(meta) && typeof meta["longname"] === "string" ? meta["longname"] : variable };
-    conversions.push({ variable, served_unit: unit, canonical_unit: CANONICAL_UNITS[variable], factor });
-    if (!isRecord(parameterBlock[variable])) return error("invalid_response", `The response has no series for ${variable}.`);
+    if (factor === null)
+      return error("unknown_unit", `${variable} was served in an unrecognized unit "${unit}".`);
+    served[variable] = {
+      unit,
+      longname:
+        isRecord(meta) && typeof meta["longname"] === "string" ? meta["longname"] : variable,
+    };
+    conversions.push({
+      variable,
+      served_unit: unit,
+      canonical_unit: CANONICAL_UNITS[variable],
+      factor,
+    });
+    if (!isRecord(parameterBlock[variable]))
+      return error("invalid_response", `The response has no series for ${variable}.`);
   }
 
   const dateKeys = [
-    ...new Set(POWER_VARIABLES.flatMap((variable) => Object.keys(parameterBlock[variable] as object))),
+    ...new Set(
+      POWER_VARIABLES.flatMap((variable) => Object.keys(parameterBlock[variable] as object)),
+    ),
   ]
     .filter((key) => /^\d{8}$/.test(key))
     .sort();
-  if (!dateKeys.length) return error("invalid_response", "The NASA POWER response contains no daily dates.");
+  if (!dateKeys.length)
+    return error("invalid_response", "The NASA POWER response contains no daily dates.");
 
   const missing = {} as PowerPointResult["missing_counts"];
   const violations = {} as PowerPointResult["range_violations"];
@@ -194,7 +224,9 @@ export function parsePowerResponse(
     missing[variable] = missingCount;
     violations[variable] = violationCount;
     if (violationCount)
-      warnings.push(`${pointId} ${variable}: ${violationCount} values outside the accepted range were set to null.`);
+      warnings.push(
+        `${pointId} ${variable}: ${violationCount} values outside the accepted range were set to null.`,
+      );
     const entry: ClimateVariable = {
       unit: CANONICAL_UNITS[variable],
       label: variableLabel(variable),
@@ -207,7 +239,8 @@ export function parsePowerResponse(
   const geometry = json["geometry"];
   const coordinates = isRecord(geometry) ? geometry["coordinates"] : undefined;
   const elevationRaw = Array.isArray(coordinates) ? coordinates[2] : undefined;
-  const elevation = typeof elevationRaw === "number" && Number.isFinite(elevationRaw) ? elevationRaw : null;
+  const elevation =
+    typeof elevationRaw === "number" && Number.isFinite(elevationRaw) ? elevationRaw : null;
   if (elevation === null)
     warnings.push(`Elevation for ${pointId} was not returned by NASA POWER; elevation_m is null.`);
 

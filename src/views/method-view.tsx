@@ -20,13 +20,20 @@ export const DATA_LIMITS = [
 function variableRows(bundle: ActualBundle) {
   const requests = bundle.manifest.data.power.requests ?? {};
   const pointIds = Object.keys(requests);
-  const totalRows = Object.values(bundle.manifest.data.power.row_counts).reduce((sum, value) => sum + value, 0);
+  const totalRows = Object.values(bundle.manifest.data.power.row_counts).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
   return Object.entries(bundle.manifest.data.power.variables).map(([key, item]) => {
-    const served = [...new Set(pointIds.map((id) => requests[id]?.served_units[key]).filter(Boolean))];
+    const served = [
+      ...new Set(pointIds.map((id) => requests[id]?.served_units[key]).filter(Boolean)),
+    ];
     const factors = [
       ...new Set(
         pointIds.flatMap((id) =>
-          (requests[id]?.conversions ?? []).filter((entry) => entry.variable === key).map((entry) => entry.factor),
+          (requests[id]?.conversions ?? [])
+            .filter((entry) => entry.variable === key)
+            .map((entry) => entry.factor),
         ),
       ),
     ];
@@ -120,15 +127,23 @@ export default function MethodView({
               {formatDate(bundle.manifest.data.end_date)} (latest available).
             </p>
             <DataTable
-              headers={["Variable", "Served unit", "Canonical unit and conversion", "Label", "Source", "Missing"]}
+              headers={[
+                "Variable",
+                "Served unit",
+                "Canonical unit and conversion",
+                "Label",
+                "Source",
+                "Missing",
+              ]}
               rows={variableRows(bundle)}
               caption="Built from the units NASA POWER stated in its responses. Missing counts fill values and values outside the accepted range, across all locations."
             />
             <h3 className="section-block">Vegetation index</h3>
             <p>
-              {bundle.manifest.data.ndvi.product} version {bundle.manifest.data.ndvi.version}, 16-day
-              composites at 250 m, from the ORNL DAAC MODIS web service. <LabelChip label="observed" />{" "}
-              Scale factor {bundle.manifest.data.ndvi.scale_applied || "not set"}
+              {bundle.manifest.data.ndvi.product} version {bundle.manifest.data.ndvi.version},
+              16-day composites at 250 m, from the ORNL DAAC MODIS web service.{" "}
+              <LabelChip label="observed" /> Scale factor{" "}
+              {bundle.manifest.data.ndvi.scale_applied || "not set"}
               {bundle.manifest.data.ndvi.metadata_source
                 ? ` (scale ${bundle.manifest.data.ndvi.metadata_source["scale_factor"]}, fill ${bundle.manifest.data.ndvi.metadata_source["fill_value"]}, valid range ${bundle.manifest.data.ndvi.metadata_source["valid_range"]}; accepted reliability value 0, documented)`
                 : ""}
@@ -141,7 +156,9 @@ export default function MethodView({
                 const counts = bundle.manifest.data.ndvi.composite_counts[point.id];
                 return [
                   `${point.area} (${point.id})`,
-                  status ? `${status.status}: ${status.detail}` : (bundle.manifest.data.ndvi.source_by_point[point.id] ?? "Not stated"),
+                  status
+                    ? `${status.status}: ${status.detail}`
+                    : (bundle.manifest.data.ndvi.source_by_point[point.id] ?? "Not stated"),
                   counts ? String(counts.total) : "–",
                   counts ? String(counts.valid) : "–",
                 ];
@@ -154,22 +171,38 @@ export default function MethodView({
                   .filter((entry) => entry.factor !== 1)
                   .map((entry) => (
                     <li key={`${id}-${entry.variable}`}>
-                      {id}: {entry.variable} served as {entry.served_unit}, multiplied by {entry.factor} to{" "}
-                      {entry.canonical_unit}.
+                      {id}: {entry.variable} served as {entry.served_unit}, multiplied by{" "}
+                      {entry.factor} to {entry.canonical_unit}.
                     </li>
                   )),
               )}
               <li>
-                All other variables were served in their canonical unit and kept as served. Fill value
-                stated by NASA POWER:{" "}
-                {[...new Set(Object.values(bundle.manifest.data.power.requests ?? {}).map((item) => item.fill_value))].join(", ") || "not recorded"}.
+                All other variables were served in their canonical unit and kept as served. Fill
+                value stated by NASA POWER:{" "}
+                {[
+                  ...new Set(
+                    Object.values(bundle.manifest.data.power.requests ?? {}).map(
+                      (item) => item.fill_value,
+                    ),
+                  ),
+                ].join(", ") || "not recorded"}
+                .
               </li>
             </ul>
             <h3 className="section-block">Locations and grid cells</h3>
             <DataTable
-              headers={["Location", "Coordinates (proposed)", "Elevation (m, from POWER)", "Meteorology cell", "Solar cell", "Shares meteorology cell with"]}
+              headers={[
+                "Location",
+                "Coordinates (proposed)",
+                "Elevation (m, from POWER)",
+                "Meteorology cell",
+                "Solar cell",
+                "Shares meteorology cell with",
+              ]}
               rows={bundle.points.points.map((point) => {
-                const group = bundle.manifest.data.cell_groups.cells.find((item) => item.cell_id === point.cell_id);
+                const group = bundle.manifest.data.cell_groups.cells.find(
+                  (item) => item.cell_id === point.cell_id,
+                );
                 return [
                   `${point.area} (${point.id})`,
                   `${point.latitude}, ${point.longitude}`,
@@ -180,7 +213,9 @@ export default function MethodView({
                 ];
               })}
             />
-            {bundle.manifest.data.cell_groups.inference ? <p>{bundle.manifest.data.cell_groups.inference}</p> : null}
+            {bundle.manifest.data.cell_groups.inference ? (
+              <p>{bundle.manifest.data.cell_groups.inference}</p>
+            ) : null}
             <h3 className="section-block">Warnings</h3>
             {bundle.manifest.warnings.length ? (
               <ul>
@@ -193,8 +228,8 @@ export default function MethodView({
             )}
             <h3 className="section-block">Export</h3>
             <p className="field-hint">
-              Downloads the current complete data bundle unchanged as snapshot.json. Placing it in the
-              data folder freezes the data so the app no longer depends on the NASA services.
+              Downloads the current complete data bundle unchanged as snapshot.json. Placing it in
+              the data folder freezes the data so the app no longer depends on the NASA services.
             </p>
             <Button disabled={vegetationPending} onClick={() => exportSnapshot(bundle)}>
               Export snapshot
@@ -376,7 +411,8 @@ export default function MethodView({
           <p>
             Bundle {bundle.manifest.bundle_version}, retrieved{" "}
             {formatDateTime(bundle.manifest.built_at_utc)}. Engine{" "}
-            {response?.engine_version ?? "not supplied"}. Assembled at run time from the NASA services.
+            {response?.engine_version ?? "not supplied"}. Assembled at run time from the NASA
+            services.
           </p>
         ) : (
           <p>Data version details are unavailable.</p>

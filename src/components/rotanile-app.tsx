@@ -10,12 +10,7 @@ import {
   LabelChip,
 } from "@/components/ui/pieces";
 import { Shell } from "@/components/layout";
-import {
-  DataLoading,
-  DataProblem,
-  DataSourceLine,
-  LocationIssues,
-} from "@/components/data-status";
+import { DataLoading, DataProblem, DataSourceLine, LocationIssues } from "@/components/data-status";
 import { CROP_LIST, NAVIGATION_ITEMS } from "@/lib/app-content";
 import { serverServices } from "@/lib/data/client-services";
 import { createBundleLoader, type BundleLoader, type LoadState } from "@/lib/data/loader";
@@ -90,7 +85,8 @@ function PlannerView({
 }) {
   const dataMode: DataMode | null = loadState.phase === "ready" ? loadState.mode : null;
   const retrievedAt = loadState.phase === "ready" ? loadState.retrievedAt : null;
-  const locations = loadState.phase === "ready" || loadState.phase === "loading" ? loadState.locations : [];
+  const locations =
+    loadState.phase === "ready" || loadState.phase === "loading" ? loadState.locations : [];
   const usablePoints = (bundle?.points.points ?? []).filter((point) => !!bundle?.climate[point.id]);
   const [parsed, setParsed] = useState(() => parsePlannerHash("#/"));
   const [selectedPoint, setSelectedPoint] = useState(parsed.pointId ?? "");
@@ -138,8 +134,7 @@ function PlannerView({
     const available = new Set(
       bundle.points.points.filter((point) => !!bundle.climate[point.id]).map((point) => point.id),
     );
-    if (!selectedPoint || !available.has(selectedPoint))
-      setSelectedPoint([...available][0] ?? "");
+    if (!selectedPoint || !available.has(selectedPoint)) setSelectedPoint([...available][0] ?? "");
     if (!enabledCrops) setEnabledCrops([...CROP_LIST.map((crop) => crop.id)]);
   }, [bundle, enabledCrops, selectedPoint]);
 
@@ -346,7 +341,9 @@ function PlannerView({
                         if (move !== 0) {
                           event.preventDefault();
                           const next =
-                            usablePoints[(index + move + usablePoints.length) % usablePoints.length];
+                            usablePoints[
+                              (index + move + usablePoints.length) % usablePoints.length
+                            ];
                           if (next) setSelectedPoint(next.id);
                         }
                       }}
@@ -1351,7 +1348,17 @@ export function RotaNileApp() {
       retrievedAt,
       vegetationPending,
     }),
-    [bundle, response, openEvidence, retry, loadState.phase, bundleError, dataMode, retrievedAt, vegetationPending],
+    [
+      bundle,
+      response,
+      openEvidence,
+      retry,
+      loadState.phase,
+      bundleError,
+      dataMode,
+      retrievedAt,
+      vegetationPending,
+    ],
   );
 
   return (

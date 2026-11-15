@@ -8,9 +8,21 @@ import { clearUpstreamCache, fetchUpstreamJson } from "@/lib/data/upstream";
 import { syntheticConfig, syntheticPoints, syntheticPowerResponse } from "./fixtures/synthetic";
 
 const services: DataServices = {
-  power: async (point) => parsePowerResponse(syntheticPowerResponse(), point.id, "https://example.test", "2026-01-01T00:00:00Z"),
-  modisDates: async () => ({ ok: false, error: { service: "MODIS (ORNL DAAC)", code: "network", message: "offline in test" } }),
-  modisBands: async () => ({ ok: false, error: { service: "MODIS (ORNL DAAC)", code: "network", message: "offline in test" } }),
+  power: async (point) =>
+    parsePowerResponse(
+      syntheticPowerResponse(),
+      point.id,
+      "https://example.test",
+      "2026-01-01T00:00:00Z",
+    ),
+  modisDates: async () => ({
+    ok: false,
+    error: { service: "MODIS (ORNL DAAC)", code: "network", message: "offline in test" },
+  }),
+  modisBands: async () => ({
+    ok: false,
+    error: { service: "MODIS (ORNL DAAC)", code: "network", message: "offline in test" },
+  }),
   modisChunk: async () => ({ ok: true, value: [] }),
 };
 
@@ -63,7 +75,11 @@ describe("bundle loader", () => {
   });
 
   it("assembles live when the snapshot is invalid, and says so", async () => {
-    const states = await run({ "snapshot.json": "{not json", "config.json": syntheticConfig(), "points.json": syntheticPoints() });
+    const states = await run({
+      "snapshot.json": "{not json",
+      "config.json": syntheticConfig(),
+      "points.json": syntheticPoints(),
+    });
     const last = states.at(-1);
     expect(last?.phase).toBe("ready");
     if (last?.phase === "ready") {
@@ -124,7 +140,7 @@ describe("upstream requests", () => {
     let calls = 0;
     const fetchImpl = async () => {
       calls += 1;
-      return new Response("{\"x\":1}", { status: 200 });
+      return new Response('{"x":1}', { status: 200 });
     };
     await fetchUpstreamJson("https://example.test/d", { ...options, fetchImpl });
     await fetchUpstreamJson("https://example.test/d", { ...options, fetchImpl });

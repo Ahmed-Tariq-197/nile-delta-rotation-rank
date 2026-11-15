@@ -6,7 +6,12 @@ describe("MODIS band metadata", () => {
   it("uses served values when present", () => {
     const meta = parseBands({
       bands: [
-        { band: "250m_16_days_NDVI", scale_factor: "0.0001", fill_value: "-3000", valid_range: "-2000 to 10000" },
+        {
+          band: "250m_16_days_NDVI",
+          scale_factor: "0.0001",
+          fill_value: "-3000",
+          valid_range: "-2000 to 10000",
+        },
         { band: "250m_16_days_pixel_reliability", fill_value: "-1" },
       ],
     });
@@ -38,11 +43,26 @@ describe("NDVI cleaning", () => {
     }));
     const records = [
       { band: "250m_16_days_NDVI", calendar_date: "2020-01-01", modis_date: "", value: 5000 },
-      { band: "250m_16_days_pixel_reliability", calendar_date: "2020-01-01", modis_date: "", value: 0 },
+      {
+        band: "250m_16_days_pixel_reliability",
+        calendar_date: "2020-01-01",
+        modis_date: "",
+        value: 0,
+      },
       { band: "250m_16_days_NDVI", calendar_date: "2020-01-02", modis_date: "", value: 5000 },
-      { band: "250m_16_days_pixel_reliability", calendar_date: "2020-01-02", modis_date: "", value: 1 },
+      {
+        band: "250m_16_days_pixel_reliability",
+        calendar_date: "2020-01-02",
+        modis_date: "",
+        value: 1,
+      },
       { band: "250m_16_days_NDVI", calendar_date: "2020-01-03", modis_date: "", value: -3000 },
-      { band: "250m_16_days_pixel_reliability", calendar_date: "2020-01-03", modis_date: "", value: 0 },
+      {
+        band: "250m_16_days_pixel_reliability",
+        calendar_date: "2020-01-03",
+        modis_date: "",
+        value: 0,
+      },
     ];
     const file = buildNdviFile("a", dates, records, meta);
     expect(file.ndvi).toEqual([0.5, 0.5, null]);
@@ -52,7 +72,9 @@ describe("NDVI cleaning", () => {
   });
 
   it("splits dates into requests of at most 10", () => {
-    expect(chunkDates(Array.from({ length: 23 }, (_, index) => index)).map((chunk) => chunk.length)).toEqual([10, 10, 3]);
+    expect(
+      chunkDates(Array.from({ length: 23 }, (_, index) => index)).map((chunk) => chunk.length),
+    ).toEqual([10, 10, 3]);
   });
 
   it("rejects a subset response for a different collection", () => {

@@ -25,7 +25,9 @@ const input = () => ({
 
 describe("bundle assembly", () => {
   it("groups points with identical series into one cell", () => {
-    const climate = Object.fromEntries(Object.entries(input().power).map(([id, item]) => [id, item.climate]));
+    const climate = Object.fromEntries(
+      Object.entries(input().power).map(([id, item]) => [id, item.climate]),
+    );
     const groups = computeCellGroups(climate, ["a", "b", "c"], ["T2M"]);
     expect(groups.cells).toEqual([
       { cell_id: "cell_1", point_ids: ["a", "b"] },
@@ -40,11 +42,17 @@ describe("bundle assembly", () => {
     expect(first.manifest.bundle_version).toBe(second.manifest.bundle_version);
     expect(first.points.bundle_version).toBe(first.manifest.bundle_version);
     expect(first.points.points[0]?.cell_id).toBe("cell_1");
-    expect(first.manifest.config.parameter_counts).toEqual({ verified: 80, provisional: 10, unresolved: 5 });
+    expect(first.manifest.config.parameter_counts).toEqual({
+      verified: 85,
+      provisional: 10,
+      unresolved: 5,
+    });
   });
 
   it("canonical JSON ignores key order", () => {
-    expect(canonicalJson({ b: 1, a: [{ d: 2, c: 3 }] })).toBe(canonicalJson({ a: [{ c: 3, d: 2 }], b: 1 }));
+    expect(canonicalJson({ b: 1, a: [{ d: 2, c: 3 }] })).toBe(
+      canonicalJson({ a: [{ c: 3, d: 2 }], b: 1 }),
+    );
   });
 
   it("an assembled bundle passes snapshot validation, a corrupted one does not", async () => {

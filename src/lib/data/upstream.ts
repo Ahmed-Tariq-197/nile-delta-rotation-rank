@@ -1,6 +1,7 @@
 import { fail, ok, type Result, type ServiceName } from "./types";
 
-export const USER_AGENT = "RotaNile/0.1 (Nile Orbit Lab research demonstration; contact via project page)";
+export const USER_AGENT =
+  "RotaNile/0.1 (Nile Orbit Lab research demonstration; contact via project page)";
 export const CACHE_LIFETIME_MS = 6 * 60 * 60 * 1000;
 export const MAX_CONCURRENT = 2;
 export const MAX_RETRIES = 3;
@@ -45,11 +46,18 @@ export function clearUpstreamCache() {
   inFlight.clear();
 }
 
-async function attempt(url: string, options: UpstreamOptions): Promise<Result<unknown> & { retry?: boolean }> {
+async function attempt(
+  url: string,
+  options: UpstreamOptions,
+): Promise<Result<unknown> & { retry?: boolean }> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeoutMs);
-  const base = { service: options.service, url, ...(options.pointId ? { point_id: options.pointId } : {}) };
+  const base = {
+    service: options.service,
+    url,
+    ...(options.pointId ? { point_id: options.pointId } : {}),
+  };
   let response: Response;
   await acquire();
   try {
@@ -74,11 +82,21 @@ async function attempt(url: string, options: UpstreamOptions): Promise<Result<un
   }
   try {
     if (response.status === 404) {
-      return fail({ ...base, code: "not_found", status: 404, message: `${options.service} returned 404 (not found).` });
+      return fail({
+        ...base,
+        code: "not_found",
+        status: 404,
+        message: `${options.service} returned 404 (not found).`,
+      });
     }
     if (!response.ok) {
       return {
-        ...fail({ ...base, code: "http", status: response.status, message: `${options.service} returned status ${response.status}.` }),
+        ...fail({
+          ...base,
+          code: "http",
+          status: response.status,
+          message: `${options.service} returned status ${response.status}.`,
+        }),
         retry: response.status === 429 || response.status >= 500,
       };
     }

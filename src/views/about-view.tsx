@@ -37,11 +37,11 @@ export default function AboutView({
         <ul>
           <li>It does not forecast yields or weather.</li>
           <li>It does not model income or costs.</li>
-          <li>It has not been validated against field trials or reviewed by anyone outside the team.</li>
-          <li>It is demonstrated for the Nile Delta only.</li>
           <li>
-            It does not use real-time data; the data are the latest available at retrieval.
+            It has not been validated against field trials or reviewed by anyone outside the team.
           </li>
+          <li>It is demonstrated for the Nile Delta only.</li>
+          <li>It does not use real-time data; the data are the latest available at retrieval.</li>
         </ul>
       </section>
 
