@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button, DataTable, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { DataSourceLine } from "@/components/data-status";
 import { PageHero } from "@/components/layout";
+import { PageHero } from "@/components/layout";
 import { DATA_LIMITS, POWER_VARIABLE_LABELS } from "@/lib/app-content";
 import { exportSnapshot } from "@/lib/data/snapshot-export";
 import type { ActualBundle, ViewProps } from "@/lib/app-types";
@@ -74,14 +75,15 @@ export default function MethodView({
       </PageHero>
       {!bundle ? (
         <InlineMessage
-          title="Data and configuration are not available"
-          detail={
-            error?.detail ??
-            "Add the approved browser data bundle before showing measurements or sources."
-          }
-          variant="error"
+          title={loading ? "Loading data" : "Data not available yet"}
+          detail={loading ? undefined : (error?.detail ?? "The data bundle could not be read.")}
+          variant={loading ? "info" : "error"}
         >
-          <Button onClick={retry}>Retry loading</Button>
+          {loading ? null : (
+            <Button variant="quiet" onClick={retry}>
+              Retry now
+            </Button>
+          )}
         </InlineMessage>
       ) : null}
 
@@ -114,14 +116,9 @@ export default function MethodView({
             />
             <h3 className="section-block">Vegetation index</h3>
             <p>
-              {bundle.manifest.data.ndvi.product} version {bundle.manifest.data.ndvi.version},
-              16-day composites at 250 m, from the ORNL DAAC MODIS web service.{" "}
-              <LabelChip label="observed" /> Scale factor{" "}
-              {bundle.manifest.data.ndvi.scale_applied || "not set"}
-              {bundle.manifest.data.ndvi.metadata_source
-                ? ` (scale ${bundle.manifest.data.ndvi.metadata_source["scale_factor"]}, fill ${bundle.manifest.data.ndvi.metadata_source["fill_value"]}, valid range ${bundle.manifest.data.ndvi.metadata_source["valid_range"]}; accepted reliability value 0, documented)`
-                : ""}
-              . Context only; not used in scores.
+              <LabelChip label="observed" /> {bundle.manifest.data.ndvi.product} version{" "}
+              {bundle.manifest.data.ndvi.version}, 16-day composites at 250 m. Scale factor{" "}
+              {bundle.manifest.data.ndvi.scale_applied || "not yet read"}. Context only, not scored.
             </p>
             <DataTable
               headers={["Location", "Status", "Composites", "Pass quality check"]}
@@ -201,10 +198,7 @@ export default function MethodView({
               <p>No warnings were recorded during retrieval.</p>
             )}
             <h3 className="section-block">Export</h3>
-            <p className="field-hint">
-              Downloads the current complete data bundle unchanged as snapshot.json. Placing it in
-              the data folder freezes the data so the app no longer depends on the NASA services.
-            </p>
+            <p className="field-hint">Saves the full data bundle as snapshot.json.</p>
             <Button disabled={vegetationPending} onClick={() => exportSnapshot(bundle)}>
               Export snapshot
             </Button>
@@ -215,7 +209,7 @@ export default function MethodView({
             ) : null}
           </>
         ) : (
-          <p>Data rows are not available until the data load.</p>
+          <p className="muted">Appears when the data load.</p>
         )}
       </section>
 
@@ -234,9 +228,8 @@ export default function MethodView({
               ))}
             </div>
             <p className="section-description">
-              Verified values were read in an opened source. Provisional values are unconfirmed and
-              treated as assumptions. Unresolved values have no confirmed source and use a
-              documented fallback.
+              Verified: read in an opened source. Provisional: an assumption. Unresolved: no source,
+              a documented fallback is used.
             </p>
             <p>
               {Object.values(bundle.manifest.config.parameter_counts).reduce(
@@ -249,7 +242,7 @@ export default function MethodView({
             </p>
           </>
         ) : (
-          <p>Evidence totals are not shown without the original configuration and manifest.</p>
+          <p className="muted">Appears when the configuration loads.</p>
         )}
       </section>
 
@@ -332,11 +325,11 @@ export default function MethodView({
             </p>
           </>
         ) : (
-          <p>Assumptions are not available without the supplied crop configuration.</p>
+          <p className="muted">Appears when the configuration loads.</p>
         )}
       </section>
 
-      <section className="content-section">
+      <section className="content-section" id="limits">
         <h2>Limits</h2>
         {loading ? (
           <p>Loading the engine limits.</p>
@@ -347,7 +340,7 @@ export default function MethodView({
             ))}
           </ul>
         ) : (
-          <p>The engine and its limits statement have not been supplied.</p>
+          <p>Engine limits appear once the calculation engine is added.</p>
         )}
         <h3 className="section-block">Limits of the data</h3>
         <ul>
@@ -383,10 +376,9 @@ export default function MethodView({
         <h2>Data version</h2>
         {bundle ? (
           <p>
-            Bundle {bundle.manifest.bundle_version}, retrieved{" "}
+            Bundle <code>{bundle.manifest.bundle_version.slice(0, 12)}</code>, retrieved{" "}
             {formatDateTime(bundle.manifest.built_at_utc)}. Engine{" "}
-            {response?.engine_version ?? "not supplied"}. Assembled at run time from the NASA
-            services.
+            {response?.engine_version ?? "not supplied"}.
           </p>
         ) : (
           <p>Data version details are unavailable.</p>
@@ -397,54 +389,20 @@ export default function MethodView({
 }
 
 function PipelineDiagram() {
+  const steps = [
+    { title: "NASA POWER + MODIS", note: "Climate and vegetation" },
+    { title: "Crop settings", note: "Graded evidence" },
+    { title: "Engine", note: "Runs in your browser" },
+    { title: "Ranked plans", note: "With their evidence" },
+  ];
   return (
-    <svg
-      className="pipeline"
-      viewBox="0 0 900 150"
-      role="img"
-      aria-label="Climate and vegetation snapshots plus crop settings flow into the calculation engine and then produce ranked plans"
-    >
-      <title>Plan calculation sequence</title>
-      <desc>
-        Data and configuration inputs are evaluated by the browser engine to produce ranked plans
-        with evidence.
-      </desc>
-      <defs>
-        <marker
-          id="method-arrow"
-          viewBox="0 0 10 10"
-          refX="9"
-          refY="5"
-          markerWidth="6"
-          markerHeight="6"
-          orient="auto"
-        >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line-strong)" />
-        </marker>
-      </defs>
-      <rect x="22" y="32" width="225" height="78" rx="8" />
-      <text x="38" y="62">
-        Climate and vegetation
-      </text>
-      <text x="38" y="88">
-        snapshots
-      </text>
-      <line x1="247" x2="340" y1="72" y2="72" markerEnd="url(#method-arrow)" />
-      <rect className="engine-node" x="346" y="32" width="195" height="78" rx="8" />
-      <text x="363" y="62">
-        Crop configuration
-      </text>
-      <text x="363" y="88">
-        Browser engine
-      </text>
-      <line x1="541" x2="634" y1="72" y2="72" markerEnd="url(#method-arrow)" />
-      <rect x="640" y="32" width="234" height="78" rx="8" />
-      <text x="657" y="62">
-        Ranked plans
-      </text>
-      <text x="657" y="88">
-        with evidence
-      </text>
-    </svg>
+    <ol className="pipeline" aria-label="Plan calculation sequence">
+      {steps.map((step, index) => (
+        <li key={step.title} className={index === 2 ? "pipeline-step engine" : "pipeline-step"}>
+          <strong>{step.title}</strong>
+          <span>{step.note}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
