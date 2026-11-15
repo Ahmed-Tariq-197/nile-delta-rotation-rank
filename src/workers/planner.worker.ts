@@ -34,8 +34,8 @@ function loadFullBundle(base: string) {
       ]);
       return {
         points: points as unknown as BundleData["points"],
-        climate: Object.fromEntries(climateEntries) as BundleData["climate"],
-        ndvi: Object.fromEntries(ndviEntries) as BundleData["ndvi"],
+        climate: Object.fromEntries(climateEntries) as unknown as BundleData["climate"],
+        ndvi: Object.fromEntries(ndviEntries) as unknown as BundleData["ndvi"],
         config: config as unknown as BundleData["config"],
         manifest: manifest as unknown as BundleData["manifest"],
       };
@@ -49,23 +49,8 @@ function loadFullBundle(base: string) {
 
 const engineModules = import.meta.glob("../engine/index.ts");
 
-async function calculate(request: EngineRequest) {
-  const enginePath = Object.keys(engineModules)[0];
-  const loadEngine = enginePath ? engineModules[enginePath] : undefined;
-  if (!loadEngine) throw error("engine_missing", "The crop-rotation calculation engine was not supplied.", "src/engine/index.ts");
-  const engine = await loadEngine() as {
-    evaluate: (request: EngineRequest, bundle: BundleData) => EngineResponse;
-    validateResponse: (response: EngineResponse) => { ok: boolean; errors: string[] };
-  };
-  const bundle = await loadFullBundle();
-  const response = await engine.evaluate(request, bundle);
-  const validation = engine.validateResponse(response);
-  if (!validation.ok) throw error("bundle_invalid", validation.errors.join(" "), "engine response");
-  return response;
-}
-
 const scope = self as WorkerScope;
-scope.onmessage = async (event: MessageEvent<{ id: number; request: EngineRequest }>) => {
+scope.onmessage = async (event: MessageEvent<{ id: number; request: EngineRequest; dataBase: string }>) => {
   const { id, request, dataBase } = event.data;
   try {
     const enginePath = Object.keys(engineModules)[0];
