@@ -61,7 +61,7 @@ function cropName(id: CropId) {
 }
 
 function describeNdvi(file: NdviFile | undefined) {
-  if (!file) return "Vegetation record not supplied.";
+  if (!file) return "Vegetation record not available yet.";
   const note = ndviNote(file);
   return note
     ? `Latest valid composite on ${formatDate(note.date)}: NDVI ${formatNullable(note.value, 2)}, at or above ${formatNullable(note.percentileInRecord * 100)} percent of valid composites in this record.`
