@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+# Project guidance
+
+- Preserve the existing TanStack Start routing and hosting structure; it is the application's framework and runtime contract.
+- Treat supplied data and calculation-engine outputs as authoritative; never invent agricultural figures, results, locations, validation claims or provenance.
+- Keep the application free of analytics and external telemetry.
