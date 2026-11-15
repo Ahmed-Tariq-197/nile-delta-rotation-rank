@@ -9,9 +9,9 @@
 - [x] Smoother, more dynamic pages: transitions, animated plan cards, loading shimmer.
 - [x] CSV/JSON export of ranked plans.
 - [x] Livelier pages: banner figures, scroll reveal, card glow, scroll progress, About and Global cards.
-- [ ] Submission: checks recorded in docs/VERIFY.md.
-- [ ] Submission: README engine state and "How SI tools were used".
-- [ ] Submission: run-time solar gap and repeated GWETROOT warning on Method and Data; LIMITS update.
-- [ ] Submission: static production smoke test.
-- [ ] Submission: docs/EXTERNAL_RESOURCES.md.
+- [x] Submission: checks recorded in docs/VERIFY.md.
+- [x] Submission: README engine state and "How SI tools were used".
+- [x] Submission: run-time solar gap and repeated GWETROOT warning on Method and Data; LIMITS update.
+- [x] Submission: static production smoke test.
+- [x] Submission: docs/EXTERNAL_RESOURCES.md.
 - [ ] Firefox and Safari checks (not available in this workspace).

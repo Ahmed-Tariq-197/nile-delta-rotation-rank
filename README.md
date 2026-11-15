@@ -32,6 +32,8 @@ bun run test
 bun run build
 ```
 
+`bun run build` also writes `dist/client/index.html`, so `dist/client` can be served as plain files from the site root. Check results are in `docs/VERIFY.md`; external resources are listed in `docs/EXTERNAL_RESOURCES.md`.
+
 ## How SI tools were used
 
 The application code (user interface, data-loading layer and engine integration) was generated and edited with Lovable, an SI coding tool, following team prompts. Claude (Anthropic) was used to review the repository and draft documentation and submission text. SI tools did not produce the data; climate and vegetation data are retrieved from NASA POWER and the ORNL DAAC MODIS service. Real-world validation was not performed.
