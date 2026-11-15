@@ -435,7 +435,7 @@ function PipelineDiagram() {
           markerHeight="6"
           orient="auto"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--rim-strong)" />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line-strong)" />
         </marker>
       </defs>
       <rect x="22" y="32" width="225" height="78" rx="8" />

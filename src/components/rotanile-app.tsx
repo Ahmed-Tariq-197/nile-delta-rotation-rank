@@ -923,7 +923,7 @@ function PlanChart({
               Soil health, higher is better
             </text>
             {front.length > 0 ? (
-              <path d={linePath} fill="none" stroke="var(--gold)" strokeWidth="1.5" />
+              <path d={linePath} fill="none" stroke="var(--signal)" strokeWidth="1.5" />
             ) : null}
             {sorted.map((plan) => (
               <g
@@ -944,8 +944,8 @@ function PlanChart({
                   cx={x(plan)}
                   cy={y(plan)}
                   r={plan.id === selectedPlan?.id ? 8 : 5}
-                  fill="var(--gold)"
-                  stroke={plan.id === selectedPlan?.id ? "var(--ivory)" : "var(--ink)"}
+                  fill="var(--signal)"
+                  stroke={plan.id === selectedPlan?.id ? "var(--night)" : "var(--surface)"}
                   strokeWidth={plan.id === selectedPlan?.id ? 2 : 1}
                 />
                 <title>Rank {plan.rank}</title>
