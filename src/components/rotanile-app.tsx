@@ -1115,7 +1115,7 @@ function NdviView({ file, onEvidence }: { file: NdviFile; onEvidence: () => void
     .map((date, index) => ({ date, value: file.ndvi[index], quality: file.quality_ok[index] }))
     .filter(
       (entry): entry is { date: string; value: number; quality: boolean } =>
-        entry.quality && typeof entry.value === "number" && Number.isFinite(entry.value),
+        entry.quality === true && typeof entry.value === "number" && Number.isFinite(entry.value),
     );
   const passed = file.quality_ok.filter(Boolean).length;
   if (!accepted.length)

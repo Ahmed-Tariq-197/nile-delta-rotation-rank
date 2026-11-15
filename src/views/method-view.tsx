@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Button, DataTable, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { DataSourceLine } from "@/components/data-status";
 import { PageHero } from "@/components/layout";
-import { PageHero } from "@/components/layout";
 import { DATA_LIMITS, POWER_VARIABLE_LABELS } from "@/lib/app-content";
 import { exportSnapshot } from "@/lib/data/snapshot-export";
 import type { ActualBundle, ViewProps } from "@/lib/app-types";
@@ -76,7 +75,7 @@ export default function MethodView({
       {!bundle ? (
         <InlineMessage
           title={loading ? "Loading data" : "Data not available yet"}
-          detail={loading ? undefined : (error?.detail ?? "The data bundle could not be read.")}
+          {...(loading ? {} : { detail: error?.detail ?? "The data bundle could not be read." })}
           variant={loading ? "info" : "error"}
         >
           {loading ? null : (
