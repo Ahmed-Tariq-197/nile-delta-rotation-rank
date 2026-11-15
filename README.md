@@ -11,10 +11,10 @@ RotaNile is crop-rotation planning support for the Nile Delta, produced by Nile 
 
 ## Data
 
-| File | Content |
-| --- | --- |
-| `public/data/config.json` | Agronomy configuration with evidence grades. Read at run time; values are never edited by the app. |
-| `public/data/points.json` | Five proposed locations. Coordinates were not checked on imagery. Elevation and cell id are filled at run time. |
+| File                        | Content                                                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `public/data/config.json`   | Agronomy configuration with evidence grades. Read at run time; values are never edited by the app.                              |
+| `public/data/points.json`   | Five proposed locations. Coordinates were not checked on imagery. Elevation and cell id are filled at run time.                 |
 | `public/data/snapshot.json` | Optional frozen copy of the complete data bundle. When present and valid, the app uses it instead of calling the NASA services. |
 
 Loader order: `snapshot.json` first; otherwise the bundle is assembled live in the browser from NASA POWER and the ORNL DAAC MODIS web service. Requests use a timeout, up to three retries with exponential backoff, at most two concurrent requests and a six-hour in-memory cache.
