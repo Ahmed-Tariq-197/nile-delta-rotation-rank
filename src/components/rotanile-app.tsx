@@ -6,46 +6,16 @@ import { Shell } from "@/components/layout";
 import { CROP_LIST, NAVIGATION_ITEMS, POWER_VARIABLE_LABELS, PROPOSED_POINTS, REGION_FILES, SCHEMA_ROWS } from "@/lib/app-content";
 import { encodePlannerHash, medianCadence, parsePlannerHash } from "@/lib/derive";
 import { formatDate, formatNullable, scoreFormatter } from "@/lib/format";
-import type { CropId, EvidenceGrade, EngineResponse, Label, NdviFile, Plan, Priorities, ProvenanceEntry, Season } from "@/lib/contract";
+import type { CropId, EvidenceGrade, EngineResponse, NdviFile, Plan, Priorities, ProvenanceEntry } from "@/lib/contract";
+import type { ActualBundle, BundleError, EvidenceContext } from "@/lib/app-types";
 
 type ViewSection = "/" | "/method" | "/global" | "/about";
-type EvidenceContext = { title: string; detail: string; plan?: Plan; pointId?: string; indicator?: string };
-type ActualBundle = {
-  manifest: {
-    bundle_version: string;
-    built_at_utc: string;
-    data: {
-      end_date: string;
-      time_standard: string;
-      power: { community: string; start: string; end: string; variables: Record<string, { unit: string; label: Label; source: string }> };
-      ndvi: { product: string; version: string; scale_applied: number; composite_counts: Record<string, { total: number; valid: number }> };
-      cell_groups: { cells: { cell_id: string; point_ids: string[] }[]; inference?: string };
-    };
-    config: { parameter_counts: { verified: number; provisional: number; unresolved: number }; assumption_count: number; source_count: number };
-    files: { path: string }[];
-  };
-  points: { bundle_version: string; points: { id: string; name: string; area: string; latitude: number; longitude: number; elevation_m: number | null; cell_id: string; location_note: string }[] };
-  config: {
-    crops: Record<string, { display_name: string; season: { value: string } }>;
-    seasons: unknown[];
-    rotation_rules: unknown[];
-    assumptions: { path: string; decision_rule: string; reason: string; planner_fallback: string }[];
-    sources: { id: string; citation: string; url_or_doi: string; date_opened: string; access_status: string }[];
-  };
-  ndvi: Record<string, NdviFile>;
-};
-type BundleError = { kind: string; detail: string; file?: string };
 
 const LazyMethodView = lazy(() => import("@/views/method-view"));
 const LazyGlobalView = lazy(() => import("@/views/global-view"));
 const LazyAboutView = lazy(() => import("@/views/about-view"));
 
-const RAW_DEFAULT_PRIORITIES: Priorities = { water: 0.34, soil_health: 0.33, climate_risk: 0.33 };
-const colorForGrade = (grade: EvidenceGrade) => grade;
-
-function OrbitGlyph() {
-  return <svg className="orbit-mark" viewBox="0 0 42 42" role="img" aria-label="Nile Orbit Lab badge"><ellipse cx="21" cy="21" rx="15" ry="6" transform="rotate(-18 21 21)" fill="none" stroke="var(--gold)" /><circle cx="33" cy="19" r="2" fill="var(--ivory)" /></svg>;
-}
+const DATA_BASE = `${import.meta.env.BASE_URL}data/`;
 
 function DataUnavailable({ error, retry }: { error: BundleError | null; retry: () => void }) {
   return (
@@ -121,7 +91,7 @@ function PlannerView({
 
   useEffect(() => {
     if (!bundle) return;
-    const available = new Set(PROPOSED_POINTS.map((point) => point.id));
+    const available = new Set(bundle.points.points.map((point) => point.id));
     if (!selectedPoint || !available.has(selectedPoint)) setSelectedPoint(bundle.points.points[0]?.id ?? "");
     if (!enabledCrops) setEnabledCrops([...CROP_LIST.map((crop) => crop.id)]);
     const files = [...CROP_LIST.map((crop) => `ndvi/${crop.id}.json`)].filter((path) => !path);
@@ -523,16 +493,16 @@ export function RotaNileApp() {
     setLoading(true);
     try {
       const [pointsResponse, configResponse, manifestResponse] = await Promise.all([
-        fetch("/data/points.json"),
-        fetch("/data/config.json"),
-        fetch("/data/manifest.json"),
+        fetch(`${DATA_BASE}points.json`),
+        fetch(`${DATA_BASE}config.json`),
+        fetch(`${DATA_BASE}manifest.json`),
       ]);
       const missing = [["points.json", pointsResponse], ["config.json", configResponse], ["manifest.json", manifestResponse]].find(([, result]) => !(result as Response).ok);
       if (missing) throw { kind: "bundle_missing", file: missing[0], detail: `Missing ${missing[0]}. Add the approved data bundle under public/data.` };
       const [points, config, manifest] = await Promise.all([pointsResponse.json(), configResponse.json(), manifestResponse.json()]) as [ActualBundle["points"], ActualBundle["config"], ActualBundle["manifest"]];
       if (!Array.isArray(points.points) || !config.crops || !manifest.data?.end_date) throw { kind: "bundle_invalid", file: "points.json, config.json or manifest.json", detail: "Required bundle fields are missing." };
       const ndviEntries = await Promise.all(points.points.map(async (point) => {
-        const result = await fetch(`/data/ndvi/${point.id}.json`);
+        const result = await fetch(`${DATA_BASE}ndvi/${point.id}.json`);
         if (!result.ok) throw { kind: "bundle_missing", file: `ndvi/${point.id}.json`, detail: `The vegetation record for ${point.area} was not supplied.` };
         return [point.id, await result.json() as NdviFile] as const;
       }));
