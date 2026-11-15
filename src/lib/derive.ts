@@ -50,8 +50,8 @@ export function parsePlannerHash(hash: string) {
   );
   const invalid =
     (priorityText !== null && !hasValidWeights) ||
-    (query.has("ec") && parseOptionalNumber("ec") === null) ||
-    (query.has("cap") && parseOptionalNumber("cap") === null);
+    (query.has("ec") && query.get("ec") !== "" && parseOptionalNumber("ec") === null) ||
+    (query.has("cap") && query.get("cap") !== "" && parseOptionalNumber("cap") === null);
 
   return {
     section,
