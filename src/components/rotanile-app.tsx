@@ -64,7 +64,7 @@ function PlannerView({
   retry: () => void;
   openEvidence: (context: EvidenceContext) => void;
 }) {
-  const parsed = parsePlannerHash(typeof window === "undefined" ? "#/" : window.location.hash);
+  const [parsed, setParsed] = useState(() => parsePlannerHash("#/"));
   const [selectedPoint, setSelectedPoint] = useState(parsed.pointId ?? "");
   const [weights, setWeights] = useState(parsed.priorities);
   const [salinity, setSalinity] = useState(parsed.salinity === null ? "" : String(parsed.salinity));
@@ -86,6 +86,17 @@ function PlannerView({
   const normalizedWeights = priorityTotal > 0
     ? { water: weights.water / priorityTotal, soil_health: weights.soil_health / priorityTotal, climate_risk: weights.climate_risk / priorityTotal }
     : null;
+
+  useEffect(() => {
+    const next = parsePlannerHash(window.location.hash);
+    setParsed(next);
+    setSelectedPoint(next.pointId ?? "");
+    setWeights(next.priorities);
+    setSalinity(next.salinity === null ? "" : String(next.salinity));
+    setCap(next.waterCap === null ? "" : String(next.waterCap));
+    setEnabledCrops(next.allowedCrops);
+    setSelectedPlanId(next.planId);
+  }, []);
 
   useEffect(() => {
     if (!bundle) return;

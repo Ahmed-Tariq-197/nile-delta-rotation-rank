@@ -1,4 +1,4 @@
-import type { AppError, ClimateFile, EngineRequest, EngineResponse, UiBundle } from "@/lib/contract";
+import type { AppError, EngineRequest, EngineResponse, UiBundle } from "@/lib/contract";
 
 const base = `${import.meta.env.BASE_URL}data/`;
 let bundlePromise: Promise<UiBundle> | undefined;

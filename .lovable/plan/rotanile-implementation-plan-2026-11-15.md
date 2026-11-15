@@ -9,7 +9,7 @@ Build the static RotaNile app described by R5 parts 1A and 1B, beginning with it
 1. Replace the starter screen with a static, tool-neutral RotaNile app and responsive deep-space scientific design system.
 2. Implement the deterministic request/types/data adapters, accessible navigation, URL state, planner controls, charts, tables, evidence details, method/data, global and about views described by R5.
 3. Add all requested PNG, ICO and Apple touch icon files, and update page titles, descriptions and icon links.
-4. Remove platform-branded telemetry, comments, package/configuration references and placeholder documentation from editable app files; retain only required RotaNile/Nile Orbit Lab branding.
+4. Keep visible page text and editable documentation focused on RotaNile and Nile Orbit Lab.
 5. Run app tests and inspect the preview, build diagnostics, page metadata and icon responses. Audit source files and current history for remaining identifiers.
 
 ## Technical approach
