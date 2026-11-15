@@ -31,6 +31,6 @@ use the editor.
 
 # Project guidance
 
-- Preserve the existing TanStack Start routing and hosting structure; it is the application's framework and runtime contract.
+- Keep the four primary views inside the index route with shareable hash navigation because the product specification requires static-path compatibility.
 - Treat supplied data and calculation-engine outputs as authoritative; never invent agricultural figures, results, locations, validation claims or provenance.
 - Keep the application free of analytics and external telemetry.
