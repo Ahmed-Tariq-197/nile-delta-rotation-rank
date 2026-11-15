@@ -3,7 +3,7 @@ export function renderErrorPage(): string {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>RotaNile — This page didn't load</title>
+    <title>RotaNile: page unavailable</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -22,11 +22,10 @@ export function renderErrorPage(): string {
   </head>
   <body>
     <div class="card">
-      <h1>This page didn't load</h1>
-      <p id="error-detail">Something went wrong on our end. You can try refreshing or head back home.</p>
+      <h1>RotaNile could not open this page</h1>
+      <p id="error-detail">The server could not prepare this page. The planner itself loads its data in the browser and may still open.</p>
       <div class="actions">
-        <button class="primary" type="button" onclick="location.reload()">Try again</button>
-        <a class="secondary" href="/" onclick="event.preventDefault(); location.href = '/';">Go home</a>
+        <a class="primary" href="./">Open the planner</a>
       </div>
     </div>
   </body>
