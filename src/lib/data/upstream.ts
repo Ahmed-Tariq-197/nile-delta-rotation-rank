@@ -63,7 +63,12 @@ async function attempt(
   try {
     response = await fetchImpl(url, {
       signal: controller.signal,
-      headers: { Accept: "application/json", "User-Agent": USER_AGENT },
+      // Browsers do not allow a custom User-Agent (and it would force a CORS preflight),
+      // so the identifying header is only sent outside the browser.
+      headers:
+        typeof window === "undefined"
+          ? { Accept: "application/json", "User-Agent": USER_AGENT }
+          : { Accept: "application/json" },
     });
   } catch {
     clearTimeout(timer);

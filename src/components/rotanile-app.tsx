@@ -12,7 +12,7 @@ import {
 import { Shell } from "@/components/layout";
 import { DataLoading, DataProblem, DataSourceLine, LocationIssues } from "@/components/data-status";
 import { CROP_LIST, NAVIGATION_ITEMS } from "@/lib/app-content";
-import { serverServices } from "@/lib/data/client-services";
+import { directServices } from "@/lib/data/services";
 import { createBundleLoader, type BundleLoader, type LoadState } from "@/lib/data/loader";
 import { runPlanner } from "@/lib/planner";
 import { encodePlannerHash, ndviNote, normalizeWeights, parsePlannerHash } from "@/lib/derive";
@@ -1297,7 +1297,7 @@ export function RotaNileApp() {
   useEffect(() => {
     const dataBase = new URL(`${import.meta.env.BASE_URL}data/`, window.location.href).href;
     const loader = createBundleLoader({
-      services: serverServices,
+      services: directServices,
       dataBase,
       onUpdate: setLoadState,
     });

@@ -109,7 +109,7 @@ function asServiceError(
   return {
     service,
     code: "network",
-    message: `${service} could not be reached through the application server.`,
+    message: `${service} could not be reached.`,
     ...(pointId ? { point_id: pointId } : {}),
   };
 }
