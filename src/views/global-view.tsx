@@ -46,7 +46,9 @@ export default function GlobalView({
   return (
     <div className="data-layout">
       <PageHero title="Other river basins">
-        <p className="hero-lede">Shown for the Nile Delta only. Real-world validation was not performed.</p>
+        <p className="hero-lede">
+          Shown for the Nile Delta only. Real-world validation was not performed.
+        </p>
         <HeroStats
           items={[
             { label: "Region pack files", value: REGION_FILES.length },
