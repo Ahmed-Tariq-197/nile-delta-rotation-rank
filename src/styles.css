@@ -230,6 +230,15 @@ select:focus-visible,
   outline: 2px solid var(--signal);
   outline-offset: 3px;
 }
+[tabindex="-1"]:focus:not(:focus-visible),
+h1[tabindex="-1"]:focus {
+  outline: none;
+}
+.page-heading + .content-section,
+.page-heading + section.content-section {
+  border-top: 0;
+  padding-top: 0;
+}
 ::selection {
   background: var(--signal);
   color: var(--surface);

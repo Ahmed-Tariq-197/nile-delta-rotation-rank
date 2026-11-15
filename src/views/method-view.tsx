@@ -97,8 +97,9 @@ export default function MethodView({
         <PipelineDiagram />
         <ol>
           <li>
-            Daily {bundle?.manifest.data.power.community ?? "climate"} snapshots are paired with the
-            supplied vegetation composites.
+            Daily NASA POWER climate series
+            {bundle ? ` (${bundle.manifest.data.power.community} community)` : ""} are paired with
+            MODIS vegetation composites.
           </li>
           <li>Crop configuration carries evidence grades and recorded assumptions.</li>
           <li>The calculation engine evaluates eligible rotations in the browser.</li>
