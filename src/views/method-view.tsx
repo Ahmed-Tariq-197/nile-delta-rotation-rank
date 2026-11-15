@@ -5,6 +5,7 @@ import { DataSourceLine } from "@/components/data-status";
 import { PageHero } from "@/components/layout";
 import { HeroStats } from "@/components/motion";
 import { DATA_LIMITS, POWER_VARIABLE_LABELS } from "@/lib/app-content";
+import { solarGaps, trailingRepeat } from "@/lib/data/quality";
 import { exportSnapshot } from "@/lib/data/snapshot-export";
 import type { ActualBundle, ViewProps } from "@/lib/app-types";
 import { formatDate, formatDateTime, formatNullable } from "@/lib/format";
@@ -114,6 +115,7 @@ export default function MethodView({
               {formatDate(bundle.manifest.data.power.start)} to{" "}
               {formatDate(bundle.manifest.data.end_date)} (latest available).
             </p>
+            <DataQualityWarning bundle={bundle} />
             <DataTable
               headers={[
                 "Variable",
@@ -397,6 +399,34 @@ export default function MethodView({
         )}
       </section>
     </div>
+  );
+}
+
+function DataQualityWarning({ bundle }: { bundle: ActualBundle }) {
+  const gaps = solarGaps(bundle.climate).filter((gap) => gap.missingDays > 0);
+  const repeats = trailingRepeat(bundle.climate, "GWETROOT");
+  if (!gaps.length && !repeats.length) return null;
+  return (
+    <InlineMessage title="Gaps at the end of the series" variant="warning">
+      <ul>
+        {gaps.map((gap) => (
+          <li key={`solar-${gap.pointId}`}>
+            {gap.pointId}: solar radiation missing on {gap.missingDays} days
+            {gap.firstMissing ? `, ${formatDate(gap.firstMissing)}` : ""}
+            {gap.lastMissing && gap.lastMissing !== gap.firstMissing
+              ? ` to ${formatDate(gap.lastMissing)}`
+              : ""}
+            .
+          </li>
+        ))}
+        {repeats.map((run) => (
+          <li key={`gwet-${run.pointId}`}>
+            {run.pointId}: root-zone soil wetness repeats {run.value} for the last {run.days} days (
+            {formatDate(run.from)} to {formatDate(run.to)}). Cause not investigated.
+          </li>
+        ))}
+      </ul>
+    </InlineMessage>
   );
 }
 

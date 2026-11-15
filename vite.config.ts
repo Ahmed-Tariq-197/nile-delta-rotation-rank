@@ -7,7 +7,11 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   base: "./",
   plugins: [
-    tanstackStart({ server: { entry: "server" } }),
+    tanstackStart({
+      server: { entry: "server" },
+      prerender: { enabled: true, crawlLinks: false, autoStaticPathsDiscovery: false },
+      pages: [{ path: "/" }],
+    }),
     react(),
     tailwindcss(),
     tsconfigPaths(),

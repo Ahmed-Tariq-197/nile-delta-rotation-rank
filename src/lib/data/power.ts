@@ -19,9 +19,9 @@ export type PowerVariable = (typeof POWER_VARIABLES)[number];
 export const METEOROLOGY_VARIABLES = POWER_VARIABLES.filter((name) => name !== "ALLSKY_SFC_SW_DWN");
 
 export const METEOROLOGY_SOURCE =
-  "NASA POWER (MERRA-2 assimilation model; GEOS FP-IT near real time)";
+  "NASA POWER (MERRA-2 assimilation model; GEOS FP-IT for the most recent period)";
 export const SOLAR_SOURCE =
-  "NASA POWER, satellite-derived (CERES SYN1deg; FLASHFlux near real time)";
+  "NASA POWER, satellite-derived (CERES SYN1deg; FLASHFlux for the most recent period)";
 
 export const CANONICAL_UNITS: Record<PowerVariable, string> = {
   T2M: "degrees C",
