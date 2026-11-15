@@ -694,11 +694,14 @@ function PlannerView({
                 performed. <a href="#/method">Read the limits</a>
               </p>
               {response?.warnings.length ? (
-                <ul>
-                  {response.warnings.map((item, index) => (
-                    <li key={`${index}-${item}`}>{item}</li>
-                  ))}
-                </ul>
+                <details className="disclosure">
+                  <summary>Engine notes ({response.warnings.length})</summary>
+                  <ul>
+                    {response.warnings.map((item, index) => (
+                      <li key={`${index}-${item}`}>{item}</li>
+                    ))}
+                  </ul>
+                </details>
               ) : null}
             </section>
           </div>
