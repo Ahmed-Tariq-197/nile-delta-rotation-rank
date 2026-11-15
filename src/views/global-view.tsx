@@ -51,7 +51,7 @@ export default function GlobalView({
           items={[
             { label: "Region pack files", value: REGION_FILES.length },
             { label: "Schemas", value: SCHEMA_ROWS.length },
-            { label: "Validated basins", value: 0 },
+            { label: "Basins covered", value: 1 },
           ]}
         />
       </PageHero>
