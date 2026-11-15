@@ -1,10 +1,9 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button, CropBadge, CropCell, DataTable, Field, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
+import { Button, CropCell, DataTable, Field, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
 import { Shell } from "@/components/layout";
-import { CROP_LIST, NAVIGATION_ITEMS, POWER_VARIABLE_LABELS, PROPOSED_POINTS, REGION_FILES, SCHEMA_ROWS } from "@/lib/app-content";
-import { encodePlannerHash, parsePlannerHash } from "@/lib/derive";
+import { CROP_LIST, NAVIGATION_ITEMS, PROPOSED_POINTS } from "@/lib/app-content";
+import { encodePlannerHash, ndviNote, parsePlannerHash } from "@/lib/derive";
 import { formatDate, formatNullable, scoreFormatter } from "@/lib/format";
 import type { CropId, EvidenceGrade, EngineResponse, NdviFile, Plan, Priorities, ProvenanceEntry } from "@/lib/contract";
 import type { ActualBundle, BundleError, EvidenceContext } from "@/lib/app-types";
@@ -71,7 +70,6 @@ function PlannerView({
   const [expandedPointInputs, setExpandedPointInputs] = useState(true);
   const [response, setResponse] = useState<EngineResponse | null>(null);
   const [engineMessage, setEngineMessage] = useState<string | null>(null);
-  const [dataFilesMissing, setDataFilesMissing] = useState<string[]>([]);
   const [salinityError, setSalinityError] = useState("");
   const [capError, setCapError] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(parsed.planId);
@@ -88,12 +86,6 @@ function PlannerView({
     if (!selectedPoint || !available.has(selectedPoint)) setSelectedPoint(bundle.points.points[0]?.id ?? "");
     if (!enabledCrops) setEnabledCrops([...CROP_LIST.map((crop) => crop.id)]);
   }, [bundle, enabledCrops, selectedPoint]);
-
-  useEffect(() => {
-    if (!bundle || !selectedPoint) return;
-    const missing = bundle.points.points.filter((point) => !bundle.ndvi[point.id]).map((point) => `ndvi/${point.id}.json`);
-    setDataFilesMissing(missing);
-  }, [bundle, selectedPoint]);
 
   useEffect(() => {
     if (priorityTotal <= 0) {
@@ -199,7 +191,7 @@ function PlannerView({
                     }}>
                       <strong>{point.area}</strong>
                       <span>{point.locationNote}</span>
-                      <span>Vegetation record not supplied.</span>
+                      {bundle.ndvi[point.id] ? <span>{(() => { const note = ndviNote(bundle.ndvi[point.id]); return note ? `Latest valid composite on ${formatDate(note.date)}: NDVI ${formatNullable(note.value, 2)}, at or above ${formatNullable(note.percentileInRecord * 100)} percent of valid composites in this record.` : "No valid composites for this point."; })()}</span> : <span>Vegetation record not supplied.</span>}
                     </button>
                   ))}
                 </div>
@@ -248,7 +240,6 @@ function PlannerView({
 
           <div className="planner-results" aria-busy={resultsState === "loading"}>
             {engineMessage ? <InlineMessage title="Engine results are unavailable" detail={engineMessage} variant="warning" /> : null}
-            {dataFilesMissing.length > 0 ? <InlineMessage title="Data bundle is incomplete" detail="The observation records needed by these views were not included." variant="warning">{dataFilesMissing.map((path) => <p key={path} className="provenance-ref">{path}</p>)}</InlineMessage> : null}
             <section aria-labelledby="plans-title">
               <h2 className="sr-only" id="plans-title">Ranked plans</h2>
               {resultsState === "loading" ? <p className="chart-wrap">Loading plans. Calculation results are not available.</p> : null}
