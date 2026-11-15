@@ -7,7 +7,7 @@ RotaNile is crop-rotation planning support for the Nile Delta, produced by Nile 
 - Loads daily climate series from NASA POWER (meteorology and solar, both modeled; solar is satellite-derived) and MODIS MOD13Q1 version 061 NDVI composites (observed) for five proposed Delta locations.
 - Reads the agronomy configuration (`public/data/config.json`), in which every parameter carries an evidence grade: verified, provisional or unresolved.
 - Shows the data end date ("latest available"), retrieval time, unit conversions, warnings, grid-cell groups and limits on the Planner and Method and Data views.
-- The calculation engine (`src/engine/index.ts`) is not part of the repository yet, so plan rankings show an unavailable state.
+- Ranks three-year rotation plans with the calculation engine, version 1.1.0, in `src/engine/`. The engine runs in a web worker, with a main-thread fallback when the worker cannot start. Ranked plans can be saved as CSV or JSON.
 
 ## Data
 
@@ -32,6 +32,10 @@ bun run test
 bun run build
 ```
 
+## How SI tools were used
+
+The application code (user interface, data-loading layer and engine integration) was generated and edited with Lovable, an SI coding tool, following team prompts. Claude (Anthropic) was used to review the repository and draft documentation and submission text. SI tools did not produce the data; climate and vegetation data are retrieved from NASA POWER and the ORNL DAAC MODIS service. Real-world validation was not performed.
+
 ## Limits
 
-See `docs/LIMITS.md`. In short: climate is grid-cell model output, NDVI pixels are 250 m and can mix land covers, locations are proposed, the third "nili" season and capillary rise are not modeled, there are no prices or forecasts, and real-world validation was not performed.
+See `docs/LIMITS.md`. In short: climate is grid-cell model output, NDVI pixels are 250 m and can mix land covers, locations are proposed, solar values are missing for the most recent period, the third "nili" season and capillary rise are not modeled, there are no prices or forecasts, and real-world validation was not performed.
