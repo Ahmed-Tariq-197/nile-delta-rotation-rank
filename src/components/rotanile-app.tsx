@@ -70,6 +70,7 @@ function PlannerView({
   const [salinity, setSalinity] = useState(parsed.salinity === null ? "" : String(parsed.salinity));
   const [cap, setCap] = useState(parsed.waterCap === null ? "" : String(parsed.waterCap));
   const [enabledCrops, setEnabledCrops] = useState<string[] | null>(parsed.allowedCrops);
+  const [hashReady, setHashReady] = useState(false);
   const [chartMode, setChartMode] = useState<"chart" | "table">("table");
   const [filter, setFilter] = useState("");
   const [sortBy, setSortBy] = useState("rank");
@@ -96,6 +97,7 @@ function PlannerView({
     setCap(next.waterCap === null ? "" : String(next.waterCap));
     setEnabledCrops(next.allowedCrops);
     setSelectedPlanId(next.planId);
+    setHashReady(true);
   }, []);
 
   useEffect(() => {
@@ -141,7 +143,7 @@ function PlannerView({
   }, [bundle, selectedPoint, weights, salinity, cap, enabledCrops, priorityTotal]);
 
   const updateHash = useCallback((planId: string | null) => {
-    if (typeof window === "undefined") return;
+    if (!hashReady || typeof window === "undefined") return;
     const next = encodePlannerHash("/", {
       pointId: selectedPoint || null,
       priorities: weights,
@@ -151,9 +153,9 @@ function PlannerView({
       planId,
     });
     if (window.location.hash !== next) window.history.replaceState(null, "", next);
-  }, [selectedPoint, weights, salinity, enabledCrops, cap]);
+  }, [hashReady, selectedPoint, weights, salinity, enabledCrops, cap]);
 
-  useEffect(() => updateHash(selectedPlanId), [updateHash, selectedPlanId]);
+  useEffect(() => { if (hashReady) updateHash(selectedPlanId); }, [hashReady, updateHash, selectedPlanId]);
 
   const noSeasonWarning = enabledCrops !== null && (
     !enabledCrops.some((id) => CROP_LIST.some((crop) => crop.id === id && crop.season === "winter")) ||
