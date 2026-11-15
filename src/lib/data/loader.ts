@@ -46,21 +46,33 @@ export interface LoaderOptions {
   maxConcurrent?: number;
 }
 
-type StaticRead = { ok: true; value: unknown } | { ok: false; status: "missing" | "network" | "invalid_json"; detail: string };
+type StaticRead =
+  | { ok: true; value: unknown }
+  | { ok: false; status: "missing" | "network" | "invalid_json"; detail: string };
 
-export async function readStaticJson(url: string, fetchImpl: FetchLike = fetch): Promise<StaticRead> {
+export async function readStaticJson(
+  url: string,
+  fetchImpl: FetchLike = fetch,
+): Promise<StaticRead> {
   let response: Response;
   try {
     response = await fetchImpl(url, { cache: "no-store" });
   } catch {
     return { ok: false, status: "network", detail: "The file could not be reached." };
   }
-  if (response.status === 404) return { ok: false, status: "missing", detail: "The file was not found (404)." };
-  if (!response.ok) return { ok: false, status: "network", detail: `The file request returned status ${response.status}.` };
+  if (response.status === 404)
+    return { ok: false, status: "missing", detail: "The file was not found (404)." };
+  if (!response.ok)
+    return {
+      ok: false,
+      status: "network",
+      detail: `The file request returned status ${response.status}.`,
+    };
   const text = await response.text().catch(() => null);
   if (text === null) return { ok: false, status: "network", detail: "The file could not be read." };
   // Static hosts and dev servers may answer a missing file with the app page instead of a 404.
-  if (/^\s*</.test(text)) return { ok: false, status: "missing", detail: "The file was not found." };
+  if (/^\s*</.test(text))
+    return { ok: false, status: "missing", detail: "The file was not found." };
   try {
     return { ok: true, value: JSON.parse(text) as unknown };
   } catch {
@@ -83,13 +95,21 @@ function limiter(max: number) {
   };
 }
 
-function asServiceError(reason: unknown, service: ServiceError["service"], pointId?: string): ServiceError {
-  if (isRecord(reason) && typeof reason["message"] === "string" && typeof reason["code"] === "string")
+function asServiceError(
+  reason: unknown,
+  service: ServiceError["service"],
+  pointId?: string,
+): ServiceError {
+  if (
+    isRecord(reason) &&
+    typeof reason["message"] === "string" &&
+    typeof reason["code"] === "string"
+  )
     return reason as unknown as ServiceError;
   return {
     service,
     code: "network",
-    message: `${service} could not be reached through the application server.`,
+    message: `${service} could not be reached.`,
     ...(pointId ? { point_id: pointId } : {}),
   };
 }
@@ -120,14 +140,23 @@ export function createBundleLoader(options: LoaderOptions) {
   const update = (id: string, patch: Partial<LocationProgress>) => {
     locations = locations.map((item) => (item.point_id === id ? { ...item, ...patch } : item));
   };
-  const vegetationPending = () => locations.some((item) => item.vegetation === "waiting" || item.vegetation === "loading");
+  const vegetationPending = () =>
+    locations.some((item) => item.vegetation === "waiting" || item.vegetation === "loading");
 
   let lastBundle: BundleData | null = null;
 
   /** Re-emit the current bundle with updated per-location progress, without reassembling it. */
   function emitProgress() {
     if (lastBundle)
-      emit({ phase: "ready", mode: "live", bundle: lastBundle, retrievedAt, locations, vegetationPending: vegetationPending(), notices: [...notices] });
+      emit({
+        phase: "ready",
+        mode: "live",
+        bundle: lastBundle,
+        retrievedAt,
+        locations,
+        vegetationPending: vegetationPending(),
+        notices: [...notices],
+      });
   }
 
   async function publish() {
@@ -144,20 +173,38 @@ export function createBundleLoader(options: LoaderOptions) {
     }
     const current = ++generation;
     const warnings = [...notices];
-    const bundle = await assembleBundle({ points: pointsFile, config, power, ndvi, bandMeta, retrievedAt, warnings });
+    const bundle = await assembleBundle({
+      points: pointsFile,
+      config,
+      power,
+      ndvi,
+      bandMeta,
+      retrievedAt,
+      warnings,
+    });
     if (current !== generation) return;
     lastBundle = bundle;
-    emit({ phase: "ready", mode: "live", bundle, retrievedAt, locations, vegetationPending: vegetationPending(), notices: [...notices] });
+    emit({
+      phase: "ready",
+      mode: "live",
+      bundle,
+      retrievedAt,
+      locations,
+      vegetationPending: vegetationPending(),
+      notices: [...notices],
+    });
   }
 
   async function loadPower(point: Point) {
     update(point.id, { power: "loading", power_error: undefined });
     if (lastBundle) emitProgress();
     else emit({ phase: "loading", message: "Requesting NASA POWER climate series.", locations });
-    const result = await limit(() => options.services.power(point, endDate)).catch((reason: unknown) => ({
-      ok: false as const,
-      error: asServiceError(reason, "NASA POWER", point.id),
-    }));
+    const result = await limit(() => options.services.power(point, endDate)).catch(
+      (reason: unknown) => ({
+        ok: false as const,
+        error: asServiceError(reason, "NASA POWER", point.id),
+      }),
+    );
     if (result.ok) {
       power[point.id] = result.value;
       update(point.id, { power: "ready" });
@@ -167,7 +214,12 @@ export function createBundleLoader(options: LoaderOptions) {
   }
 
   async function loadVegetation(point: Point) {
-    update(point.id, { vegetation: "loading", vegetation_detail: "Listing composite dates.", chunks_done: 0, chunks_total: 0 });
+    update(point.id, {
+      vegetation: "loading",
+      vegetation_detail: "Listing composite dates.",
+      chunks_done: 0,
+      chunks_total: 0,
+    });
     emitProgress();
     const unavailable = async (detail: string) => {
       ndvi[point.id] = { file: null, status: { status: "unavailable", detail } };
@@ -183,11 +235,16 @@ export function createBundleLoader(options: LoaderOptions) {
       if (!meta) return unavailable("Band metadata could not be read.");
       const dates = await limit(() => options.services.modisDates(point));
       if (!dates.ok) return unavailable(dates.error.message);
-      const climateEnd = power[point.id]?.climate.end ?? `${endDate.slice(0, 4)}-${endDate.slice(4, 6)}-${endDate.slice(6, 8)}`;
+      const climateEnd =
+        power[point.id]?.climate.end ??
+        `${endDate.slice(0, 4)}-${endDate.slice(4, 6)}-${endDate.slice(6, 8)}`;
       const selected = selectDates(dates.value, climateEnd);
       if (!selected.length) return unavailable("No composites fall inside the climate period.");
       const chunks = chunkDates(selected);
-      update(point.id, { chunks_total: chunks.length, vegetation_detail: `Reading ${chunks.length} groups of composites.` });
+      update(point.id, {
+        chunks_total: chunks.length,
+        vegetation_detail: `Reading ${chunks.length} groups of composites.`,
+      });
       emitProgress();
       const records: SubsetRecord[] = [];
       let done = 0;
@@ -197,7 +254,11 @@ export function createBundleLoader(options: LoaderOptions) {
             const first = chunk[0];
             const last = chunk[chunk.length - 1];
             if (!first || !last) return { ok: true as const, value: [] as SubsetRecord[] };
-            const result = await options.services.modisChunk(point, first.modis_date, last.modis_date);
+            const result = await options.services.modisChunk(
+              point,
+              first.modis_date,
+              last.modis_date,
+            );
             done += 1;
             update(point.id, { chunks_done: done });
             emitProgress();
@@ -205,15 +266,29 @@ export function createBundleLoader(options: LoaderOptions) {
           }),
         ),
       );
-      const failure = results.find((item) => !item.ok);
-      if (failure && !failure.ok) return unavailable(failure.error.message);
+      const failures = results.filter((item) => !item.ok);
+      if (failures.length === results.length) {
+        const first = failures[0];
+        return unavailable(
+          first && !first.ok ? first.error.message : "No composites could be read.",
+        );
+      }
       for (const item of results) if (item.ok) records.push(...item.value);
       const file = buildNdviFile(point.id, selected, records, meta);
       const valid = file.quality_ok.filter(Boolean).length;
+      const firstFailure = failures[0];
+      const partial =
+        firstFailure && !firstFailure.ok
+          ? ` ${failures.length} of ${chunks.length} groups could not be read (${firstFailure.error.message}); those composites are null and fail the quality check.`
+          : "";
       ndvi[point.id] = {
         file,
-        status: { status: "available", detail: `${file.composite_dates.length} composites, ${valid} pass the quality check; retrieved ${new Date().toISOString()}.` },
+        status: {
+          status: "available",
+          detail: `${file.composite_dates.length} composites, ${valid} pass the quality check; retrieved ${new Date().toISOString()}.${partial}`,
+        },
       };
+      if (partial) notices.push(`Vegetation for ${point.id}:${partial}`);
       update(point.id, { vegetation: "ready", vegetation_detail: undefined });
       await publish();
     } catch (reason) {
@@ -242,16 +317,36 @@ export function createBundleLoader(options: LoaderOptions) {
     }
     const configCheck = validateConfig(configRead.value);
     if (!configCheck.ok) {
-      emit({ phase: "config_missing", file: "public/data/config.json", detail: `The configuration file does not match the expected shape. ${configCheck.errors.join(" ")}` });
+      emit({
+        phase: "config_missing",
+        file: "public/data/config.json",
+        detail: `The configuration file does not match the expected shape. ${configCheck.errors.join(" ")}`,
+      });
       return;
     }
     if (!pointsRead.ok) {
-      emit({ phase: "failed", locations: [], error: { service: "Locations", code: pointsRead.status === "invalid_json" ? "invalid_json" : "not_found", message: `public/data/points.json: ${pointsRead.detail}` } });
+      emit({
+        phase: "failed",
+        locations: [],
+        error: {
+          service: "Locations",
+          code: pointsRead.status === "invalid_json" ? "invalid_json" : "not_found",
+          message: `public/data/points.json: ${pointsRead.detail}`,
+        },
+      });
       return;
     }
     const pointsCheck = validatePoints(pointsRead.value);
     if (!pointsCheck.ok) {
-      emit({ phase: "failed", locations: [], error: { service: "Locations", code: "invalid_response", message: `public/data/points.json does not match the expected shape. ${pointsCheck.errors.join(" ")}` } });
+      emit({
+        phase: "failed",
+        locations: [],
+        error: {
+          service: "Locations",
+          code: "invalid_response",
+          message: `public/data/points.json does not match the expected shape. ${pointsCheck.errors.join(" ")}`,
+        },
+      });
       return;
     }
     config = configCheck.value;
@@ -273,8 +368,17 @@ export function createBundleLoader(options: LoaderOptions) {
     for (const point of pointsFile.points) {
       if (power[point.id]) void loadVegetation(point);
       else {
-        ndvi[point.id] = { file: null, status: { status: "unavailable", detail: "Not requested because climate is unavailable." } };
-        update(point.id, { vegetation: "unavailable", vegetation_detail: "Not requested because climate is unavailable." });
+        ndvi[point.id] = {
+          file: null,
+          status: {
+            status: "unavailable",
+            detail: "Not requested because climate is unavailable.",
+          },
+        };
+        update(point.id, {
+          vegetation: "unavailable",
+          vegetation_detail: "Not requested because climate is unavailable.",
+        });
       }
     }
   }
@@ -286,12 +390,24 @@ export function createBundleLoader(options: LoaderOptions) {
       if (snapshot.ok) {
         const check = validateBundleData(snapshot.value);
         if (check.ok) {
-          emit({ phase: "ready", mode: "snapshot", bundle: check.value, retrievedAt: check.value.manifest.built_at_utc, locations: [], vegetationPending: false, notices: [] });
+          emit({
+            phase: "ready",
+            mode: "snapshot",
+            bundle: check.value,
+            retrievedAt: check.value.manifest.built_at_utc,
+            locations: [],
+            vegetationPending: false,
+            notices: [],
+          });
           return;
         }
-        notices.push(`snapshot.json was found but did not validate, so the data were assembled live. ${check.errors.slice(0, 3).join(" ")}`);
+        notices.push(
+          `snapshot.json was found but did not validate, so the data were assembled live. ${check.errors.slice(0, 3).join(" ")}`,
+        );
       } else if (snapshot.status === "invalid_json") {
-        notices.push("snapshot.json was found but is not valid JSON, so the data were assembled live.");
+        notices.push(
+          "snapshot.json was found but is not valid JSON, so the data were assembled live.",
+        );
       }
       await loadLive();
     },

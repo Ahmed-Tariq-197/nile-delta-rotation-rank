@@ -60,19 +60,30 @@ export async function sha256Hex(text: string): Promise<string | null> {
 }
 
 /** Group points whose series are identical for every listed variable. */
-export function computeCellGroups(climate: Record<string, ClimateFile>, pointIds: string[], variables: readonly string[]) {
+export function computeCellGroups(
+  climate: Record<string, ClimateFile>,
+  pointIds: string[],
+  variables: readonly string[],
+) {
   const signatures = new Map<string, string[]>();
   for (const id of pointIds) {
     const file = climate[id];
     if (!file) continue;
     const signature = canonicalJson([
       file.dates,
-      variables.map((name) => file.variables[name as keyof ClimateFile["variables"]]?.values ?? null),
+      variables.map(
+        (name) => file.variables[name as keyof ClimateFile["variables"]]?.values ?? null,
+      ),
     ]);
     signatures.set(signature, [...(signatures.get(signature) ?? []), id]);
   }
-  const cells = [...signatures.values()].map((ids, index) => ({ cell_id: `cell_${index + 1}`, point_ids: ids }));
-  const pointToCell = Object.fromEntries(cells.flatMap((cell) => cell.point_ids.map((id) => [id, cell.cell_id])));
+  const cells = [...signatures.values()].map((ids, index) => ({
+    cell_id: `cell_${index + 1}`,
+    point_ids: ids,
+  }));
+  const pointToCell = Object.fromEntries(
+    cells.flatMap((cell) => cell.point_ids.map((id) => [id, cell.cell_id])),
+  );
   return { cells, point_to_cell: pointToCell as Record<string, string> };
 }
 
@@ -87,7 +98,8 @@ export function countParameterGrades(config: ConfigFile) {
     else if (isRecord(value)) {
       if (isParam(value)) {
         const grade = value["evidence_grade"];
-        if (grade === "verified" || grade === "provisional" || grade === "unresolved") counts[grade] += 1;
+        if (grade === "verified" || grade === "provisional" || grade === "unresolved")
+          counts[grade] += 1;
         return;
       }
       Object.values(value).forEach(walk);
@@ -127,7 +139,10 @@ export async function assembleBundle(input: AssembleInput): Promise<BundleData> 
   const compositeCounts: Record<string, { total: number; valid: number }> = {};
   for (const id of pointIds) {
     const entry = input.ndvi[id];
-    statusByPoint[id] = entry?.status ?? { status: "pending", detail: "Vegetation record not yet requested." };
+    statusByPoint[id] = entry?.status ?? {
+      status: "pending",
+      detail: "Vegetation record not yet requested.",
+    };
     if (entry?.file) {
       ndvi[id] = entry.file;
       compositeCounts[id] = {
@@ -136,14 +151,23 @@ export async function assembleBundle(input: AssembleInput): Promise<BundleData> 
       };
     }
   }
-  const ends = Object.values(climate).map((file) => file.end).sort();
-  const starts = Object.values(climate).map((file) => file.start).sort();
+  const ends = Object.values(climate)
+    .map((file) => file.end)
+    .sort();
+  const starts = Object.values(climate)
+    .map((file) => file.start)
+    .sort();
   const endDate = ends.at(-1) ?? "";
 
   const pointsFile: PointsFile = { bundle_version: "", points };
-  const hash = await sha256Hex(canonicalJson({ points: pointsFile, climate, ndvi, config: input.config }));
+  const hash = await sha256Hex(
+    canonicalJson({ points: pointsFile, climate, ndvi, config: input.config }),
+  );
   const bundleVersion = hash ?? "not computed";
-  if (!hash) warnings.push("Bundle version not computed: the Web Crypto API is not available in this browser.");
+  if (!hash)
+    warnings.push(
+      "Bundle version not computed: the Web Crypto API is not available in this browser.",
+    );
   pointsFile.bundle_version = bundleVersion;
 
   const missingCounts: Record<string, Record<string, number>> = {};
@@ -156,7 +180,9 @@ export async function assembleBundle(input: AssembleInput): Promise<BundleData> 
       url: result.request_url,
       retrieved_at_utc: result.retrieved_at_utc,
       fill_value: result.fill_value,
-      served_units: Object.fromEntries(Object.entries(result.served).map(([key, item]) => [key, item.unit])),
+      served_units: Object.fromEntries(
+        Object.entries(result.served).map(([key, item]) => [key, item.unit]),
+      ),
       conversions: result.conversions.map((item) => ({ ...item })),
     };
   }
@@ -173,7 +199,11 @@ export async function assembleBundle(input: AssembleInput): Promise<BundleData> 
         variables: Object.fromEntries(
           POWER_VARIABLES.map((name) => [
             name,
-            { unit: CANONICAL_UNITS[name], label: variableLabel(name), source: variableSource(name) },
+            {
+              unit: CANONICAL_UNITS[name],
+              label: variableLabel(name),
+              source: variableSource(name),
+            },
           ]),
         ),
         row_counts: rowCounts,
@@ -187,7 +217,10 @@ export async function assembleBundle(input: AssembleInput): Promise<BundleData> 
         scale_applied: meta?.scale_factor ?? 0,
         label: "observed",
         source_by_point: Object.fromEntries(
-          pointIds.map((id) => [id, `ORNL DAAC MODIS web service: ${statusByPoint[id]?.detail ?? "not requested"}`]),
+          pointIds.map((id) => [
+            id,
+            `ORNL DAAC MODIS web service: ${statusByPoint[id]?.detail ?? "not requested"}`,
+          ]),
         ),
         composite_counts: compositeCounts,
         source_files: [],

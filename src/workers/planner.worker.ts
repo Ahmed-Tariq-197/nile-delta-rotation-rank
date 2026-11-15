@@ -78,9 +78,14 @@ const engineModules = import.meta.glob("../engine/index.ts");
 
 const scope = self as WorkerScope;
 scope.onmessage = async (
-  event: MessageEvent<{ id: number; request: EngineRequest; dataBase: string }>,
+  event: MessageEvent<{
+    id: number;
+    request: EngineRequest;
+    dataBase: string;
+    bundle?: BundleData;
+  }>,
 ) => {
-  const { id, request, dataBase } = event.data;
+  const { id, request, dataBase, bundle: supplied } = event.data;
   try {
     const enginePath = Object.keys(engineModules)[0];
     const loadEngine = enginePath ? engineModules[enginePath] : undefined;
@@ -94,7 +99,7 @@ scope.onmessage = async (
       evaluate: (request: EngineRequest, bundle: BundleData) => EngineResponse;
       validateResponse: (response: EngineResponse) => { ok: boolean; errors: string[] };
     };
-    const bundle = await loadFullBundle(dataBase);
+    const bundle = supplied ?? (await loadFullBundle(dataBase));
     const response = await engine.evaluate(request, bundle);
     const validation = engine.validateResponse(response);
     if (!validation.ok)

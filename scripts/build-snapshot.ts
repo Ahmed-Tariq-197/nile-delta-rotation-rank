@@ -24,7 +24,10 @@ async function localFetch(input: string): Promise<Response> {
 function summary(state: LoadState) {
   if (state.phase !== "ready" && state.phase !== "loading") return state.phase;
   return state.locations
-    .map((item) => `${item.point_id}: power ${item.power}, vegetation ${item.vegetation} ${item.chunks_done}/${item.chunks_total}`)
+    .map(
+      (item) =>
+        `${item.point_id}: power ${item.power}, vegetation ${item.vegetation} ${item.chunks_done}/${item.chunks_total}`,
+    )
     .join(" | ");
 }
 
@@ -52,7 +55,20 @@ if (state.phase !== "ready") {
 }
 const failedPower = state.locations.filter((item) => item.power !== "ready");
 if (failedPower.length) {
-  console.error("Snapshot not written: climate missing for", failedPower.map((item) => item.point_id).join(", "));
+  console.error(
+    "Snapshot not written: climate missing for",
+    failedPower.map((item) => item.point_id).join(", "),
+  );
+  process.exit(1);
+}
+const missingVegetation = state.locations.filter((item) => item.vegetation !== "ready");
+if (missingVegetation.length) {
+  console.error(
+    "Snapshot not written: vegetation unavailable for",
+    missingVegetation
+      .map((item) => `${item.point_id} (${item.vegetation_detail ?? "no detail"})`)
+      .join(", "),
+  );
   process.exit(1);
 }
 await writeFile(join(dataDir, "snapshot.json"), JSON.stringify(state.bundle));

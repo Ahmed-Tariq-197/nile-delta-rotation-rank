@@ -102,7 +102,16 @@ const climateVariable = z.object({
   source: z.string(),
   values: z.array(finiteOrNull),
 });
-const variableNames = ["T2M", "T2M_MAX", "T2M_MIN", "PRECTOTCORR", "RH2M", "WS2M", "ALLSKY_SFC_SW_DWN", "GWETROOT"] as const;
+const variableNames = [
+  "T2M",
+  "T2M_MAX",
+  "T2M_MIN",
+  "PRECTOTCORR",
+  "RH2M",
+  "WS2M",
+  "ALLSKY_SFC_SW_DWN",
+  "GWETROOT",
+] as const;
 
 const climate = z
   .object({
@@ -111,15 +120,21 @@ const climate = z
     start: isoDate,
     end: isoDate,
     dates: z.array(isoDate).min(1),
-    variables: z.object(Object.fromEntries(variableNames.map((name) => [name, climateVariable])) as Record<
-      (typeof variableNames)[number],
-      typeof climateVariable
-    >),
+    variables: z.object(
+      Object.fromEntries(variableNames.map((name) => [name, climateVariable])) as Record<
+        (typeof variableNames)[number],
+        typeof climateVariable
+      >,
+    ),
   })
   .superRefine((file, context) => {
     for (const name of variableNames) {
       if (file.variables[name].values.length !== file.dates.length)
-        context.addIssue({ code: "custom", path: ["variables", name, "values"], message: "The number of values does not match the number of dates." });
+        context.addIssue({
+          code: "custom",
+          path: ["variables", name, "values"],
+          message: "The number of values does not match the number of dates.",
+        });
     }
   });
 
@@ -134,43 +149,60 @@ const ndvi = z
     quality_ok: z.array(z.boolean()),
   })
   .superRefine((file, context) => {
-    if (file.ndvi.length !== file.composite_dates.length || file.quality_ok.length !== file.composite_dates.length)
-      context.addIssue({ code: "custom", path: ["ndvi"], message: "NDVI, quality and date lists have different lengths." });
+    if (
+      file.ndvi.length !== file.composite_dates.length ||
+      file.quality_ok.length !== file.composite_dates.length
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["ndvi"],
+        message: "NDVI, quality and date lists have different lengths.",
+      });
   });
 
 const manifest = z.object({
   bundle_version: z.string(),
   built_at_utc: z.string(),
   data: z.object({
-    power: z.object({
-      community: z.string(),
-      start: z.string(),
-      end: z.string(),
-      variables: z.record(z.object({ unit: z.string(), label, source: z.string() })),
-      row_counts: z.record(z.number()),
-      missing_counts: z.record(z.record(z.number())),
-      source_files: z.array(z.unknown()),
-    }).passthrough(),
-    ndvi: z.object({
-      product: z.string(),
-      version: z.string(),
-      scale_applied: z.number(),
-      label,
-      source_by_point: z.record(z.string()),
-      composite_counts: z.record(z.object({ total: z.number(), valid: z.number() })),
-      source_files: z.array(z.unknown()),
-    }).passthrough(),
+    power: z
+      .object({
+        community: z.string(),
+        start: z.string(),
+        end: z.string(),
+        variables: z.record(z.object({ unit: z.string(), label, source: z.string() })),
+        row_counts: z.record(z.number()),
+        missing_counts: z.record(z.record(z.number())),
+        source_files: z.array(z.unknown()),
+      })
+      .passthrough(),
+    ndvi: z
+      .object({
+        product: z.string(),
+        version: z.string(),
+        scale_applied: z.number(),
+        label,
+        source_by_point: z.record(z.string()),
+        composite_counts: z.record(z.object({ total: z.number(), valid: z.number() })),
+        source_files: z.array(z.unknown()),
+      })
+      .passthrough(),
     end_date: isoDate,
     time_standard: z.literal("UTC"),
-    cell_groups: z.object({
-      point_to_cell: z.record(z.string()),
-      cells: z.array(z.object({ cell_id: z.string(), point_ids: z.array(z.string()) })),
-    }).passthrough(),
+    cell_groups: z
+      .object({
+        point_to_cell: z.record(z.string()),
+        cells: z.array(z.object({ cell_id: z.string(), point_ids: z.array(z.string()) })),
+      })
+      .passthrough(),
   }),
   config: z.object({
     schema_version: z.string(),
     source_files: z.array(z.unknown()),
-    parameter_counts: z.object({ verified: z.number(), provisional: z.number(), unresolved: z.number() }),
+    parameter_counts: z.object({
+      verified: z.number(),
+      provisional: z.number(),
+      unresolved: z.number(),
+    }),
     assumption_count: z.number(),
     source_count: z.number(),
   }),
@@ -189,26 +221,44 @@ export const bundleSchema = z
   .superRefine((bundle, context) => {
     for (const item of bundle.points.points) {
       if (!bundle.climate[item.id])
-        context.addIssue({ code: "custom", path: ["climate", item.id], message: `Location ${item.id} has no climate record.` });
+        context.addIssue({
+          code: "custom",
+          path: ["climate", item.id],
+          message: `Location ${item.id} has no climate record.`,
+        });
     }
     for (const [id, file] of Object.entries(bundle.climate)) {
       if (file.point_id !== id)
-        context.addIssue({ code: "custom", path: ["climate", id, "point_id"], message: `Climate record keyed ${id} names ${file.point_id}.` });
+        context.addIssue({
+          code: "custom",
+          path: ["climate", id, "point_id"],
+          message: `Climate record keyed ${id} names ${file.point_id}.`,
+        });
     }
     if (bundle.points.bundle_version !== bundle.manifest.bundle_version)
-      context.addIssue({ code: "custom", path: ["manifest", "bundle_version"], message: "Bundle versions in points and manifest differ." });
+      context.addIssue({
+        code: "custom",
+        path: ["manifest", "bundle_version"],
+        message: "Bundle versions in points and manifest differ.",
+      });
   });
 
 export type Validation<T> = { ok: true; value: T } | { ok: false; errors: string[] };
 
 function describe(error: z.ZodError, limit = 8) {
-  const messages = error.issues.map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`);
-  return messages.length > limit ? [...messages.slice(0, limit), `${messages.length - limit} more problems.`] : messages;
+  const messages = error.issues.map(
+    (issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`,
+  );
+  return messages.length > limit
+    ? [...messages.slice(0, limit), `${messages.length - limit} more problems.`]
+    : messages;
 }
 
 function run<T>(schema: z.ZodTypeAny, value: unknown): Validation<T> {
   const parsed = schema.safeParse(value);
-  return parsed.success ? { ok: true, value: value as T } : { ok: false, errors: describe(parsed.error) };
+  return parsed.success
+    ? { ok: true, value: value as T }
+    : { ok: false, errors: describe(parsed.error) };
 }
 
 export const validateConfig = (value: unknown) => run<ConfigFile>(configSchema, value);

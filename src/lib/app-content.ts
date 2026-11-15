@@ -5,18 +5,6 @@ export const NAVIGATION_ITEMS = [
   { path: "/about", label: "About" },
 ] as const;
 
-export const PROPOSED_POINTS = [
-  {
-    id: "p1",
-    area: "Kafr El-Sheikh",
-    locationNote: "Published field-experiment coordinate; source description is incomplete.",
-  },
-  { id: "p2", area: "Dakahlia", locationNote: "Proposed location, not checked on imagery." },
-  { id: "p3", area: "Gharbia", locationNote: "Proposed location, not checked on imagery." },
-  { id: "p4", area: "Beheira", locationNote: "Proposed location, not checked on imagery." },
-  { id: "p5", area: "Sharqia", locationNote: "Proposed location, not checked on imagery." },
-] as const;
-
 export const CROP_LIST = [
   { id: "wheat", name: "Wheat", season: "winter", letter: "W", color: "var(--wheat)" },
   { id: "berseem", name: "Berseem", season: "winter", letter: "B", color: "var(--berseem)" },
@@ -60,3 +48,14 @@ export const REGION_FILES = [
   "config/assumptions.yaml",
   "docs/SOURCES.md",
 ] as const;
+
+export const DATA_LIMITS = [
+  "Climate values are NASA POWER grid-cell model output (meteorology: MERRA-2, with GEOS FP-IT for the most recent period; solar: CERES SYN1deg, with FLASHFlux for the most recent period). They describe a cell, not a field.",
+  "The source of each POWER series changes inside the period, from the long-term product to the near-real-time product. Consistency across that change was not assessed.",
+  "The data are the latest available at retrieval, not real-time. The request ends 10 days before the run date because the solar series lags by about a week; the most recent solar days can still be missing.",
+  "Cell groups are inferred from identical returned values and assume NASA POWER does not interpolate between cells. Points in the same cell do not have independent climate series.",
+  "A 250 m MODIS NDVI pixel can mix fields, canals, roads and villages. Composite dates are the start of each 16-day window, not acquisition dates. NDVI is context only and never enters the scores.",
+  "Point coordinates are proposed. None was checked on imagery or a map.",
+  "Elevation is the value NASA POWER returns for its cell, not a surveyed value.",
+  "Real-world validation was not performed, and no outside review took place.",
+];

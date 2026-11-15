@@ -18,7 +18,10 @@ async function getServerEntry(): Promise<ServerEntry> {
 }
 
 async function normalizeCatastrophicResponse(response: Response): Promise<Response> {
-  if (response.status < 500 || !(response.headers.get("content-type") ?? "").includes("application/json")) {
+  if (
+    response.status < 500 ||
+    !(response.headers.get("content-type") ?? "").includes("application/json")
+  ) {
     return response;
   }
 

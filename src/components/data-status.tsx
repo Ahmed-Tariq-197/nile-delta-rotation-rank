@@ -2,7 +2,7 @@ import { Button, DataTable, InlineMessage } from "@/components/ui/pieces";
 import type { DataMode } from "@/lib/app-types";
 import type { BundleData } from "@/lib/contract";
 import type { LocationProgress, LoadState } from "@/lib/data/loader";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { sourceSentence } from "@/lib/data/snapshot-export";
 
 const POWER_COPY: Record<LocationProgress["power"], string> = {
   waiting: "Waiting",
@@ -17,11 +17,18 @@ function vegetationText(item: LocationProgress) {
       ? `Reading composites, ${item.chunks_done} of ${item.chunks_total} groups`
       : (item.vegetation_detail ?? "Requesting");
   if (item.vegetation === "ready") return "Received";
-  if (item.vegetation === "unavailable") return `Unavailable. ${item.vegetation_detail ?? ""}`.trim();
+  if (item.vegetation === "unavailable")
+    return `Unavailable. ${item.vegetation_detail ?? ""}`.trim();
   return "Waiting";
 }
 
-export function LocationProgressTable({ locations, caption }: { locations: LocationProgress[]; caption: string }) {
+export function LocationProgressTable({
+  locations,
+  caption,
+}: {
+  locations: LocationProgress[];
+  caption: string;
+}) {
   if (!locations.length) return null;
   return (
     <DataTable
@@ -86,11 +93,6 @@ export function DataProblem({
   );
 }
 
-export function sourceSentence(bundle: BundleData, retrievedAt: string | null) {
-  const end = bundle.manifest.data.end_date ? formatDate(bundle.manifest.data.end_date) : "date not stated";
-  return `NASA POWER and MODIS, latest available through ${end}, retrieved ${retrievedAt ? formatDateTime(retrievedAt) : "at an unstated time"}.`;
-}
-
 export function DataSourceLine({
   bundle,
   mode,
@@ -102,8 +104,8 @@ export function DataSourceLine({
 }) {
   return (
     <p className="notice-text">
-      {mode === "snapshot" ? <strong className="label-chip">Frozen snapshot</strong> : null}{" "}
-      Data source: {sourceSentence(bundle, retrievedAt)}
+      {mode === "snapshot" ? <strong className="label-chip">Frozen snapshot</strong> : null} Data
+      source: {sourceSentence(bundle, retrievedAt)}
     </p>
   );
 }
@@ -118,8 +120,12 @@ export function LocationIssues({
   retryVegetation: (id: string) => void;
 }) {
   const failed = locations.filter((item) => item.power === "failed");
-  const vegetationLoading = locations.filter((item) => item.vegetation === "loading" || item.vegetation === "waiting");
-  const vegetationMissing = locations.filter((item) => item.vegetation === "unavailable" && item.power === "ready");
+  const vegetationLoading = locations.filter(
+    (item) => item.vegetation === "loading" || item.vegetation === "waiting",
+  );
+  const vegetationMissing = locations.filter(
+    (item) => item.vegetation === "unavailable" && item.power === "ready",
+  );
   if (!failed.length && !vegetationLoading.length && !vegetationMissing.length) return null;
   return (
     <div className="input-stack" aria-live="polite">
@@ -158,17 +164,4 @@ export function LocationIssues({
       ) : null}
     </div>
   );
-}
-
-/** Download the current complete BundleData unchanged as snapshot.json. */
-export function exportSnapshot(bundle: BundleData) {
-  const blob = new Blob([JSON.stringify(bundle)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "snapshot.json";
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

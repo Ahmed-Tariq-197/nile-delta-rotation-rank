@@ -1,13 +1,16 @@
 import type { EngineResponse } from "@/lib/contract";
+import { sourceSentence } from "@/lib/data/snapshot-export";
 import { formatDate } from "@/lib/format";
 import type { ActualBundle } from "@/lib/app-types";
 
 export default function AboutView({
   bundle,
   response,
+  retrievedAt,
 }: {
   bundle: ActualBundle | null;
   response: EngineResponse | null;
+  retrievedAt: string | null;
 }) {
   return (
     <div className="data-layout">
@@ -34,11 +37,11 @@ export default function AboutView({
         <ul>
           <li>It does not forecast yields or weather.</li>
           <li>It does not model income or costs.</li>
-          <li>It has not been validated against field trials or reviewed by agronomists.</li>
-          <li>It is demonstrated for the Nile Delta only.</li>
           <li>
-            It does not use real-time data; the data are the latest available at the build date.
+            It has not been validated against field trials or reviewed by anyone outside the team.
           </li>
+          <li>It is demonstrated for the Nile Delta only.</li>
+          <li>It does not use real-time data; the data are the latest available at retrieval.</li>
         </ul>
       </section>
 
@@ -52,6 +55,7 @@ export default function AboutView({
             : "date not supplied"}
           .
         </p>
+        {bundle ? <p>Data source: {sourceSentence(bundle, retrievedAt)}</p> : null}
       </section>
     </div>
   );

@@ -77,7 +77,7 @@ export default function GlobalView({
       {error ? (
         <InlineMessage title="Data bundle not available" detail={error.detail} variant="error">
           <button className="action-button" onClick={retry}>
-            Try again
+            Retry loading
           </button>
         </InlineMessage>
       ) : null}

@@ -1,9 +1,5 @@
 export type ServiceName =
-  | "NASA POWER"
-  | "MODIS (ORNL DAAC)"
-  | "Configuration"
-  | "Locations"
-  | "Snapshot";
+  "NASA POWER" | "MODIS (ORNL DAAC)" | "Configuration" | "Locations" | "Snapshot";
 
 export type ServiceErrorCode =
   | "network"

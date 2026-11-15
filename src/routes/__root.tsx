@@ -59,9 +59,9 @@ function RootErrorComponent({ error, reset }: ErrorComponentProps) {
   return (
     <main className="grid min-h-screen place-content-center gap-4 bg-background px-6 py-12 text-center text-foreground">
       <h1>RotaNile could not open this page</h1>
-      <p>Try again, or return to the planner.</p>
+      <p>This view hit an unexpected problem. Reopen it, or return to the planner.</p>
       <div className="flex flex-wrap justify-center gap-3">
-        <Button onClick={reset}>Try again</Button>
+        <Button onClick={reset}>Reopen this view</Button>
         <Button variant="secondary" onClick={() => void router.navigate({ to: "/" })}>
           Open planner
         </Button>

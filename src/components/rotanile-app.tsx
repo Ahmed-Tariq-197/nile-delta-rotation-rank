@@ -10,14 +10,9 @@ import {
   LabelChip,
 } from "@/components/ui/pieces";
 import { Shell } from "@/components/layout";
-import {
-  DataLoading,
-  DataProblem,
-  DataSourceLine,
-  LocationIssues,
-} from "@/components/data-status";
+import { DataLoading, DataProblem, DataSourceLine, LocationIssues } from "@/components/data-status";
 import { CROP_LIST, NAVIGATION_ITEMS } from "@/lib/app-content";
-import { serverServices } from "@/lib/data/client-services";
+import { directServices } from "@/lib/data/services";
 import { createBundleLoader, type BundleLoader, type LoadState } from "@/lib/data/loader";
 import { runPlanner } from "@/lib/planner";
 import { encodePlannerHash, ndviNote, normalizeWeights, parsePlannerHash } from "@/lib/derive";
@@ -66,7 +61,7 @@ function cropName(id: CropId) {
 }
 
 function describeNdvi(file: NdviFile | undefined) {
-  if (!file) return "Vegetation record not supplied.";
+  if (!file) return "Vegetation record not available yet.";
   const note = ndviNote(file);
   return note
     ? `Latest valid composite on ${formatDate(note.date)}: NDVI ${formatNullable(note.value, 2)}, at or above ${formatNullable(note.percentileInRecord * 100)} percent of valid composites in this record.`
@@ -90,7 +85,8 @@ function PlannerView({
 }) {
   const dataMode: DataMode | null = loadState.phase === "ready" ? loadState.mode : null;
   const retrievedAt = loadState.phase === "ready" ? loadState.retrievedAt : null;
-  const locations = loadState.phase === "ready" || loadState.phase === "loading" ? loadState.locations : [];
+  const locations =
+    loadState.phase === "ready" || loadState.phase === "loading" ? loadState.locations : [];
   const usablePoints = (bundle?.points.points ?? []).filter((point) => !!bundle?.climate[point.id]);
   const [parsed, setParsed] = useState(() => parsePlannerHash("#/"));
   const [selectedPoint, setSelectedPoint] = useState(parsed.pointId ?? "");
@@ -138,8 +134,7 @@ function PlannerView({
     const available = new Set(
       bundle.points.points.filter((point) => !!bundle.climate[point.id]).map((point) => point.id),
     );
-    if (!selectedPoint || !available.has(selectedPoint))
-      setSelectedPoint([...available][0] ?? "");
+    if (!selectedPoint || !available.has(selectedPoint)) setSelectedPoint([...available][0] ?? "");
     if (!enabledCrops) setEnabledCrops([...CROP_LIST.map((crop) => crop.id)]);
   }, [bundle, enabledCrops, selectedPoint]);
 
@@ -346,7 +341,9 @@ function PlannerView({
                         if (move !== 0) {
                           event.preventDefault();
                           const next =
-                            usablePoints[(index + move + usablePoints.length) % usablePoints.length];
+                            usablePoints[
+                              (index + move + usablePoints.length) % usablePoints.length
+                            ];
                           if (next) setSelectedPoint(next.id);
                         }
                       }}
@@ -685,8 +682,8 @@ function PlannerView({
               ) : (
                 <div className="chart-wrap">
                   <p>
-                    No vegetation record was supplied for {selectedArea}. Data values and dates are
-                    not shown without the original bundle.
+                    No MODIS vegetation record is available for {selectedArea} yet. The planner
+                    works without it; NDVI is context only.
                   </p>
                 </div>
               )}
@@ -1300,7 +1297,7 @@ export function RotaNileApp() {
   useEffect(() => {
     const dataBase = new URL(`${import.meta.env.BASE_URL}data/`, window.location.href).href;
     const loader = createBundleLoader({
-      services: serverServices,
+      services: directServices,
       dataBase,
       onUpdate: setLoadState,
     });
@@ -1323,12 +1320,15 @@ export function RotaNileApp() {
   }, []);
 
   const bundle: ActualBundle | null = loadState.phase === "ready" ? loadState.bundle : null;
-  const bundleError: BundleError | null =
-    loadState.phase === "config_missing"
-      ? { kind: "bundle_missing", file: loadState.file, detail: loadState.detail }
-      : loadState.phase === "failed"
-        ? { kind: "network", detail: `${loadState.error.service}: ${loadState.error.message}` }
-        : null;
+  const bundleError = useMemo<BundleError | null>(
+    () =>
+      loadState.phase === "config_missing"
+        ? { kind: "bundle_missing", file: loadState.file, detail: loadState.detail }
+        : loadState.phase === "failed"
+          ? { kind: "network", detail: `${loadState.error.service}: ${loadState.error.message}` }
+          : null,
+    [loadState],
+  );
   const retry = useCallback(() => setRetryCount((count) => count + 1), []);
   const retryPoint = useCallback((id: string) => void loaderRef.current?.retryPoint(id), []);
   const retryVegetation = useCallback(
@@ -1351,7 +1351,17 @@ export function RotaNileApp() {
       retrievedAt,
       vegetationPending,
     }),
-    [bundle, response, openEvidence, retry, loadState.phase, bundleError, dataMode, retrievedAt, vegetationPending],
+    [
+      bundle,
+      response,
+      openEvidence,
+      retry,
+      loadState.phase,
+      bundleError,
+      dataMode,
+      retrievedAt,
+      vegetationPending,
+    ],
   );
 
   return (
