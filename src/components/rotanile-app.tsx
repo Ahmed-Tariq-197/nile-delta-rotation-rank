@@ -1391,6 +1391,38 @@ export function RotaNileApp() {
     [loadState],
   );
   const retry = useCallback(() => setRetryCount((count) => count + 1), []);
+
+  // Background recovery: failed loads retry on a capped exponential schedule (15 s up to 5 min).
+  const failedKey =
+    loadState.phase === "ready"
+      ? loadState.locations
+          .filter((item) => item.power === "failed" || item.vegetation === "unavailable")
+          .map((item) => `${item.point_id}:${item.power}:${item.vegetation}`)
+          .join("|")
+      : loadState.phase === "failed" || loadState.phase === "config_missing"
+        ? loadState.phase
+        : "";
+  const attemptsRef = useRef(0);
+  useEffect(() => {
+    if (!failedKey) {
+      attemptsRef.current = 0;
+      return;
+    }
+    const delay = Math.min(300_000, 15_000 * 2 ** attemptsRef.current);
+    const timer = window.setTimeout(() => {
+      attemptsRef.current += 1;
+      if (loadState.phase !== "ready") {
+        setRetryCount((count) => count + 1);
+        return;
+      }
+      for (const item of loadState.locations) {
+        if (item.power === "failed") void loaderRef.current?.retryPoint(item.point_id);
+        else if (item.vegetation === "unavailable")
+          void loaderRef.current?.retryVegetation(item.point_id);
+      }
+    }, delay);
+    return () => window.clearTimeout(timer);
+  }, [failedKey, loadState]);
   const retryPoint = useCallback((id: string) => void loaderRef.current?.retryPoint(id), []);
   const retryVegetation = useCallback(
     (id: string) => void loaderRef.current?.retryVegetation(id),
