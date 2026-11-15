@@ -1,14 +1,34 @@
 import type { AppError, BundleData, EngineRequest, EngineResponse } from "@/lib/contract";
 
 let plannerWorker: Worker | undefined;
+let workerBroken = false;
 let requestSequence = 0;
 const pending = new Map<
   number,
-  { resolve: (response: EngineResponse) => void; reject: (error: AppError) => void; timer: number }
+  {
+    resolve: (response: EngineResponse) => void;
+    reject: (error: AppError) => void;
+    timer: number;
+    request: EngineRequest;
+    bundle: BundleData;
+  }
 >();
 
-function makeError(kind: AppError["kind"], detail: string, file?: string): AppError {
-  return { kind, detail, ...(file ? { file } : {}) };
+/** Main-thread fallback, used when the worker cannot start. Loaded on demand. */
+async function runOnMainThread(request: EngineRequest, bundle: BundleData) {
+  const { runEngine } = await import("@/lib/engine-run");
+  return runEngine(request, bundle);
+}
+
+function failWorker() {
+  plannerWorker?.terminate();
+  plannerWorker = undefined;
+  workerBroken = true;
+  for (const [id, item] of pending) {
+    window.clearTimeout(item.timer);
+    pending.delete(id);
+    runOnMainThread(item.request, item.bundle).then(item.resolve, item.reject);
+  }
 }
 
 function getPlannerWorker() {
@@ -26,46 +46,33 @@ function getPlannerWorker() {
     if (event.data.ok && event.data.response) item.resolve(event.data.response);
     else
       item.reject(
-        event.data.error ?? makeError("engine_missing", "The calculation engine is unavailable."),
+        event.data.error ?? { kind: "engine_error", detail: "The calculation could not run." },
       );
   };
-  plannerWorker.onerror = () => {
-    for (const [id, item] of pending) {
-      window.clearTimeout(item.timer);
-      item.reject(makeError("engine_missing", "The calculation engine could not start."));
-      pending.delete(id);
-    }
-    plannerWorker?.terminate();
-    plannerWorker = undefined;
-  };
+  plannerWorker.onerror = failWorker;
   return plannerWorker;
 }
 
-/** Run the engine in a worker. The assembled bundle is passed along because live data have no static files. */
-export function runPlanner(request: EngineRequest, bundle?: BundleData): Promise<EngineResponse> {
+/** Run the engine in a worker, or on the main thread when workers are unavailable. */
+export function runPlanner(request: EngineRequest, bundle: BundleData): Promise<EngineResponse> {
+  if (workerBroken || typeof Worker === "undefined") return runOnMainThread(request, bundle);
   return new Promise((resolve, reject) => {
     const id = ++requestSequence;
-    const dataBase = new URL(`${import.meta.env.BASE_URL}data/`, window.location.href).href;
     const timer = window.setTimeout(() => {
-      const current = pending.get(id);
-      if (!current) return;
+      if (!pending.has(id)) return;
       pending.delete(id);
       plannerWorker?.terminate();
       plannerWorker = undefined;
-      reject(
-        makeError(
-          "calculation_timeout",
-          "The calculation took longer than 20 seconds and was stopped.",
-        ),
-      );
+      reject({
+        kind: "calculation_timeout",
+        detail: "The calculation took longer than 20 seconds and was stopped.",
+      });
     }, 20_000);
-    pending.set(id, { resolve, reject, timer });
+    pending.set(id, { resolve, reject, timer, request, bundle });
     try {
-      getPlannerWorker().postMessage({ id, request, dataBase, bundle });
+      getPlannerWorker().postMessage({ id, request, bundle });
     } catch {
-      window.clearTimeout(timer);
-      pending.delete(id);
-      reject(makeError("engine_missing", "The calculation engine could not start."));
+      failWorker();
     }
   });
 }
@@ -73,9 +80,6 @@ export function runPlanner(request: EngineRequest, bundle?: BundleData): Promise
 export function clearPlannerWorker() {
   plannerWorker?.terminate();
   plannerWorker = undefined;
-  for (const item of pending.values()) {
-    window.clearTimeout(item.timer);
-    item.reject(makeError("engine_missing", "The calculation engine was stopped."));
-  }
+  for (const item of pending.values()) window.clearTimeout(item.timer);
   pending.clear();
 }

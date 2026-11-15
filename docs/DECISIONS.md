@@ -12,3 +12,9 @@
 10. **Badge sizes.** The original badge (1.79 MB, 1254 px) is kept unchanged. The interface loads resized copies in `public/brand/`: 128 px (5 KB), 256 px (14 KB), 640 px (54 KB) and 1200 px (91 KB), each with width and height set.
 11. **Background retries.** Failed loads retry automatically on a capped schedule (15 seconds doubling to 5 minutes); a "Retry now" link stays available as a secondary action.
 12. **Hash routing.** Views live under `#/`, `#/method`, `#/global`, `#/about`, so the build works from any folder on static hosting without rewrite rules.
+
+## 13. Calculation engine integration
+- The engine (version 1.1.0) is placed unchanged in `src/engine/`. It is excluded from lint and formatting so its files stay byte-identical, and the type check option `noPropertyAccessFromIndexSignature` is turned off because the engine was written without it.
+- Contract comparison: `EngineRequest`, `EngineResponse`, `Plan`, `Slot`, `SlotDetail`, `IndicatorValue`, `Driver` and `ProvenanceEntry` match key for key. The engine's `ConfigFile` and `ManifestFile` are looser than the app's; the app bundle is passed through a type cast. The app bundle also carries `ndvi`, which the engine ignores. One app-side change: `AppError` gains the kind `engine_error` and an optional `code`.
+- Engine error codes map to plain messages in `src/lib/engine-run.ts`. Only a missing worker is handled by the main-thread fallback.
+- The engine runs in a worker; if the worker fails to start, the same code runs on the main thread. Slider changes recalculate after 300 ms.

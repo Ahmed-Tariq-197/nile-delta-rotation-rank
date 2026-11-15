@@ -79,7 +79,9 @@ function PlannerView({
   retryPoint,
   retryVegetation,
   openEvidence,
+  onResponse,
 }: {
+  onResponse: (response: EngineResponse | null) => void;
   bundle: ActualBundle | null;
   loadState: LoadState;
   retry: () => void;
@@ -164,32 +166,39 @@ function PlannerView({
       },
     };
     setResultsState("loading");
-    setResponse(null);
     setEngineMessage(null);
-    void runPlanner(request, bundle)
-      .then((result) => {
-        if (runCount.current !== nextRun) return;
-        setResponse(result);
-        setSelectedPlanId((current) =>
-          result.plans.some((plan) => plan.id === current)
-            ? current
-            : (result.top_ids[0] ?? result.plans[0]?.id ?? null),
-        );
-        setResultsState(result.plans.length ? "ready" : "empty");
-      })
-      .catch((reason: unknown) => {
-        if (runCount.current !== nextRun) return;
-        const detail =
-          reason !== null && typeof reason === "object" && "detail" in reason
-            ? String(reason.detail)
-            : "The calculation engine could not run.";
-        setEngineMessage(detail);
-        setResultsState("empty");
-      });
+    const timer = window.setTimeout(
+      () => {
+        void runPlanner(request, bundle)
+          .then((result) => {
+            if (runCount.current !== nextRun) return;
+            setResponse(result);
+            onResponse(result);
+            setSelectedPlanId((current) =>
+              result.plans.some((plan) => plan.id === current)
+                ? current
+                : (result.top_ids[0] ?? result.plans[0]?.id ?? null),
+            );
+            setResultsState(result.plans.length ? "ready" : "empty");
+          })
+          .catch((reason: unknown) => {
+            if (runCount.current !== nextRun) return;
+            const detail =
+              reason !== null && typeof reason === "object" && "detail" in reason
+                ? String(reason.detail)
+                : "The calculation could not run.";
+            setResponse(null);
+            setEngineMessage(detail);
+            setResultsState("empty");
+          });
+      },
+      runCount.current === 1 ? 0 : 300,
+    );
     return () => {
+      window.clearTimeout(timer);
       runCount.current += 1;
     };
-  }, [bundle, selectedPoint, weights, salinity, cap, enabledCrops, priorityTotal]);
+  }, [bundle, selectedPoint, weights, salinity, cap, enabledCrops, priorityTotal, onResponse]);
 
   const updateHash = useCallback(
     (planId: string | null) => {
@@ -510,9 +519,9 @@ function PlannerView({
           </aside>
 
           <div className="planner-results" aria-busy={resultsState === "loading"}>
-            {engineMessage && response ? (
+            {engineMessage ? (
               <InlineMessage
-                title="Engine results are unavailable"
+                title="No plans for these inputs"
                 detail={engineMessage}
                 variant="warning"
               />
@@ -521,11 +530,18 @@ function PlannerView({
               <h2 className="sr-only" id="plans-title">
                 Ranked plans
               </h2>
-              {resultsState === "loading" ? (
-                <p className="chart-wrap">Loading plans. Calculation results are not available.</p>
+              {resultsState === "loading" && !response ? (
+                <div className="plan-skeleton" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
               ) : null}
               {rankedPlans.length > 0 ? (
-                <>
+                <div
+                  className={`plan-stack${resultsState === "loading" ? " is-updating" : ""}`}
+                  key={response?.request.point_id}
+                >
                   {rankedPlans[0] ? (
                     <PlanCard
                       plan={rankedPlans[0]}
@@ -560,19 +576,14 @@ function PlannerView({
                       />
                     ))}
                   </div>
-                </>
-              ) : null}
-              {!response && resultsState !== "loading" ? (
-                <div className="empty-orbit">
-                  <span className="empty-orbit-ring" aria-hidden="true" />
-                  <div>
-                    <h3>Rankings are waiting for the engine</h3>
-                    <p className="muted">
-                      Climate and vegetation data are loaded. Ranked plans appear here once the
-                      calculation engine is added.
-                    </p>
-                  </div>
                 </div>
+              ) : null}
+              {response && response.plans.length === 0 && !engineMessage ? (
+                <InlineMessage
+                  title="No plans returned"
+                  detail="The calculation finished but no plan met these inputs."
+                  variant="warning"
+                />
               ) : null}
             </section>
 
@@ -753,6 +764,12 @@ function PlanCard({
               <strong>{showIndicatorLabel(key)}</strong>
               <span>
                 {formatNullable(value.value, key === "water_demand_mm_total" ? 0 : 2)} {value.unit}
+                <span className="muted">
+                  {" "}
+                  {value.uncertainty
+                    ? `(${formatNullable(value.uncertainty.low, key === "water_demand_mm_total" ? 0 : 2)} to ${formatNullable(value.uncertainty.high, key === "water_demand_mm_total" ? 0 : 2)})`
+                    : "(range not assessed)"}
+                </span>
               </span>
             </div>
             <div
@@ -1371,7 +1388,7 @@ export function RotaNileApp() {
   });
   const [drawer, setDrawer] = useState<EvidenceContext | null>(null);
   const [retryCount, setRetryCount] = useState(0);
-  const [response] = useState<EngineResponse | null>(null);
+  const [response, setResponse] = useState<EngineResponse | null>(null);
   const loaderRef = useRef<BundleLoader | null>(null);
 
   useEffect(() => {
@@ -1486,6 +1503,7 @@ export function RotaNileApp() {
           retryPoint={retryPoint}
           retryVegetation={retryVegetation}
           openEvidence={openEvidence}
+          onResponse={setResponse}
         />
       ) : null}
       {section === "/method" ? (

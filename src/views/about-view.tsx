@@ -50,7 +50,7 @@ export default function AboutView({
           {bundle?.manifest.data.end_date
             ? formatDate(bundle.manifest.data.end_date)
             : "date not loaded"}
-          . Engine {response?.engine_version ?? "not supplied"}.
+          . Engine {response?.engine_version ?? "1.1.0"}.
         </p>
         {bundle ? <p className="muted">{sourceSentence(bundle, retrievedAt)}</p> : null}
       </section>

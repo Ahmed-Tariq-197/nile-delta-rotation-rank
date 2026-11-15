@@ -341,7 +341,7 @@ export default function MethodView({
             ))}
           </ul>
         ) : (
-          <p>Engine limits appear once the calculation engine is added.</p>
+          <p>Engine limits appear after the first plan calculation on the Planner.</p>
         )}
         <h3 className="section-block">Limits of the data</h3>
         <ul>
@@ -379,7 +379,7 @@ export default function MethodView({
           <p>
             Bundle <code>{bundle.manifest.bundle_version.slice(0, 12)}</code>, retrieved{" "}
             {formatDateTime(bundle.manifest.built_at_utc)}. Engine{" "}
-            {response?.engine_version ?? "not supplied"}.
+            {response?.engine_version ?? "1.1.0"}.
           </p>
         ) : (
           <p>Data version details are unavailable.</p>

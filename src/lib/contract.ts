@@ -284,10 +284,16 @@ export interface BundleData {
   manifest: Manifest;
 }
 export type AppErrorKind =
-  "bundle_missing" | "bundle_invalid" | "network" | "engine_missing" | "calculation_timeout";
+  | "bundle_missing"
+  | "bundle_invalid"
+  | "network"
+  | "engine_missing"
+  | "engine_error"
+  | "calculation_timeout";
 export interface AppError {
   kind: AppErrorKind;
   file?: string;
   detail: string;
+  code?: string;
 }
 export type EngineErrorCode = "UNKNOWN_POINT" | "INVALID_REQUEST" | "NO_FEASIBLE_PLAN" | "DATA_GAP";

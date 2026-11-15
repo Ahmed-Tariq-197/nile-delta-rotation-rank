@@ -1682,6 +1682,147 @@ h1[tabindex="-1"]:focus {
     background: var(--surface);
   }
 }
+/* ---------- motion layer ---------- */
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+@keyframes glint-sweep {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(260%) skewX(-18deg);
+  }
+}
+.data-layout > *,
+.planner-layout {
+  animation: view-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.data-layout > *:nth-child(2) {
+  animation-delay: 70ms;
+}
+.data-layout > *:nth-child(3) {
+  animation-delay: 140ms;
+}
+.data-layout > *:nth-child(n + 4) {
+  animation-delay: 210ms;
+}
+.plan-stack {
+  display: grid;
+  gap: 1rem;
+  transition:
+    opacity 250ms ease,
+    filter 250ms ease;
+}
+.plan-stack.is-updating {
+  opacity: 0.55;
+  filter: saturate(0.6);
+}
+.plan-stack .plan-card {
+  animation: card-in 560ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.plan-stack .plan-pair .plan-card:nth-child(1) {
+  animation-delay: 90ms;
+}
+.plan-stack .plan-pair .plan-card:nth-child(2) {
+  animation-delay: 180ms;
+}
+.plan-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px -22px color-mix(in oklab, var(--signal) 55%, transparent);
+}
+.plan-card {
+  transition:
+    border-color 200ms ease,
+    box-shadow 260ms ease,
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.plan-card.lead::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--gold-bright) 18%, transparent),
+    transparent
+  );
+  animation: glint-sweep 1.6s 400ms ease-out both;
+}
+.indicator-tick {
+  transition:
+    left 600ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms ease;
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--signal) 18%, transparent);
+}
+.indicator-item:hover .indicator-tick {
+  box-shadow: 0 0 0 7px color-mix(in oklab, var(--signal) 25%, transparent);
+}
+.point-choice {
+  transition:
+    transform 220ms ease,
+    border-color 200ms ease,
+    box-shadow 220ms ease,
+    background-color 200ms ease;
+}
+.point-choice:hover {
+  transform: translateX(3px);
+}
+.plan-skeleton {
+  display: grid;
+  gap: 1rem;
+}
+.plan-skeleton span {
+  display: block;
+  height: 9rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--surface-alt),
+    color-mix(in oklab, var(--aurora) 14%, var(--surface)),
+    var(--surface-alt)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+.plan-skeleton span:first-child {
+  height: 15rem;
+}
+.content-section {
+  transition:
+    box-shadow 260ms ease,
+    transform 260ms ease;
+}
+.range-field {
+  accent-color: var(--gold);
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1696,5 +1837,9 @@ h1[tabindex="-1"]:focus {
   }
   .orbit-satellite {
     display: none;
+  }
+  .plan-card:hover,
+  .point-choice:hover {
+    transform: none;
   }
 }
