@@ -9,5 +9,6 @@
 - [x] Calculation engine (R3, version 1.1.0) wired in, with worker and main-thread fallback.
 - [x] Smoother, more dynamic pages: transitions, animated plan cards, loading shimmer.
 - [x] Suggest a next step after the latest remix.
-- [ ] CSV/JSON export of ranked plans.
+- [x] CSV/JSON export of ranked plans.
+- [x] Livelier pages: banner figures, scroll reveal, card glow, scroll progress, About and Global cards.
 - [ ] Firefox and Safari checks (not available in this workspace).
