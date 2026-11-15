@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/layout";
 import { DataTable, InlineMessage } from "@/components/ui/pieces";
 import { REGION_FILES, SCHEMA_ROWS } from "@/lib/app-content";
 import type { BundleError } from "@/lib/app-types";
@@ -12,20 +13,12 @@ export default function GlobalView({
 }) {
   return (
     <div className="data-layout">
-      <header className="page-heading">
-        <h1 id="view-heading">Other river basins</h1>
-        <p>
-          RotaNile is demonstrated for the Nile Delta only. It has not been validated in any other
-          basin, and no claim is made that the results would be usable there.
-        </p>
-      </header>
+      <PageHero title="Other river basins">
+        <p className="hero-lede">Shown for the Nile Delta only. Not validated anywhere else.</p>
+      </PageHero>
 
       <section className="content-section">
         <h2>What a region pack contains</h2>
-        <p>
-          A region pack is the set of inputs that describe one region: points, climate and
-          vegetation snapshots, crop configuration and the source register.
-        </p>
         <div className="tree-block" aria-label="Region pack files">
           {REGION_FILES.map((path) => (
             <div className="tree-line" key={path}>
@@ -65,19 +58,16 @@ export default function GlobalView({
       <section className="content-section">
         <h2>What to expect</h2>
         <ul>
-          <li>
-            A new region will usually have more provisional or unresolved parameters than the Nile
-            Delta pack.
-          </li>
-          <li>Every provisional or unresolved parameter needs a recorded assumption.</li>
-          <li>Each coordinate must be checked on imagery before release.</li>
+          <li>More provisional or unresolved parameters than the Nile Delta pack.</li>
+          <li>A recorded assumption for each of them.</li>
+          <li>Every coordinate checked on imagery before release.</li>
         </ul>
       </section>
 
       {error ? (
-        <InlineMessage title="Data bundle not available" detail={error.detail} variant="error">
-          <button className="action-button" onClick={retry}>
-            Retry loading
+        <InlineMessage title="Data not available yet" detail={error.detail} variant="error">
+          <button className="action-button quiet" onClick={retry}>
+            Retry now
           </button>
         </InlineMessage>
       ) : null}
