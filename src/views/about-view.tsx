@@ -1,5 +1,5 @@
 import type { EngineResponse } from "@/lib/contract";
-import { sourceSentence } from "@/components/data-status";
+import { sourceSentence } from "@/lib/data/snapshot-export";
 import { formatDate } from "@/lib/format";
 import type { ActualBundle } from "@/lib/app-types";
 

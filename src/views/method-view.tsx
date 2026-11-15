@@ -1,21 +1,11 @@
 import { useState } from "react";
 
 import { Button, DataTable, GradeChip, InlineMessage, LabelChip } from "@/components/ui/pieces";
-import { DataSourceLine, exportSnapshot } from "@/components/data-status";
-import { POWER_VARIABLE_LABELS } from "@/lib/app-content";
+import { DataSourceLine } from "@/components/data-status";
+import { DATA_LIMITS, POWER_VARIABLE_LABELS } from "@/lib/app-content";
+import { exportSnapshot } from "@/lib/data/snapshot-export";
 import type { ActualBundle, ViewProps } from "@/lib/app-types";
 import { formatDate, formatDateTime, formatNullable } from "@/lib/format";
-
-export const DATA_LIMITS = [
-  "Climate values are NASA POWER grid-cell model output (meteorology: MERRA-2, with GEOS FP-IT for the most recent period; solar: CERES SYN1deg, with FLASHFlux for the most recent period). They describe a cell, not a field.",
-  "The source of each POWER series changes inside the period, from the long-term product to the near-real-time product. Consistency across that change was not assessed.",
-  "The data are the latest available at retrieval, not real-time. The request ends 10 days before the run date because the solar series lags by about a week; the most recent solar days can still be missing.",
-  "Cell groups are inferred from identical returned values and assume NASA POWER does not interpolate between cells. Points in the same cell do not have independent climate series.",
-  "A 250 m MODIS NDVI pixel can mix fields, canals, roads and villages. Composite dates are the start of each 16-day window, not acquisition dates. NDVI is context only and never enters the scores.",
-  "Point coordinates are proposed. None was checked on imagery or a map.",
-  "Elevation is the value NASA POWER returns for its cell, not a surveyed value.",
-  "Real-world validation was not performed, and no outside review took place.",
-];
 
 function variableRows(bundle: ActualBundle) {
   const requests = bundle.manifest.data.power.requests ?? {};

@@ -682,8 +682,8 @@ function PlannerView({
               ) : (
                 <div className="chart-wrap">
                   <p>
-                    No vegetation record was supplied for {selectedArea}. Data values and dates are
-                    not shown without the original bundle.
+                    No MODIS vegetation record is available for {selectedArea} yet. The planner
+                    works without it; NDVI is context only.
                   </p>
                 </div>
               )}
@@ -1320,12 +1320,15 @@ export function RotaNileApp() {
   }, []);
 
   const bundle: ActualBundle | null = loadState.phase === "ready" ? loadState.bundle : null;
-  const bundleError: BundleError | null =
-    loadState.phase === "config_missing"
-      ? { kind: "bundle_missing", file: loadState.file, detail: loadState.detail }
-      : loadState.phase === "failed"
-        ? { kind: "network", detail: `${loadState.error.service}: ${loadState.error.message}` }
-        : null;
+  const bundleError = useMemo<BundleError | null>(
+    () =>
+      loadState.phase === "config_missing"
+        ? { kind: "bundle_missing", file: loadState.file, detail: loadState.detail }
+        : loadState.phase === "failed"
+          ? { kind: "network", detail: `${loadState.error.service}: ${loadState.error.message}` }
+          : null,
+    [loadState],
+  );
   const retry = useCallback(() => setRetryCount((count) => count + 1), []);
   const retryPoint = useCallback((id: string) => void loaderRef.current?.retryPoint(id), []);
   const retryVegetation = useCallback(
