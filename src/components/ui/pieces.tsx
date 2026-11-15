@@ -87,6 +87,7 @@ export function Field({
   error,
   unit,
   optional,
+  inputId,
   children,
 }: {
   label: string;
@@ -94,20 +95,20 @@ export function Field({
   error?: string;
   unit?: string;
   optional?: boolean;
+  inputId: string;
   children: ReactNode;
 }) {
-  const id = useId();
   return (
     <div className="field-block">
-      <label className="field-label" htmlFor={id}>
+      <label className="field-label" htmlFor={inputId}>
         {label}{optional ? " (optional)" : ""}
       </label>
       <div className="number-row">
-        {children && typeof children === "object" ? children : null}
+        {children}
         {unit ? <span className="muted">{unit}</span> : null}
       </div>
       {hint ? <span className="field-hint">{hint}</span> : null}
-      <span className="control-error" id={`${id}-error`} role={error ? "alert" : undefined}>
+      <span className="control-error" id={`${inputId}-error`} role={error ? "alert" : undefined}>
         {error ?? ""}
       </span>
     </div>
