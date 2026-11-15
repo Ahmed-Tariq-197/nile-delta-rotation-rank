@@ -4,7 +4,9 @@ const REVEAL_SELECTOR =
   ".content-section, .plan-card, .chart-wrap, .limits-strip, .feature-card, .stat-tile, .tree-line, .card-grid > *";
 
 function prefersReducedMotion() {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return (
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 }
 
 /** Page-wide motion: scroll reveal, pointer glow on cards, compact header after scrolling. */

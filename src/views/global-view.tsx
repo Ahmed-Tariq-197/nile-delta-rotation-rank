@@ -1,7 +1,39 @@
 import { PageHero } from "@/components/layout";
+import { HeroStats } from "@/components/motion";
 import { DataTable, InlineMessage } from "@/components/ui/pieces";
 import { REGION_FILES, SCHEMA_ROWS } from "@/lib/app-content";
 import type { BundleError } from "@/lib/app-types";
+
+const GROUPS = [
+  {
+    title: "Replace with data",
+    tone: "go",
+    items: [
+      "Points, climate and vegetation snapshots.",
+      "Crop parameters, ranges, units, sources and grades.",
+      "Seasons, rotation rules, assumptions and sources.",
+    ],
+  },
+  {
+    title: "Needs an engine change",
+    tone: "hold",
+    items: [
+      "The five-crop list.",
+      "The winter and summer seasons.",
+      "The climate variables and units.",
+      "The three-year, six-season horizon.",
+    ],
+  },
+  {
+    title: "What to expect",
+    tone: "info",
+    items: [
+      "More provisional or unresolved parameters.",
+      "A recorded assumption for each one.",
+      "Every coordinate checked on imagery first.",
+    ],
+  },
+];
 
 export default function GlobalView({
   error,
@@ -15,6 +47,13 @@ export default function GlobalView({
     <div className="data-layout">
       <PageHero title="Other river basins">
         <p className="hero-lede">Shown for the Nile Delta only. Not validated anywhere else.</p>
+        <HeroStats
+          items={[
+            { label: "Region pack files", value: REGION_FILES.length },
+            { label: "Schemas", value: SCHEMA_ROWS.length },
+            { label: "Validated basins", value: 0 },
+          ]}
+        />
       </PageHero>
 
       <section className="content-section">
@@ -37,31 +76,19 @@ export default function GlobalView({
       </section>
 
       <section className="content-section">
-        <h2>What can be replaced</h2>
-        <ul>
-          <li>The points, climate snapshots and vegetation snapshots.</li>
-          <li>Parameters, ranges, units, sources and evidence grades for the five crops.</li>
-          <li>Season month lists, rotation rules, assumptions and the source register.</li>
-        </ul>
-      </section>
-
-      <section className="content-section">
-        <h2>What needs an engine change</h2>
-        <ul>
-          <li>The crop list: wheat, berseem, cotton, maize and rice.</li>
-          <li>The winter and summer seasons.</li>
-          <li>The climate-variable set and units.</li>
-          <li>The three-year, six-season horizon.</li>
-        </ul>
-      </section>
-
-      <section className="content-section">
-        <h2>What to expect</h2>
-        <ul>
-          <li>More provisional or unresolved parameters than the Nile Delta pack.</li>
-          <li>A recorded assumption for each of them.</li>
-          <li>Every coordinate checked on imagery before release.</li>
-        </ul>
+        <h2>Adapting to another basin</h2>
+        <div className="card-grid">
+          {GROUPS.map((group) => (
+            <article className={`feature-card tone-${group.tone}`} key={group.title}>
+              <h3>{group.title}</h3>
+              <ul>
+                {group.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
       </section>
 
       {error ? (
