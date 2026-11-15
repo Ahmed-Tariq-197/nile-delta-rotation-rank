@@ -6,11 +6,11 @@ export const NAVIGATION_ITEMS = [
 ] as const;
 
 export const PROPOSED_POINTS = [
-  { id: "p1", area: "Kafr El-Sheikh" },
-  { id: "p2", area: "Dakahlia" },
-  { id: "p3", area: "Gharbia" },
-  { id: "p4", area: "Beheira" },
-  { id: "p5", area: "Sharqia" },
+  { id: "p1", area: "Kafr El-Sheikh", locationNote: "Published field-experiment coordinate; source description is incomplete." },
+  { id: "p2", area: "Dakahlia", locationNote: "Proposed location, not checked on imagery." },
+  { id: "p3", area: "Gharbia", locationNote: "Proposed location, not checked on imagery." },
+  { id: "p4", area: "Beheira", locationNote: "Proposed location, not checked on imagery." },
+  { id: "p5", area: "Sharqia", locationNote: "Proposed location, not checked on imagery." },
 ] as const;
 
 export const CROP_LIST = [

@@ -1,11 +1,11 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import "@fontsource/jost/300.css";
-@import "@fontsource/jost/500.css";
-@import "@fontsource/ibm-plex-sans/400.css";
-@import "@fontsource/ibm-plex-sans/500.css";
-@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/jost/latin-300.css";
+@import "@fontsource/jost/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
 
 :root {
   color-scheme: dark;
@@ -153,6 +153,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: var(--ink);
 }
 .brand-link { display: inline-flex; align-items: center; gap: 0.8rem; color: var(--ivory); text-decoration: none; flex: 0 0 auto; }
+.brand-logo { width: 52px; height: 52px; object-fit: contain; }
 .orbit-mark { width: 40px; height: 40px; overflow: visible; }
 .orbit-mark ellipse { stroke-dasharray: 88; animation: orbit-reveal 450ms ease-out both; }
 .brand-word { font: 500 1.5rem/1.1 "Jost", sans-serif; }
@@ -199,6 +200,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .action-button:hover { background: var(--raised); }
 .action-button.primary { border-color: var(--gold); background: var(--gold); color: var(--ink); font-weight: 600; }
 .action-button.quiet { border-color: transparent; color: var(--gold); }
+.retry-button { margin-top: 0.65rem; }
 .inline-message { margin: 0.75rem 0; padding: 0.75rem 0.9rem; border: 1px solid var(--rim-strong); border-left: 3px solid var(--gold); background: var(--navy); }
 .inline-message.error { border-color: var(--error); border-left-color: var(--error); }
 .inline-message.warning { border-left-color: var(--assumed); }
@@ -289,6 +291,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .ndvi-chart { width: 100%; min-height: 260px; }
 .chart-tooltip { padding: 0.7rem; border: 1px solid var(--rim-strong); border-radius: 8px; background: var(--raised); color: var(--ivory); }
 .crop-legend { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+.crop-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
 .orbit-line { fill: none; stroke: var(--gold); stroke-width: 1.2; }
 .table-mode { margin-top: 0.7rem; }
 .small-only { display: none; }
