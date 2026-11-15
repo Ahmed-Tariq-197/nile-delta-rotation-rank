@@ -15,6 +15,8 @@ import { CROP_LIST, NAVIGATION_ITEMS } from "@/lib/app-content";
 import { directServices } from "@/lib/data/services";
 import { createBundleLoader, type BundleLoader, type LoadState } from "@/lib/data/loader";
 import { runPlanner } from "@/lib/planner";
+import { HeroStats } from "@/components/motion";
+import { downloadText, plansToCsv } from "@/lib/plan-export";
 import { encodePlannerHash, ndviNote, normalizeWeights, parsePlannerHash } from "@/lib/derive";
 import { formatDate, formatNullable, scoreFormatter } from "@/lib/format";
 import type {
@@ -288,6 +290,21 @@ function PlannerView({
         ) : (
           <p className="hero-lede">Five proposed points in the Nile Delta, seen from orbit.</p>
         )}
+        <HeroStats
+          items={[
+            { label: "Delta points", value: usablePoints.length },
+            { label: "Plans ranked", value: response?.plans.length ?? 0 },
+            {
+              label: "Top score",
+              value: response?.plans[0]?.score ?? 0,
+              decimals: 2,
+            },
+            {
+              label: "Trade-off front",
+              value: response?.pareto_front_ids.length ?? 0,
+            },
+          ]}
+        />
         {resultsState === "loading" ? (
           <p className="sr-only" role="status">
             Loading plans.
@@ -604,6 +621,31 @@ function PlannerView({
                         onClick={() => setChartMode("table")}
                       >
                         Show as table
+                      </Button>
+                      <span className="control-spacer" aria-hidden="true" />
+                      <Button
+                        variant="quiet"
+                        onClick={() =>
+                          downloadText(
+                            `rotanile-plans-${response.request.point_id}.csv`,
+                            plansToCsv(response),
+                            "text/csv",
+                          )
+                        }
+                      >
+                        Download CSV
+                      </Button>
+                      <Button
+                        variant="quiet"
+                        onClick={() =>
+                          downloadText(
+                            `rotanile-plans-${response.request.point_id}.json`,
+                            JSON.stringify(response, null, 2),
+                            "application/json",
+                          )
+                        }
+                      >
+                        Download JSON
                       </Button>
                     </div>
                     {chartMode === "table" ? (

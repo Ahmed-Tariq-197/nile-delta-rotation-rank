@@ -18,3 +18,7 @@
 - Contract comparison: `EngineRequest`, `EngineResponse`, `Plan`, `Slot`, `SlotDetail`, `IndicatorValue`, `Driver` and `ProvenanceEntry` match key for key. The engine's `ConfigFile` and `ManifestFile` are looser than the app's; the app bundle is passed through a type cast. The app bundle also carries `ndvi`, which the engine ignores. One app-side change: `AppError` gains the kind `engine_error` and an optional `code`.
 - Engine error codes map to plain messages in `src/lib/engine-run.ts`. Only a missing worker is handled by the main-thread fallback.
 - The engine runs in a worker; if the worker fails to start, the same code runs on the main thread. Slider changes recalculate after 300 ms.
+
+## 14. Page motion
+- Sections fade up as they scroll into view, cards follow the pointer with a soft glow, and a gold bar under the header shows scroll progress. All of it is off when the system asks for reduced motion, and content stays visible if scripts do not run.
+- Ranked plans download as CSV (one row per plan, engine values as returned) or as the full engine response in JSON.
