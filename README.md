@@ -1,6 +1,7 @@
 # RotaNile
 
 RotaNile is crop-rotation planning support for the Nile Delta, produced by Nile Orbit Lab. It is planning support, not a forecast.
+https://nile-delta-rotation-rank.ahmed-alsaiid-2024.workers.dev/
 
 ## What it does
 
